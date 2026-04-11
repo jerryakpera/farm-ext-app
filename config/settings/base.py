@@ -229,3 +229,24 @@ MAILTRAP_USE_SANDBOX = config(
     cast=bool,
     default=False,
 )
+
+
+# ─── Security ─────────────────────────────────────────────────────────────────
+
+# Clickjacking protection — refuse to be embedded in any iframe.
+X_FRAME_OPTIONS = "DENY"
+
+# CSRF cookie inaccessible to JavaScript.
+CSRF_COOKIE_HTTPONLY = True
+
+# Session cookie inaccessible to JavaScript.
+SESSION_COOKIE_HTTPONLY = True
+
+# Browser will not sniff content-type away from declared type.
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Basic XSS filter hint for older browsers (belt-and-suspenders).
+SECURE_BROWSER_XSS_FILTER = True
+
+# Referrer header — send only the origin, never the full URL.
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"

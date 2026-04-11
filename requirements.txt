@@ -59,6 +59,8 @@ django-celery-results==2.6.0
     # via -r requirements.in
 django-cors-headers==4.9.0
     # via -r requirements.in
+django-ratelimit==4.1.0
+    # via -r requirements.in
 django-timezone-field==7.2.1
     # via django-celery-beat
 django-use-email-as-username==1.4.0
