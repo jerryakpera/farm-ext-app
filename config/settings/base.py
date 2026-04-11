@@ -52,6 +52,8 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     "core.common",
+    "django_celery_beat",
+    "django_celery_results",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -207,3 +209,21 @@ CORS_ALLOW_METHODS = [
     "POST",
     "PUT",
 ]
+
+# Celery config
+CELERY_BROKER_URL = config(
+    "CELERY_BROKER_URL",
+    default="redis://localhost:6379/0",
+)
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_RESULT_EXTENDED = True
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+
+# Mailtrap config
+MAILTRAP_API_KEY = config("MAILTRAP_API_KEY")
+MAILTRAP_INBOX_ID = config("MAILTRAP_INBOX_ID")
+MAILTRAP_USE_SANDBOX = config(
+    "MAILTRAP_USE_SANDBOX",
+    cast=bool,
+    default=False,
+)
