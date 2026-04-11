@@ -1,5 +1,5 @@
 """
-ASGI config for kns project.
+ASGI config for ps119 project.
 """
 
 # python_packages
