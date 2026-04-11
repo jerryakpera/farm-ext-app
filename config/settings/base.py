@@ -5,6 +5,7 @@ Django settings for ps119 project.
 # python_packages
 import sys
 
+from datetime import timedelta
 from pathlib import Path
 
 # third_party_packages
@@ -41,9 +42,16 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     "django_use_email_as_username.apps.DjangoUseEmailAsUsernameConfig",
     "core.custom_user.apps.CustomUserConfig",
+    "rest_framework",
+    "rest_framework_simplejwt",
+    # needed for BLACKLIST_AFTER_ROTATION
+    "rest_framework_simplejwt.token_blacklist",
+    "drf_spectacular",
 ]
 
-LOCAL_APPS = []
+LOCAL_APPS = [
+    "core.common",
+]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -123,3 +131,55 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
+
+# djangrestframework
+REST_FRAMEWORK = {
+    # Authentication
+    # Primary: JWT via simplejwt. Session auth retained for the browsable API in dev.
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "rest_framework.authentication.SessionAuthentication",  # browsable API only
+    ],
+    # Permissions
+    # All endpoints require authentication by default.
+    # Override per view with permission_classes = [...] as needed.
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+    # Renderers
+    # BrowsableAPI is included here; strip it out in production.py.
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+        "rest_framework.renderers.BrowsableAPIRenderer",
+    ],
+    # Pagination
+    "DEFAULT_PAGINATION_CLASS": "core.common.pagination.StandardResultsPagination",
+    "PAGE_SIZE": 50,
+    # Schema
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+
+# ─── SimpleJWT ────────────────────────────────────────────────────────────────
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": True,
+    "ALGORITHM": "HS256",
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    "TOKEN_TYPE_CLAIM": "token_type",
+}
+
+
+# ─── drf-spectacular ─────────────────────────────────────────────────────────
+SPECTACULAR_SETTINGS = {
+    "TITLE": "HiddenWord API",
+    "DESCRIPTION": "Bible verse memorisation API",
+    "VERSION": "0.1.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "COMPONENT_SPLIT_REQUEST": True,
+}

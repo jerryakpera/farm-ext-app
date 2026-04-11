@@ -7,6 +7,7 @@ from decouple import config
 
 # app_packages
 from .base import *
+from .base import REST_FRAMEWORK
 
 
 API_URL = config("API_BASE_URL")
@@ -20,3 +21,8 @@ DATABASES = {
         "HOST": "localhost",
     }
 }
+
+
+REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = [
+    "rest_framework.renderers.JSONRenderer",
+]
