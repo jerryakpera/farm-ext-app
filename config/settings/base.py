@@ -48,12 +48,13 @@ THIRD_PARTY_APPS = [
     # needed for BLACKLIST_AFTER_ROTATION
     "rest_framework_simplejwt.token_blacklist",
     "drf_spectacular",
+    "django_celery_beat",
+    "django_celery_results",
 ]
 
 LOCAL_APPS = [
     "core.common",
-    "django_celery_beat",
-    "django_celery_results",
+    "core.verses",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -250,3 +251,6 @@ SECURE_BROWSER_XSS_FILTER = True
 
 # Referrer header — send only the origin, never the full URL.
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+
+# settings.py
+BIBLE_API_BASE_URL = config("BIBLE_API_BASE_URL")
