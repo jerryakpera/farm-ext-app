@@ -177,7 +177,7 @@ SIMPLE_JWT = {
 
 # ─── drf-spectacular ─────────────────────────────────────────────────────────
 SPECTACULAR_SETTINGS = {
-    "TITLE": "HiddenWord API",
+    "TITLE": "PS119 API",
     "DESCRIPTION": "Bible verse memorisation API",
     "VERSION": "0.1.0",
     "SERVE_INCLUDE_SCHEMA": False,
