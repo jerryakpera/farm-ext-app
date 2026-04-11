@@ -1,0 +1,112 @@
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ps119"
+version = "0.1.0"
+description = "memory verse learning app"
+readme = "README.md"
+requires-python = ">=3.12"
+private = true
+dependencies = [
+  "Django>=5.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["core*"]
+exclude = ["*.tests", "*.tests.*"]
+
+[tool.bandit]
+exclude_dirs = ["*/test/*", "*/tests/*"]
+tests = ["B201", "B301"]
+skips = ["B101", "B601"]
+
+[tool.coverage.report]
+fail_under = 85
+omit = ["*/migrations/*"]
+show_missing = true
+skip_covered = true
+
+[tool.isort]
+profile = "black"
+line_length = 88
+src_paths = ["core", "config"]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+combine_as_imports = true
+lines_after_imports = 2
+lines_between_types = 1
+known_first_party = ["core"]
+known_third_party = []  # e.g. ["rest_framework", "drf_yasg"]
+known_django = ["django"]
+sections = ["FUTURE", "STDLIB", "DJANGO", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+import_heading_stdlib = "python_packages"
+import_heading_django = "django_packages"
+import_heading_thirdparty = "third_party_packages"
+import_heading_firstparty = "other_apps_packages"
+import_heading_localfolder = "app_packages"
+
+
+[tool.black]
+line-length = 88
+target-version = ["py312"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    migrations
+  | venv
+  | \.venv
+  | \.git
+  | \.mypy_cache
+  | \.pytest_cache
+)/
+'''
+
+[tool.flake8]
+ignore = []
+select = [
+  "E",   # pycodestyle errors and warnings
+  "W",
+  "F",   # Pyflakes issues
+  "UP",  # Outdated Python syntax
+  "S",   # Security checks
+  "B",   # Bugbear checks
+  "SIM", # Simplify checks
+  "I",   # isort checks
+]
+src_paths = ["core", "config"]
+
+[tool.numpydoc_validation]
+checks = [
+  "all",
+  "ES01",
+  "EX01",
+  "SA01",
+  "SS06",
+]
+exclude = [
+  "__init__$",
+  "apps$",
+  "urls$",
+  ".Meta$",
+  ".clean$",
+  "\\.__repr__$",
+  "\\.__str__$",
+]
+override_SS05 = [
+  "^Process ",
+  "^Assess ",
+  "^Access ",
+]
+
+[tool.pytest.ini_options]
+# pytest config inline with pyproject
+minversion = "7.0"
+addopts = "--strict-markers --disable-warnings -q"
+testpaths = [
+  "tests",
+]
+python_files = ["test_*.py", "*_test.py"]

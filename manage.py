@@ -4,6 +4,7 @@
 Django's command-line utility for administrative tasks.
 """
 
+# python_packages
 import os
 import sys
 
@@ -28,6 +29,7 @@ def main():
         )
 
     try:
+        # django_packages
         from django.core.management import execute_from_command_line
     except ImportError as exc:
         raise ImportError(

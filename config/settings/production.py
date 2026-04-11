@@ -2,10 +2,12 @@
 Docstring for config.settings.production.
 """
 
+# third_party_packages
 from decouple import config
 
 # app_packages
 from .base import *
+
 
 API_URL = config("API_BASE_URL")
 
