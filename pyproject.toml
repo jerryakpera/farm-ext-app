@@ -103,10 +103,22 @@ override_SS05 = [
 ]
 
 [tool.pytest.ini_options]
-# pytest config inline with pyproject
 minversion = "7.0"
-addopts = "--strict-markers --disable-warnings -q"
-testpaths = [
-  "tests",
-]
+DJANGO_SETTINGS_MODULE = "config.settings.testing"  # ← dedicated test settings
+addopts = """
+  --strict-markers
+  --disable-warnings
+  -q
+  --cov=core
+  --cov-report=html:htmlcov
+  --cov-report=term-missing
+  --cov-fail-under=85
+"""
+testpaths = ["tests"]
 python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+  "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+  "integration: marks tests as integration tests",
+]

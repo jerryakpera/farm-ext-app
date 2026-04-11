@@ -1,0 +1,19 @@
+[run]
+omit=
+  conftest.py
+  remove_migrations.py
+  manage.py
+  */__init__.py
+  */admin.py
+  */emails.py
+  */constants.py
+  */urls.py
+  */apps.py
+  */tests/*
+  */migrations/*
+  */commands/*
+  */asgi.py
+  */wsgi.py
+  */settings/*
+  */tasks.py
+  */utils/*

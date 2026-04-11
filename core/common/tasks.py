@@ -1,5 +1,5 @@
 """
-Shared Celery tasks for HiddenWord.
+Shared Celery tasks for PS11d.
 """
 
 # django_packages
@@ -60,7 +60,7 @@ def send_email(
     mail = mt.Mail(
         sender=mt.Address(
             email=settings.DEFAULT_FROM_EMAIL,
-            name="HiddenWord",
+            name="PS119",
         ),
         to=[mt.Address(email=recipient)],
         subject=subject,
