@@ -5,7 +5,9 @@
 #    pip-compile requirements.in
 #
 asgiref==3.11.1
-    # via django
+    # via
+    #   django
+    #   django-cors-headers
 attrs==26.1.0
     # via
     #   jsonschema
@@ -13,10 +15,13 @@ attrs==26.1.0
 django==6.0.4
     # via
     #   -r requirements.in
+    #   django-cors-headers
     #   django-use-email-as-username
     #   djangorestframework
     #   djangorestframework-simplejwt
     #   drf-spectacular
+django-cors-headers==4.9.0
+    # via -r requirements.in
 django-use-email-as-username==1.4.0
     # via -r requirements.in
 djangorestframework==3.17.1
