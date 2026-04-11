@@ -38,7 +38,10 @@ DJANGO_APPS = [
     "django.contrib.staticfiles",
 ]
 
-THIRD_PARTY_APPS = []
+THIRD_PARTY_APPS = [
+    "django_use_email_as_username.apps.DjangoUseEmailAsUsernameConfig",
+    "core.custom_user.apps.CustomUserConfig",
+]
 
 LOCAL_APPS = []
 
@@ -87,7 +90,7 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
-
+AUTH_USER_MODEL = "custom_user.User"
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
