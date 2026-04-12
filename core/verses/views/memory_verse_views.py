@@ -3,7 +3,8 @@ Views for the verses app.
 """
 
 # third_party_packages
-from rest_framework import status, viewsets
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, status, viewsets
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
@@ -13,6 +14,7 @@ from core.verses.bible_api.exceptions import (
     BibleApiVerseNotFoundError,
 )
 from core.verses.exceptions import VerseValidationError
+from core.verses.filters import MemoryVerseFilterSet
 from core.verses.models import MemoryVerse
 from core.verses.serializers import (
     MemoryVerseAdminSerializer,
@@ -33,6 +35,10 @@ class MemoryVerseViewSet(viewsets.ModelViewSet):
     )
 
     http_method_names = ["get", "post", "patch", "delete", "head", "options"]
+
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_class = MemoryVerseFilterSet
+    search_fields = ["verse_start__text", "verse_start__book"]
 
     def get_serializer_class(self):
         """
