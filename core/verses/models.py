@@ -121,6 +121,13 @@ class MemoryVerse(models.Model):
         help_text="The user who first added this selection to the database.",
     )
 
+    topics = models.ManyToManyField(
+        Topic,
+        blank=True,
+        related_name="memory_verses",
+        help_text="Optional topic classifications for this verse selection.",
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

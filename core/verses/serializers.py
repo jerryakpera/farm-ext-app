@@ -1,5 +1,5 @@
 """
-Serializer for the `SingleVerse` model.
+Serializers for the `verses` app.
 """
 
 # third_party_packages
@@ -10,7 +10,7 @@ from rest_framework.exceptions import ValidationError as DRFValidationError
 from core.verses import validations
 from core.verses.choices import BibleBookChoices, BibleVersionChoices
 from core.verses.exceptions import VerseValidationError
-from core.verses.models import MemoryVerse, SingleVerse
+from core.verses.models import MemoryVerse, SingleVerse, Topic
 from core.verses.services import get_or_create_memory_verse
 
 
@@ -25,6 +25,17 @@ class SingleVerseSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+class TopicSerializer(serializers.ModelSerializer):
+    """
+    Read-only representation of a Topic.
+    """
+
+    class Meta:
+        model = Topic
+        fields = ["id", "name"]
+        read_only_fields = fields
+
+
 class MemoryVerseSerializer(serializers.ModelSerializer):
     """
     Read-only serializer for MemoryVerse responses.
@@ -33,10 +44,8 @@ class MemoryVerseSerializer(serializers.ModelSerializer):
     reference = serializers.CharField(read_only=True)
     display_text = serializers.CharField(read_only=True)
 
-    version = serializers.CharField(
-        source="verse_start.version",
-        read_only=True,
-    )
+    version = serializers.SerializerMethodField()
+
     book = serializers.CharField(
         source="verse_start.book",
         read_only=True,
@@ -45,7 +54,6 @@ class MemoryVerseSerializer(serializers.ModelSerializer):
         source="verse_start.chapter",
         read_only=True,
     )
-
     verse_start_num = serializers.IntegerField(
         source="verse_start.verse",
         read_only=True,
@@ -54,6 +62,10 @@ class MemoryVerseSerializer(serializers.ModelSerializer):
         source="verse_end.verse",
         read_only=True,
     )
+
+    # ── Change 2: topics is now a list of topic objects ──────────────────────
+
+    topics = TopicSerializer(many=True, read_only=True)
 
     class Meta:
         model = MemoryVerse
@@ -66,10 +78,43 @@ class MemoryVerseSerializer(serializers.ModelSerializer):
             "chapter",
             "verse_start_num",
             "verse_end_num",
+            "topics",
             "created_by",
             "created_at",
         ]
         read_only_fields = fields
+
+    def get_version(self, obj: MemoryVerse) -> dict:
+        """
+        Return a structured object for the Bible version.
+
+        Parameters
+        ----------
+        obj : MemoryVerse
+            The instance being serialized.
+
+        Returns
+        -------
+        dict
+            Example::
+
+                {
+                    "value": "ENGWEBP",
+                    "label": "World English Bible"
+                }
+        """
+
+        raw_value = obj.verse_start.version
+
+        try:
+            label = BibleVersionChoices(raw_value).label
+        except ValueError:
+            label = raw_value
+
+        return {
+            "label": label,
+            "value": raw_value,
+        }
 
 
 class MemoryVerseCreateSerializer(serializers.Serializer):
@@ -85,13 +130,14 @@ class MemoryVerseCreateSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         """
-        Validate incoming MemoryVerse creation payload against all business rules.
+        Validate incoming MemoryVerse creation payload against all business
+        rules.
 
         Parameters
         ----------
         attrs : dict
-            Incoming validated input data containing book, chapter, verse_start,
-            verse_end (optional), and version.
+            Incoming validated input data containing book, chapter,
+            verse_start, verse_end (optional), and version.
 
         Returns
         -------
@@ -120,7 +166,8 @@ class MemoryVerseCreateSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         """
-        Create or retrieve a MemoryVerse instance based on validated input data.
+        Create or retrieve a MemoryVerse instance based on validated input
+        data.
 
         Parameters
         ----------
@@ -164,8 +211,11 @@ class MemoryVerseCreateSerializer(serializers.Serializer):
 class MemoryVerseAdminSerializer(serializers.ModelSerializer):
     """
     Admin serializer for controlled updates of MemoryVerse.
+
+    Only ``topics`` is writable. All other fields are read-only.
+    Topics are accepted as a list of Topic primary keys.
     """
 
     class Meta:
         model = MemoryVerse
-        fields = []
+        fields = ["topics"]
