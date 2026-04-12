@@ -97,13 +97,13 @@ class MemoryVerse(models.Model):
 
     verse_start = models.ForeignKey(
         SingleVerse,
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         related_name="memory_verses_as_start",
         help_text="The first (or only) verse of this selection.",
     )
     verse_end = models.ForeignKey(
         SingleVerse,
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         related_name="memory_verses_as_end",
         null=True,
         blank=True,

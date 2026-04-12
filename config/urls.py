@@ -4,7 +4,7 @@ URL configuration for ps119 project.
 
 # django_packages
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
 
 # third_party_packages
 from drf_spectacular.views import (
@@ -29,4 +29,8 @@ urlpatterns = [
         name="swagger-ui",
     ),
     path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
+    path(
+        "api/",
+        include("core.verses.urls"),
+    ),
 ]

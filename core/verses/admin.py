@@ -5,5 +5,9 @@ Django admin configuration for the `verses` app.
 # django_packages
 from django.contrib import admin
 
+# app_packages
+from .models import MemoryVerse, SingleVerse
 
-# Register your models here.
+
+admin.site.register(SingleVerse)
+admin.site.register(MemoryVerse)

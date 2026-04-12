@@ -11,12 +11,12 @@ import requests
 from decouple import config
 
 # other_apps_packages
-# local
 from core.verses.bible_api.exceptions import (
     BibleApiUnavailableError,
     BibleApiUnexpectedResponseError,
     BibleApiVerseNotFoundError,
 )
+from core.verses.choices import BibleVersionChoices
 
 
 logger = logging.getLogger(__name__)
@@ -171,7 +171,7 @@ def _extract_verses(
     book : str
         Used only for error messages.
     chapter : int
-        Used only for error messages.
+        Used for validation against the response and error messages.
     verse_start : int
         First verse number to retrieve.
     verse_end : int | None
@@ -180,14 +180,15 @@ def _extract_verses(
     Returns
     -------
     list[dict]
-        Ordered list of verse objects from the API response.
+        Ordered list of verse dicts for the requested range, each with at
+        least a ``"text"`` key.
     """
 
-    # ── Validate payload shape ──────────────────────────────────────────────
+    # ── Bug 1 fix: validate payload shape BEFORE accessing nested keys ─────
 
-    if not isinstance(payload, dict) or "verses" not in payload:
+    if not isinstance(payload, dict) or "chapter" not in payload:
         logger.error(
-            "Bible API payload missing 'verses' key | translation=%s book=%s chapter=%s",
+            "Bible API payload missing 'chapter' key | translation=%s book=%s chapter=%s",
             translation,
             book,
             chapter,
@@ -197,31 +198,44 @@ def _extract_verses(
             "Please try again later."
         )
 
-    raw_verses: list = payload["verses"]
+    payload_chapter = payload["chapter"]
 
-    if not isinstance(raw_verses, list):
+    if not isinstance(payload_chapter, dict) or "content" not in payload_chapter:
+        logger.error(
+            "Bible API payload missing 'content' key | translation=%s book=%s chapter=%s",
+            translation,
+            book,
+            chapter,
+        )
         raise BibleApiUnexpectedResponseError(
             "The Bible API returned a response in an unexpected format. "
             "Please try again later."
         )
 
-    # ── Index verses by their verse number ─────────────────────────────────
+    payload_content = payload_chapter["content"]
+    payload_chapter_number = payload_chapter.get("number")
 
-    verse_map: dict[int, dict] = {}
+    # ── Bug 2 fix: logger.error takes a plain string, not a tuple ──────────
 
-    for item in raw_verses:
-        if not isinstance(item, dict):
-            continue
+    if chapter != payload_chapter_number:
+        logger.error(
+            "Bible API response chapter %s does not match the request chapter %s.",
+            payload_chapter_number,
+            chapter,
+        )
+        raise BibleApiUnexpectedResponseError(
+            "The Bible API returned an unexpected response."
+        )
 
-        verse_number = item.get("verse") or item.get("verseNumber")
+    payload_version = payload.get("translation", {}).get("id", "")
 
-        if verse_number is None:
-            continue
+    if payload_version == BibleVersionChoices.KJV.value:
+        verse_map = process_kjv_verses(payload_content)
+    else:
+        verse_map = process_web_verses(payload_content)
 
-        try:
-            verse_map[int(verse_number)] = item
-        except (TypeError, ValueError):
-            continue
+    # ── Bug 4 fix: slice the map to the requested verse range ──────────────
+    # ── Bug 3 fix: return a list[dict], not the raw dict ──────────────────
 
     end = verse_end if verse_end is not None else verse_start
     requested_numbers = list(range(verse_start, end + 1))
@@ -235,7 +249,6 @@ def _extract_verses(
             reference,
             missing_str,
         )
-
         raise BibleApiVerseNotFoundError(
             f"Verse(s) {missing_str} were not found in {book} {chapter} "
             f"({translation}). Please check the reference."
@@ -305,3 +318,105 @@ def _format_reference(
         return f"{book} {chapter}:{verse_start}"
 
     return f"{book} {chapter}:{verse_start}-{verse_end}"
+
+
+def process_web_verses(content: list[dict]) -> dict[int, dict]:
+    """
+    Process World English Bible (ENGWEBP) content into a verse-number-to-text mapping.
+
+    Parameters
+    ----------
+    content : list[dict]
+        List of verse items from the API chapter content.
+
+    Returns
+    -------
+    dict[int, dict]
+        Mapping of verse number to a dict containing the verse number and cleaned text.
+    """
+
+    verse_map: dict[int, dict] = {}
+
+    for item in content:
+        if not isinstance(item, dict):
+            continue
+
+        if item.get("type") != "verse":
+            continue
+
+        verse_number = item.get("number")
+
+        if verse_number is None:
+            continue
+
+        try:
+            raw_parts = item.get("content", [])
+
+            if not isinstance(raw_parts, list):
+                continue
+
+            text_parts = [part for part in raw_parts if isinstance(part, str)]
+            verse_text = " ".join(text_parts).strip()
+
+            verse_map[int(verse_number)] = {
+                "verse": verse_number,
+                "text": verse_text,
+            }
+
+        except (TypeError, ValueError):
+            continue
+
+    return verse_map
+
+
+def process_kjv_verses(content: list[dict]) -> dict[int, dict]:
+    """
+    Process King James Version (eng_kjv) content into a verse-number-to-text mapping.
+
+    Parameters
+    ----------
+    content : list[dict]
+        List of verse items from the API chapter content.
+
+    Returns
+    -------
+    dict[int, dict]
+        Mapping of verse number to a dict containing the verse number and text.
+    """
+
+    verse_map: dict[int, dict] = {}
+
+    for item in content:
+        if not isinstance(item, dict):
+            continue
+
+        if item.get("type") != "verse":
+            continue
+
+        verse_number = item.get("number")
+
+        if verse_number is None:
+            continue
+
+        # ── Bug 5 fix: guard against missing/empty content before indexing ─
+
+        raw_content = item.get("content")
+
+        if not isinstance(raw_content, list) or not raw_content:
+            continue
+
+        verse_text = raw_content[0]
+
+        if not isinstance(verse_text, str):
+            continue
+
+        try:
+            verse_map[int(verse_number)] = {
+                "verse": verse_number,
+                "text": verse_text,
+            }
+
+        except (TypeError, ValueError):
+            continue
+
+    return verse_map

@@ -3,7 +3,7 @@ Validations for the `verses` app.
 """
 
 # app_packages
-from . import validate_memory_verse as validations
+from . import memory_verse_validations as validations
 
 
 def validate_memory_verse(

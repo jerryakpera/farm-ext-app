@@ -42,7 +42,7 @@ def find_existing_memory_verse(
         verse_start__chapter=chapter,
         verse_start__verse=verse_start,
         verse_start__version=version,
-    ).select_related("verse_start", "verse_end", "topic", "created_by")
+    ).select_related("verse_start", "verse_end", "created_by")
 
     if verse_end is None:
         qs = qs.filter(verse_end__isnull=True)

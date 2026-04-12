@@ -4,10 +4,12 @@ Serializer for the `SingleVerse` model.
 
 # third_party_packages
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError as DRFValidationError
 
 # other_apps_packages
 from core.verses import validations
 from core.verses.choices import BibleBookChoices, BibleVersionChoices
+from core.verses.exceptions import VerseValidationError
 from core.verses.models import MemoryVerse, SingleVerse
 from core.verses.services import get_or_create_memory_verse
 
@@ -64,7 +66,6 @@ class MemoryVerseSerializer(serializers.ModelSerializer):
             "chapter",
             "verse_start_num",
             "verse_end_num",
-            "topic",
             "created_by",
             "created_at",
         ]
@@ -104,14 +105,16 @@ class MemoryVerseCreateSerializer(serializers.Serializer):
         verse_end = attrs.get("verse_end")
         version = attrs["version"]
 
-        validations.validate_bible_version(version)
-        validations.validate_bible_book(book)
-        validations.validate_chapter_verse(
-            book=book,
-            chapter=chapter,
-            verse_start=verse_start,
-            verse_end=verse_end,
-        )
+        try:
+            validations.validate_memory_verse(
+                book=book,
+                chapter=chapter,
+                verse_start=verse_start,
+                verse_end=verse_end,
+                version=version,
+            )
+        except VerseValidationError as exc:
+            raise DRFValidationError({"non_field_errors": [str(exc)]})
 
         return attrs
 
@@ -131,7 +134,13 @@ class MemoryVerseCreateSerializer(serializers.Serializer):
             The created or existing MemoryVerse instance.
         """
 
-        memory_verse, _created = get_or_create_memory_verse(**validated_data)
+        created_by = validated_data.pop("created_by")
+
+        memory_verse, _created = get_or_create_memory_verse(
+            **validated_data,
+            created_by=created_by,
+        )
+
         return memory_verse
 
     def to_representation(self, instance):
@@ -159,4 +168,4 @@ class MemoryVerseAdminSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MemoryVerse
-        fields = ["topic"]
+        fields = []

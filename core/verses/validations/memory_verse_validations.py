@@ -7,6 +7,7 @@ from core.verses.bible_structure import BIBLE_VERSE_MAP
 from core.verses.choices import BibleBookChoices, BibleVersionChoices
 from core.verses.constants import MEMORY_VERSE_MAX_LENGTH
 from core.verses.exceptions import VerseValidationError
+from core.verses.utils import get_book_label
 
 
 def validate_bible_version(version):
@@ -84,7 +85,8 @@ def validate_chapter_verse(
 
     # chapter must exist in the book
     if chapter not in book_chapters:
-        raise VerseValidationError(f"{book} does not have a chapter {chapter}.")
+        book_label = get_book_label(book)
+        raise VerseValidationError(f"{book_label} does not have a chapter {chapter}.")
 
     chapter_verse_count = book_chapters[chapter]
 
@@ -104,7 +106,7 @@ def validate_chapter_verse(
             )
 
         # span must not exceed 3 consecutive verses
-        if verse_end - verse_start > {MEMORY_VERSE_MAX_LENGTH - 1}:
+        if verse_end - verse_start > (MEMORY_VERSE_MAX_LENGTH - 1):
             raise VerseValidationError(
                 f"A memory verse may span at most {MEMORY_VERSE_MAX_LENGTH} consecutive verses. "
                 f"The requested range ({verse_start}–{verse_end}) spans "
