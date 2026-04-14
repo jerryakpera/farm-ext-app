@@ -10,30 +10,11 @@ from rest_framework.exceptions import ValidationError as DRFValidationError
 from core.verses import validations
 from core.verses.choices import BibleBookChoices, BibleVersionChoices
 from core.verses.exceptions import VerseValidationError
-from core.verses.models import MemoryVerse, SingleVerse, Topic
+from core.verses.models import MemoryVerse
 from core.verses.services import get_or_create_memory_verse
 
-
-class SingleVerseSerializer(serializers.ModelSerializer):
-    """
-    Read-only representation of a single stored verse.
-    """
-
-    class Meta:
-        model = SingleVerse
-        fields = ["id", "book", "chapter", "verse", "text", "version"]
-        read_only_fields = fields
-
-
-class TopicSerializer(serializers.ModelSerializer):
-    """
-    Read-only representation of a Topic.
-    """
-
-    class Meta:
-        model = Topic
-        fields = ["id", "name"]
-        read_only_fields = fields
+# app_packages
+from .topic_serializer import TopicSerializer
 
 
 class MemoryVerseSerializer(serializers.ModelSerializer):
