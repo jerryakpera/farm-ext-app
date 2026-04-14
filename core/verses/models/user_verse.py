@@ -7,6 +7,7 @@ from django.conf import settings
 from django.db import models
 
 # app_packages
+from ..constants import _ACTIVE_DAY_REPS, _ACTIVE_DAY_TARGETS
 from .memory_verse import MemoryVerse
 
 
@@ -53,6 +54,9 @@ class UserVerse(models.Model):
         help_text="Cumulative number of times the user has recited this verse.",
     )
     created_at = models.DateTimeField(auto_now_add=True)
+
+    learned_at = models.DateTimeField(null=True)
+    last_practiced_at = models.DateTimeField(null=True)
 
     class Meta:
         constraints = [
@@ -103,6 +107,7 @@ class UserVerse(models.Model):
             return LearningPhase.DAILY
         if 121 <= self.tally <= 127:
             return LearningPhase.WEEKLY
+
         return LearningPhase.MONTHLY
 
     @property
