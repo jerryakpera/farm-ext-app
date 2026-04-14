@@ -10,7 +10,7 @@ from rest_framework.exceptions import ValidationError as DRFValidationError
 from core.verses import validations
 from core.verses.choices import BibleBookChoices, BibleVersionChoices
 from core.verses.exceptions import VerseValidationError
-from core.verses.models import MemoryVerse
+from core.verses.models import MemoryVerse, Topic
 from core.verses.services import get_or_create_memory_verse
 
 # app_packages
@@ -108,6 +108,12 @@ class MemoryVerseCreateSerializer(serializers.Serializer):
     verse_start = serializers.IntegerField()
     verse_end = serializers.IntegerField(required=False, allow_null=True)
     version = serializers.ChoiceField(choices=BibleVersionChoices.choices)
+    topics = serializers.PrimaryKeyRelatedField(
+        queryset=Topic.objects.all(),
+        many=True,
+        required=False,
+        default=list,
+    )
 
     def validate(self, attrs):
         """
@@ -163,11 +169,15 @@ class MemoryVerseCreateSerializer(serializers.Serializer):
         """
 
         created_by = validated_data.pop("created_by")
+        topics = validated_data.pop("topics", [])
 
         memory_verse, _created = get_or_create_memory_verse(
             **validated_data,
             created_by=created_by,
         )
+
+        if topics:
+            memory_verse.topics.set(topics)
 
         return memory_verse
 

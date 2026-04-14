@@ -60,10 +60,16 @@ class UserVerseWriteSerializer(serializers.ModelSerializer):
     memory_verse = serializers.PrimaryKeyRelatedField(
         queryset=MemoryVerse.objects.all(),
     )
+    topics = serializers.PrimaryKeyRelatedField(
+        queryset=Topic.objects.all(),
+        many=True,
+        required=False,
+        default=list,
+    )
 
     class Meta:
         model = UserVerse
-        fields = ["memory_verse"]
+        fields = ["memory_verse", "topics"]
 
     def validate_memory_verse(self, memory_verse: MemoryVerse) -> MemoryVerse:
         """
@@ -84,7 +90,9 @@ class UserVerseWriteSerializer(serializers.ModelSerializer):
         rest_framework.exceptions.ValidationError
             If the verse spans more than 3 consecutive verses.
         """
+
         validate_verse_length(memory_verse)
+
         return memory_verse
 
     def validate(self, attrs: dict) -> dict:
@@ -108,6 +116,7 @@ class UserVerseWriteSerializer(serializers.ModelSerializer):
             If the user has already started a new verse today, or if the
             verse already exists in the user's library.
         """
+
         user = self.context["request"].user
 
         validate_daily_verse_limit(user)
@@ -136,10 +145,19 @@ class UserVerseWriteSerializer(serializers.ModelSerializer):
         UserVerse
             The newly created UserVerse instance.
         """
+
         user = self.context["request"].user
+        topics = validated_data.pop("topics", [])
+
         validated_data["user"] = user
         validated_data["order"] = UserVerse.next_order_for_user(user)
-        return super().create(validated_data)
+
+        instance = super().create(validated_data)
+
+        if topics:
+            instance.topics.set(topics)
+
+        return instance
 
 
 class UserVerseOrderSerializer(serializers.ModelSerializer):
@@ -219,6 +237,26 @@ class UserVerseTopicsSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserVerse
         fields = ["topics"]
+
+    def validate_topics(self, topics):
+        """
+        Ensure all supplied PKs resolve to real Topic instances.
+
+        PrimaryKeyRelatedField already handles this, but we surface a
+        cleaner error message here if the list is non-empty but invalid.
+
+        Parameters
+        ----------
+        topics : list[Topic]
+            The resolved Topic instances from the submitted PKs.
+
+        Returns
+        -------
+        list[Topic]
+            The validated topic list.
+        """
+
+        return topics
 
     def update(self, instance: UserVerse, validated_data: dict) -> UserVerse:
         """
