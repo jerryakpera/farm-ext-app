@@ -11,7 +11,7 @@ from ..models import Topic
 from ..models.memory_verse import MemoryVerse
 from ..models.user_verse import UserVerse
 from ..validations import validate_daily_verse_limit, validate_verse_length
-from .memory_verse_serializer import MemoryVerseReadSerializer
+from .memory_verse_serializer import MemoryVerseSerializer
 from .topic_serializer import TopicSerializer
 
 
@@ -24,7 +24,7 @@ class UserVerseReadSerializer(serializers.ModelSerializer):
     is_mastered = serializers.BooleanField(read_only=True)
     is_not_started = serializers.BooleanField(read_only=True)
     daily_target = serializers.IntegerField(read_only=True)
-    memory_verse = MemoryVerseReadSerializer(read_only=True)
+    memory_verse = MemoryVerseSerializer(read_only=True)
     topics = TopicSerializer(many=True, read_only=True)
     effective_topics = TopicSerializer(many=True, read_only=True)
 
