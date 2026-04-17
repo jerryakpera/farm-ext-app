@@ -30,6 +30,8 @@ class TopicViewSet(ModelViewSet):
     DELETE /topics/<pk>/   delete a topic (admin only)
     """
 
+    pagination_class = None
+
     queryset = Topic.objects.all()
     serializer_class = TopicSerializer
     filter_backends = [DjangoFilterBackend]

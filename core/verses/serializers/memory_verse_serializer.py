@@ -210,3 +210,43 @@ class MemoryVerseAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = MemoryVerse
         fields = ["topics"]
+
+
+class VersePreviewSerializer(serializers.Serializer):
+    """
+    Validates query parameters for the verse preview endpoint.
+    """
+
+    chapter = serializers.IntegerField(min_value=1)
+    verse_start = serializers.IntegerField(min_value=1)
+    book = serializers.ChoiceField(choices=BibleBookChoices.choices)
+    version = serializers.ChoiceField(choices=BibleVersionChoices.choices)
+    verse_end = serializers.IntegerField(min_value=1, required=False, allow_null=True)
+
+    def validate(self, attrs):
+        """
+        Perform cross-field validation for verse reference consistency.
+
+        Parameters
+        ----------
+        attrs : dict
+            Validated field data from the serializer.
+
+        Returns
+        -------
+        dict
+            The validated attributes if all checks pass.
+        """
+
+        try:
+            validations.validate_memory_verse(
+                book=attrs["book"],
+                chapter=attrs["chapter"],
+                verse_start=attrs["verse_start"],
+                verse_end=attrs.get("verse_end"),
+                version=attrs["version"],
+            )
+        except VerseValidationError as exc:
+            raise DRFValidationError({"non_field_errors": [str(exc)]})
+
+        return attrs

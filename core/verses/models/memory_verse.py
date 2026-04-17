@@ -9,7 +9,7 @@ from django.db import models
 
 # other_apps_packages
 # apps_packages
-from core.verses.choices import BibleVersionChoices
+from core.verses.choices import BibleBookChoices, BibleVersionChoices
 
 # app_packages
 from .topic import Topic
@@ -141,7 +141,13 @@ class MemoryVerse(models.Model):
             A formatted scripture reference such as "Genesis 1:1" or "Genesis 1:1-3".
         """
 
-        book = self.verse_start.book
+        book_code = self.verse_start.book
+
+        try:
+            book = BibleBookChoices(book_code).label
+        except ValueError:
+            book = book_code
+
         chapter = self.verse_start.chapter
         start = self.verse_start.verse
 

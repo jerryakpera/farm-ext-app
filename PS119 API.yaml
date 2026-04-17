@@ -1,0 +1,1578 @@
+openapi: 3.0.3
+info:
+  title: PS119 API
+  version: 0.1.0
+  description: Bible verse memorisation API
+paths:
+  /api/auth/token/:
+    post:
+      operationId: auth_token_create
+      description: |-
+        Takes a set of user credentials and returns an access and refresh JSON web
+        token pair to prove the authentication of those credentials.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPairRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPairRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPairRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtainPair'
+          description: ''
+  /api/auth/token/refresh/:
+    post:
+      operationId: auth_token_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/memory-verses/:
+    get:
+      operationId: memory_verses_list
+      description: ViewSet for managing MemoryVerse resources.
+      parameters:
+      - in: query
+        name: book
+        schema:
+          type: string
+          enum:
+          - 1CH
+          - 1CO
+          - 1JN
+          - 1KI
+          - 1PE
+          - 1SA
+          - 1TH
+          - 1TI
+          - 2CH
+          - 2CO
+          - 2JN
+          - 2KI
+          - 2PE
+          - 2SA
+          - 2TH
+          - 2TI
+          - 3JN
+          - ACT
+          - AMO
+          - COL
+          - DAN
+          - DEU
+          - ECC
+          - EPH
+          - EST
+          - EXO
+          - EZK
+          - EZR
+          - GAL
+          - GEN
+          - HAB
+          - HAG
+          - HEB
+          - HOS
+          - ISA
+          - JAS
+          - JDG
+          - JER
+          - JHN
+          - JOB
+          - JOL
+          - JON
+          - JOS
+          - JUD
+          - LAM
+          - LEV
+          - LUK
+          - MAL
+          - MAT
+          - MIC
+          - MRK
+          - NAM
+          - NEH
+          - NUM
+          - OBA
+          - PHM
+          - PHP
+          - PRO
+          - PSA
+          - REV
+          - ROM
+          - RUT
+          - SNG
+          - TIT
+          - ZEC
+          - ZEP
+        description: |-
+          Book
+
+          * `GEN` - Genesis
+          * `EXO` - Exodus
+          * `LEV` - Leviticus
+          * `NUM` - Numbers
+          * `DEU` - Deuteronomy
+          * `JOS` - Joshua
+          * `JDG` - Judges
+          * `RUT` - Ruth
+          * `1SA` - 1 Samuel
+          * `2SA` - 2 Samuel
+          * `1KI` - 1 Kings
+          * `2KI` - 2 Kings
+          * `1CH` - 1 Chronicles
+          * `2CH` - 2 Chronicles
+          * `EZR` - Ezra
+          * `NEH` - Nehemiah
+          * `EST` - Esther
+          * `JOB` - Job
+          * `PSA` - Psalms
+          * `PRO` - Proverbs
+          * `ECC` - Ecclesiastes
+          * `SNG` - Song of Solomon
+          * `ISA` - Isaiah
+          * `JER` - Jeremiah
+          * `LAM` - Lamentations
+          * `EZK` - Ezekiel
+          * `DAN` - Daniel
+          * `HOS` - Hosea
+          * `JOL` - Joel
+          * `AMO` - Amos
+          * `OBA` - Obadiah
+          * `JON` - Jonah
+          * `MIC` - Micah
+          * `NAM` - Nahum
+          * `HAB` - Habakkuk
+          * `ZEP` - Zephaniah
+          * `HAG` - Haggai
+          * `ZEC` - Zechariah
+          * `MAL` - Malachi
+          * `MAT` - Matthew
+          * `MRK` - Mark
+          * `LUK` - Luke
+          * `JHN` - John
+          * `ACT` - Acts
+          * `ROM` - Romans
+          * `1CO` - 1 Corinthians
+          * `2CO` - 2 Corinthians
+          * `GAL` - Galatians
+          * `EPH` - Ephesians
+          * `PHP` - Philippians
+          * `COL` - Colossians
+          * `1TH` - 1 Thessalonians
+          * `2TH` - 2 Thessalonians
+          * `1TI` - 1 Timothy
+          * `2TI` - 2 Timothy
+          * `TIT` - Titus
+          * `PHM` - Philemon
+          * `HEB` - Hebrews
+          * `JAS` - James
+          * `1PE` - 1 Peter
+          * `2PE` - 2 Peter
+          * `1JN` - 1 John
+          * `2JN` - 2 John
+          * `3JN` - 3 John
+          * `JUD` - Jude
+          * `REV` - Revelation
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: topic
+        schema:
+          type: integer
+        description: Topic ID
+      - in: query
+        name: version
+        schema:
+          type: string
+          enum:
+          - ENGWEBP
+          - eng_kjv
+        description: |-
+          Version
+
+          * `ENGWEBP` - World English Bible
+          * `eng_kjv` - King James Version
+      tags:
+      - memory-verses
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedMemoryVerseList'
+          description: ''
+    post:
+      operationId: memory_verses_create
+      description: |-
+        Create a new MemoryVerse instance from validated request data.
+
+        Parameters
+        ----------
+        request : Request
+            The incoming HTTP request.
+        *args
+            Additional positional arguments.
+        **kwargs
+            Additional keyword arguments.
+
+        Returns
+        -------
+        Response
+            The HTTP response containing the created MemoryVerse data or an error message.
+      tags:
+      - memory-verses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemoryVerseCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MemoryVerseCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MemoryVerseCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemoryVerseCreate'
+          description: ''
+  /api/memory-verses/{id}/:
+    get:
+      operationId: memory_verses_retrieve
+      description: ViewSet for managing MemoryVerse resources.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Memory Verse.
+        required: true
+      tags:
+      - memory-verses
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemoryVerse'
+          description: ''
+    patch:
+      operationId: memory_verses_partial_update
+      description: ViewSet for managing MemoryVerse resources.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Memory Verse.
+        required: true
+      tags:
+      - memory-verses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedMemoryVerseAdminRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedMemoryVerseAdminRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedMemoryVerseAdminRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemoryVerseAdmin'
+          description: ''
+    delete:
+      operationId: memory_verses_destroy
+      description: ViewSet for managing MemoryVerse resources.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Memory Verse.
+        required: true
+      tags:
+      - memory-verses
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/topics/:
+    get:
+      operationId: topics_list
+      description: |-
+        CRUD for topics.
+
+        Topics are shared system-wide — any authenticated user can read them,
+        but only admins can create, update, or delete them.
+
+        Endpoints:
+        GET    /topics/        list all topics
+        GET    /topics/<pk>/   retrieve a single topic
+        POST   /topics/        create a topic (admin only)
+        PATCH  /topics/<pk>/   update a topic (admin only)
+        DELETE /topics/<pk>/   delete a topic (admin only)
+      parameters:
+      - in: query
+        name: name
+        schema:
+          type: string
+        description: Name
+      - in: query
+        name: ordering
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - -created_at
+            - -name
+            - created_at
+            - name
+        description: |-
+          Ordering
+
+          * `name` - Name
+          * `-name` - Name (descending)
+          * `created_at` - Created at
+          * `-created_at` - Created at (descending)
+        explode: false
+        style: form
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - topics
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTopicList'
+          description: ''
+    post:
+      operationId: topics_create
+      description: |-
+        CRUD for topics.
+
+        Topics are shared system-wide — any authenticated user can read them,
+        but only admins can create, update, or delete them.
+
+        Endpoints:
+        GET    /topics/        list all topics
+        GET    /topics/<pk>/   retrieve a single topic
+        POST   /topics/        create a topic (admin only)
+        PATCH  /topics/<pk>/   update a topic (admin only)
+        DELETE /topics/<pk>/   delete a topic (admin only)
+      tags:
+      - topics
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TopicRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TopicRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TopicRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Topic'
+          description: ''
+  /api/topics/{id}/:
+    get:
+      operationId: topics_retrieve
+      description: |-
+        CRUD for topics.
+
+        Topics are shared system-wide — any authenticated user can read them,
+        but only admins can create, update, or delete them.
+
+        Endpoints:
+        GET    /topics/        list all topics
+        GET    /topics/<pk>/   retrieve a single topic
+        POST   /topics/        create a topic (admin only)
+        PATCH  /topics/<pk>/   update a topic (admin only)
+        DELETE /topics/<pk>/   delete a topic (admin only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Topic.
+        required: true
+      tags:
+      - topics
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Topic'
+          description: ''
+    patch:
+      operationId: topics_partial_update
+      description: |-
+        CRUD for topics.
+
+        Topics are shared system-wide — any authenticated user can read them,
+        but only admins can create, update, or delete them.
+
+        Endpoints:
+        GET    /topics/        list all topics
+        GET    /topics/<pk>/   retrieve a single topic
+        POST   /topics/        create a topic (admin only)
+        PATCH  /topics/<pk>/   update a topic (admin only)
+        DELETE /topics/<pk>/   delete a topic (admin only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Topic.
+        required: true
+      tags:
+      - topics
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTopicRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTopicRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTopicRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Topic'
+          description: ''
+    delete:
+      operationId: topics_destroy
+      description: |-
+        CRUD for topics.
+
+        Topics are shared system-wide — any authenticated user can read them,
+        but only admins can create, update, or delete them.
+
+        Endpoints:
+        GET    /topics/        list all topics
+        GET    /topics/<pk>/   retrieve a single topic
+        POST   /topics/        create a topic (admin only)
+        PATCH  /topics/<pk>/   update a topic (admin only)
+        DELETE /topics/<pk>/   delete a topic (admin only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Topic.
+        required: true
+      tags:
+      - topics
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/user-verses/:
+    get:
+      operationId: user_verses_list
+      description: |-
+        CRUD + custom actions for a user's personal verse library.
+
+        Endpoints:
+        GET    /user-verses/                  list
+        POST   /user-verses/                  create (add to backlog)
+        GET    /user-verses/<pk>/             retrieve
+        PATCH  /user-verses/<pk>/             partial_update (order only)
+        DELETE /user-verses/<pk>/             destroy
+        POST   /user-verses/<pk>/learn-today/ mark verse as started today
+        POST   /user-verses/<pk>/learn-next/  requeue verse to front of backlog
+        POST   /user-verses/<pk>/tally/       increment recitation tally
+        PATCH  /user-verses/<pk>/topics/      set user topic overrides
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - user-verses
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUserVerseReadList'
+          description: ''
+    post:
+      operationId: user_verses_create
+      description: |-
+        Add a verse to the user's backlog.
+
+        Parameters
+        ----------
+        request : Request
+            The HTTP request containing the payload.
+        *args : tuple
+            Additional positional arguments.
+        **kwargs : dict
+            Additional keyword arguments.
+
+        Returns
+        -------
+        Response
+            Serialized representation of the created UserVerse.
+      tags:
+      - user-verses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserVerseWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserVerseWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserVerseWriteRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserVerseWrite'
+          description: ''
+  /api/user-verses/{id}/:
+    get:
+      operationId: user_verses_retrieve
+      description: |-
+        CRUD + custom actions for a user's personal verse library.
+
+        Endpoints:
+        GET    /user-verses/                  list
+        POST   /user-verses/                  create (add to backlog)
+        GET    /user-verses/<pk>/             retrieve
+        PATCH  /user-verses/<pk>/             partial_update (order only)
+        DELETE /user-verses/<pk>/             destroy
+        POST   /user-verses/<pk>/learn-today/ mark verse as started today
+        POST   /user-verses/<pk>/learn-next/  requeue verse to front of backlog
+        POST   /user-verses/<pk>/tally/       increment recitation tally
+        PATCH  /user-verses/<pk>/topics/      set user topic overrides
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - user-verses
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserVerseRead'
+          description: ''
+    patch:
+      operationId: user_verses_partial_update
+      description: |-
+        Update the order of a UserVerse in the backlog queue.
+
+        Parameters
+        ----------
+        request : Request
+            The HTTP request containing update data.
+        *args : tuple
+            Additional positional arguments.
+        **kwargs : dict
+            Additional keyword arguments.
+
+        Returns
+        -------
+        Response
+            Serialized representation of the updated UserVerse.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - user-verses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserVerseOrderRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserVerseOrderRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserVerseOrderRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserVerseOrder'
+          description: ''
+    delete:
+      operationId: user_verses_destroy
+      description: |-
+        CRUD + custom actions for a user's personal verse library.
+
+        Endpoints:
+        GET    /user-verses/                  list
+        POST   /user-verses/                  create (add to backlog)
+        GET    /user-verses/<pk>/             retrieve
+        PATCH  /user-verses/<pk>/             partial_update (order only)
+        DELETE /user-verses/<pk>/             destroy
+        POST   /user-verses/<pk>/learn-today/ mark verse as started today
+        POST   /user-verses/<pk>/learn-next/  requeue verse to front of backlog
+        POST   /user-verses/<pk>/tally/       increment recitation tally
+        PATCH  /user-verses/<pk>/topics/      set user topic overrides
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - user-verses
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/user-verses/{id}/learn-next/:
+    post:
+      operationId: user_verses_learn_next_create
+      description: |-
+        Move a verse to the front of the user's backlog queue.
+
+        Parameters
+        ----------
+        request : Request
+            The HTTP request.
+        pk : int
+            Primary key of the UserVerse.
+
+        Returns
+        -------
+        Response
+            Updated UserVerse representation.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - user-verses
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserVerseRead'
+          description: ''
+  /api/user-verses/{id}/learn-today/:
+    post:
+      operationId: user_verses_learn_today_create
+      description: |-
+        Mark a verse as started for today and enforce daily learning limits.
+
+        Parameters
+        ----------
+        request : Request
+            The HTTP request.
+        pk : int
+            Primary key of the UserVerse.
+
+        Returns
+        -------
+        Response
+            Updated UserVerse representation on success.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - user-verses
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserVerseRead'
+          description: ''
+  /api/user-verses/{id}/tally/:
+    post:
+      operationId: user_verses_tally_create
+      description: |-
+        Increment the recitation tally for a verse.
+
+        Parameters
+        ----------
+        request : Request
+            The HTTP request containing the increment payload.
+        pk : int
+            Primary key of the UserVerse.
+
+        Returns
+        -------
+        Response
+            Updated UserVerse representation.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - user-verses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TallyIncrementRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TallyIncrementRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TallyIncrementRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TallyIncrement'
+          description: ''
+  /api/user-verses/{id}/topics/:
+    patch:
+      operationId: user_verses_topics_partial_update
+      description: |-
+        Update or clear user-specific topic overrides for a verse.
+
+        Parameters
+        ----------
+        request : Request
+            The HTTP request containing topic data.
+        pk : int
+            Primary key of the UserVerse.
+
+        Returns
+        -------
+        Response
+            Updated UserVerse representation.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - user-verses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserVerseTopicsRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserVerseTopicsRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserVerseTopicsRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserVerseTopics'
+          description: ''
+components:
+  schemas:
+    BookEnum:
+      enum:
+      - GEN
+      - EXO
+      - LEV
+      - NUM
+      - DEU
+      - JOS
+      - JDG
+      - RUT
+      - 1SA
+      - 2SA
+      - 1KI
+      - 2KI
+      - 1CH
+      - 2CH
+      - EZR
+      - NEH
+      - EST
+      - JOB
+      - PSA
+      - PRO
+      - ECC
+      - SNG
+      - ISA
+      - JER
+      - LAM
+      - EZK
+      - DAN
+      - HOS
+      - JOL
+      - AMO
+      - OBA
+      - JON
+      - MIC
+      - NAM
+      - HAB
+      - ZEP
+      - HAG
+      - ZEC
+      - MAL
+      - MAT
+      - MRK
+      - LUK
+      - JHN
+      - ACT
+      - ROM
+      - 1CO
+      - 2CO
+      - GAL
+      - EPH
+      - PHP
+      - COL
+      - 1TH
+      - 2TH
+      - 1TI
+      - 2TI
+      - TIT
+      - PHM
+      - HEB
+      - JAS
+      - 1PE
+      - 2PE
+      - 1JN
+      - 2JN
+      - 3JN
+      - JUD
+      - REV
+      type: string
+      description: |-
+        * `GEN` - Genesis
+        * `EXO` - Exodus
+        * `LEV` - Leviticus
+        * `NUM` - Numbers
+        * `DEU` - Deuteronomy
+        * `JOS` - Joshua
+        * `JDG` - Judges
+        * `RUT` - Ruth
+        * `1SA` - 1 Samuel
+        * `2SA` - 2 Samuel
+        * `1KI` - 1 Kings
+        * `2KI` - 2 Kings
+        * `1CH` - 1 Chronicles
+        * `2CH` - 2 Chronicles
+        * `EZR` - Ezra
+        * `NEH` - Nehemiah
+        * `EST` - Esther
+        * `JOB` - Job
+        * `PSA` - Psalms
+        * `PRO` - Proverbs
+        * `ECC` - Ecclesiastes
+        * `SNG` - Song of Solomon
+        * `ISA` - Isaiah
+        * `JER` - Jeremiah
+        * `LAM` - Lamentations
+        * `EZK` - Ezekiel
+        * `DAN` - Daniel
+        * `HOS` - Hosea
+        * `JOL` - Joel
+        * `AMO` - Amos
+        * `OBA` - Obadiah
+        * `JON` - Jonah
+        * `MIC` - Micah
+        * `NAM` - Nahum
+        * `HAB` - Habakkuk
+        * `ZEP` - Zephaniah
+        * `HAG` - Haggai
+        * `ZEC` - Zechariah
+        * `MAL` - Malachi
+        * `MAT` - Matthew
+        * `MRK` - Mark
+        * `LUK` - Luke
+        * `JHN` - John
+        * `ACT` - Acts
+        * `ROM` - Romans
+        * `1CO` - 1 Corinthians
+        * `2CO` - 2 Corinthians
+        * `GAL` - Galatians
+        * `EPH` - Ephesians
+        * `PHP` - Philippians
+        * `COL` - Colossians
+        * `1TH` - 1 Thessalonians
+        * `2TH` - 2 Thessalonians
+        * `1TI` - 1 Timothy
+        * `2TI` - 2 Timothy
+        * `TIT` - Titus
+        * `PHM` - Philemon
+        * `HEB` - Hebrews
+        * `JAS` - James
+        * `1PE` - 1 Peter
+        * `2PE` - 2 Peter
+        * `1JN` - 1 John
+        * `2JN` - 2 John
+        * `3JN` - 3 John
+        * `JUD` - Jude
+        * `REV` - Revelation
+    MemoryVerse:
+      type: object
+      description: Read-only serializer for MemoryVerse responses.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        reference:
+          type: string
+          readOnly: true
+        display_text:
+          type: string
+          readOnly: true
+        version:
+          type: object
+          additionalProperties: {}
+          description: |-
+            Return a structured object for the Bible version.
+
+            Parameters
+            ----------
+            obj : MemoryVerse
+                The instance being serialized.
+
+            Returns
+            -------
+            dict
+                Example::
+
+                    {
+                        "value": "ENGWEBP",
+                        "label": "World English Bible"
+                    }
+          readOnly: true
+        book:
+          type: string
+          readOnly: true
+        chapter:
+          type: integer
+          readOnly: true
+        verse_start_num:
+          type: integer
+          readOnly: true
+        verse_end_num:
+          type: integer
+          readOnly: true
+        topics:
+          type: array
+          items:
+            $ref: '#/components/schemas/Topic'
+          readOnly: true
+        created_by:
+          type: integer
+          readOnly: true
+          nullable: true
+          description: The user who first added this selection to the database.
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - book
+      - chapter
+      - created_at
+      - created_by
+      - display_text
+      - id
+      - reference
+      - topics
+      - verse_end_num
+      - verse_start_num
+      - version
+    MemoryVerseAdmin:
+      type: object
+      description: |-
+        Admin serializer for controlled updates of MemoryVerse.
+
+        Only ``topics`` is writable. All other fields are read-only.
+        Topics are accepted as a list of Topic primary keys.
+      properties:
+        topics:
+          type: array
+          items:
+            type: integer
+          description: Optional topic classifications for this verse selection.
+    MemoryVerseCreate:
+      type: object
+      description: Handles creation of MemoryVerse objects.
+      properties:
+        book:
+          $ref: '#/components/schemas/BookEnum'
+        chapter:
+          type: integer
+        verse_start:
+          type: integer
+        verse_end:
+          type: integer
+          nullable: true
+        version:
+          $ref: '#/components/schemas/VersionEnum'
+        topics:
+          type: array
+          items:
+            type: integer
+      required:
+      - book
+      - chapter
+      - verse_start
+      - version
+    MemoryVerseCreateRequest:
+      type: object
+      description: Handles creation of MemoryVerse objects.
+      properties:
+        book:
+          $ref: '#/components/schemas/BookEnum'
+        chapter:
+          type: integer
+        verse_start:
+          type: integer
+        verse_end:
+          type: integer
+          nullable: true
+        version:
+          $ref: '#/components/schemas/VersionEnum'
+        topics:
+          type: array
+          items:
+            type: integer
+      required:
+      - book
+      - chapter
+      - verse_start
+      - version
+    PaginatedMemoryVerseList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/MemoryVerse'
+    PaginatedTopicList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Topic'
+    PaginatedUserVerseReadList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserVerseRead'
+    PatchedMemoryVerseAdminRequest:
+      type: object
+      description: |-
+        Admin serializer for controlled updates of MemoryVerse.
+
+        Only ``topics`` is writable. All other fields are read-only.
+        Topics are accepted as a list of Topic primary keys.
+      properties:
+        topics:
+          type: array
+          items:
+            type: integer
+          description: Optional topic classifications for this verse selection.
+    PatchedTopicRequest:
+      type: object
+      description: |-
+        Read and write representation of a Topic.
+
+        Validation:
+        - Name may not be blank or whitespace-only.
+        - Name must be unique regardless of case (Faith, faith, FAITH are duplicates).
+        - Name is stored in title case for consistency.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+    PatchedUserVerseOrderRequest:
+      type: object
+      description: |-
+        Allows updating the queue `order` of a UserVerse only.
+        Used for manual reordering and the 'learn next' action.
+      properties:
+        order:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          description: Queue position within the user's verse list. Lower values appear
+            first. Not required to be contiguous or positive.
+    PatchedUserVerseTopicsRequest:
+      type: object
+      description: |-
+        Allows a user to set or clear their personal topic overrides for a verse.
+
+        Accepts a list of Topic PKs. Passing an empty list clears the override
+        and restores inheritance from the memory verse's system-wide topics.
+      properties:
+        topics:
+          type: array
+          items:
+            type: integer
+    TallyIncrement:
+      type: object
+      description: |-
+        Validates an optional tally increment count.
+
+        If `count` is omitted the view defaults to incrementing by 1.
+        The count may not exceed the remaining daily target.
+      properties:
+        count:
+          type: integer
+          minimum: 1
+          default: 1
+          description: Number of recitations to add. Defaults to 1.
+    TallyIncrementRequest:
+      type: object
+      description: |-
+        Validates an optional tally increment count.
+
+        If `count` is omitted the view defaults to incrementing by 1.
+        The count may not exceed the remaining daily target.
+      properties:
+        count:
+          type: integer
+          minimum: 1
+          default: 1
+          description: Number of recitations to add. Defaults to 1.
+    TokenObtainPair:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          readOnly: true
+      required:
+      - access
+      - refresh
+    TokenObtainPairRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          writeOnly: true
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - email
+      - password
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+    TokenRefreshRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+      required:
+      - refresh
+    Topic:
+      type: object
+      description: |-
+        Read and write representation of a Topic.
+
+        Validation:
+        - Name may not be blank or whitespace-only.
+        - Name must be unique regardless of case (Faith, faith, FAITH are duplicates).
+        - Name is stored in title case for consistency.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+      required:
+      - id
+      - name
+    TopicRequest:
+      type: object
+      description: |-
+        Read and write representation of a Topic.
+
+        Validation:
+        - Name may not be blank or whitespace-only.
+        - Name must be unique regardless of case (Faith, faith, FAITH are duplicates).
+        - Name is stored in title case for consistency.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+      required:
+      - name
+    UserVerseOrder:
+      type: object
+      description: |-
+        Allows updating the queue `order` of a UserVerse only.
+        Used for manual reordering and the 'learn next' action.
+      properties:
+        order:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          description: Queue position within the user's verse list. Lower values appear
+            first. Not required to be contiguous or positive.
+    UserVerseRead:
+      type: object
+      description: Read-only representation of a UserVerse, including all computed
+        properties.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        memory_verse:
+          allOf:
+          - $ref: '#/components/schemas/MemoryVerse'
+          readOnly: true
+        order:
+          type: integer
+          readOnly: true
+          description: Queue position within the user's verse list. Lower values appear
+            first. Not required to be contiguous or positive.
+        tally:
+          type: integer
+          readOnly: true
+          description: Cumulative number of times the user has recited this verse.
+        phase:
+          type: string
+          readOnly: true
+        topics:
+          type: array
+          items:
+            $ref: '#/components/schemas/Topic'
+          readOnly: true
+        effective_topics:
+          type: array
+          items:
+            $ref: '#/components/schemas/Topic'
+          readOnly: true
+        is_mastered:
+          type: boolean
+          readOnly: true
+        is_not_started:
+          type: boolean
+          readOnly: true
+        daily_target:
+          type: integer
+          readOnly: true
+        learned_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        last_practiced_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - daily_target
+      - effective_topics
+      - id
+      - is_mastered
+      - is_not_started
+      - last_practiced_at
+      - learned_at
+      - memory_verse
+      - order
+      - phase
+      - tally
+      - topics
+    UserVerseTopics:
+      type: object
+      description: |-
+        Allows a user to set or clear their personal topic overrides for a verse.
+
+        Accepts a list of Topic PKs. Passing an empty list clears the override
+        and restores inheritance from the memory verse's system-wide topics.
+      properties:
+        topics:
+          type: array
+          items:
+            type: integer
+      required:
+      - topics
+    UserVerseWrite:
+      type: object
+      description: |-
+        Handles creation of a UserVerse (adding a verse to the user's backlog).
+
+        Enforces:
+        - No duplicate (user, memory_verse) pair — clean 400 instead of DB 500.
+        - Memory verse must not exceed 3 consecutive verses in length.
+      properties:
+        memory_verse:
+          type: integer
+        topics:
+          type: array
+          items:
+            type: integer
+      required:
+      - memory_verse
+    UserVerseWriteRequest:
+      type: object
+      description: |-
+        Handles creation of a UserVerse (adding a verse to the user's backlog).
+
+        Enforces:
+        - No duplicate (user, memory_verse) pair — clean 400 instead of DB 500.
+        - Memory verse must not exceed 3 consecutive verses in length.
+      properties:
+        memory_verse:
+          type: integer
+        topics:
+          type: array
+          items:
+            type: integer
+      required:
+      - memory_verse
+    VersionEnum:
+      enum:
+      - ENGWEBP
+      - eng_kjv
+      type: string
+      description: |-
+        * `ENGWEBP` - World English Bible
+        * `eng_kjv` - King James Version
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
