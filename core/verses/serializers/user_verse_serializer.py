@@ -7,6 +7,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 # app_packages
+from ..constants import _ACTIVE_DAY_REPS
 from ..models import Topic
 from ..models.memory_verse import MemoryVerse
 from ..models.user_verse import UserVerse
@@ -42,6 +43,7 @@ class UserVerseReadSerializer(serializers.ModelSerializer):
             "is_not_started",
             "daily_target",
             "learned_at",
+            "last_learned_at",
             "last_practiced_at",
             "created_at",
         ]
@@ -204,8 +206,16 @@ class TallyIncrementSerializer(serializers.Serializer):
         serializers.ValidationError
             If count would push the tally beyond today's target.
         """
+
         user_verse: UserVerse = self.context["user_verse"]
-        remaining = user_verse.daily_target
+
+        # not_started verses have daily_target=0 because the backend derives
+        # it from tally, but the first recitation begins Day 1 (25 reps).
+        # Use the Day 1 target as the effective remaining count.
+        if user_verse.is_not_started:
+            remaining = _ACTIVE_DAY_REPS[0]  # 25
+        else:
+            remaining = user_verse.daily_target
 
         if remaining == 0:
             raise serializers.ValidationError(
@@ -278,3 +288,99 @@ class UserVerseTopicsSerializer(serializers.ModelSerializer):
         instance.topics.set(validated_data["topics"])
 
         return instance
+
+
+class UserVerseReorderSerializer(serializers.Serializer):
+    """
+    Validates a bulk reorder payload and applies it atomically.
+
+    All IDs must belong to the requesting user. Any ID that does not
+    exist or belongs to another user is rejected with a 400.
+    """
+
+    order = serializers.DictField(
+        child=serializers.IntegerField(min_value=0),
+        allow_empty=False,
+    )
+
+    def validate_order(self, order: dict) -> dict:
+        """
+        Ensure every key is a valid integer ID and every value is a
+        non-negative integer.
+
+        Parameters
+        ----------
+        order : dict
+            Raw ``{id: new_order}`` mapping from the request.
+
+        Returns
+        -------
+        dict
+            Coerced ``{int: int}`` mapping.
+
+        Raises
+        ------
+        serializers.ValidationError
+            If any key cannot be parsed as an integer.
+        """
+
+        try:
+            return {int(k): v for k, v in order.items()}
+        except (ValueError, TypeError):
+            raise serializers.ValidationError("All keys must be integer UserVerse IDs.")
+
+    def validate(self, attrs: dict) -> dict:
+        """
+        Confirm every supplied ID belongs to the requesting user.
+
+        Parameters
+        ----------
+        attrs : dict
+            Validated field values containing the coerced ``order`` map.
+
+        Returns
+        -------
+        dict
+            Attrs augmented with a ``instances`` key holding the
+            fetched UserVerse queryset, ready for ``save()``.
+
+        Raises
+        ------
+        serializers.ValidationError
+            If any ID is not found in the user's verse library.
+        """
+
+        user = self.context["request"].user
+        ids = list(attrs["order"].keys())
+
+        instances = UserVerse.objects.filter(user=user, pk__in=ids)
+
+        if instances.count() != len(ids):
+            found_ids = set(instances.values_list("pk", flat=True))
+            missing = set(ids) - found_ids
+            raise serializers.ValidationError(
+                {"order": f"Unknown or forbidden UserVerse IDs: {sorted(missing)}."}
+            )
+
+        attrs["instances"] = instances
+        return attrs
+
+    def save(self) -> list[UserVerse]:
+        """
+        Apply the new order values with a single bulk_update call.
+
+        Returns
+        -------
+        list[UserVerse]
+            The updated UserVerse instances.
+        """
+
+        order_map: dict[int, int] = self.validated_data["order"]
+        instances: list[UserVerse] = list(self.validated_data["instances"])
+
+        for instance in instances:
+            instance.order = order_map[instance.pk]
+
+        UserVerse.objects.bulk_update(instances, ["order"])
+
+        return instances

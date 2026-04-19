@@ -17,11 +17,12 @@ from core.verses.bible_api.exceptions import (
 )
 from core.verses.exceptions import VerseValidationError
 from core.verses.filters import MemoryVerseFilterSet
-from core.verses.models import MemoryVerse
+from core.verses.models import MemoryVerse, UserVerse
 from core.verses.serializers import (
     MemoryVerseAdminSerializer,
     MemoryVerseCreateSerializer,
     MemoryVerseSerializer,
+    UserVerseReadSerializer,
     VersePreviewSerializer,
 )
 
@@ -201,4 +202,84 @@ class MemoryVerseViewSet(viewsets.ModelViewSet):
 
         return Response(
             {"text": text, "reference": reference}, status=status.HTTP_200_OK
+        )
+
+    @action(detail=True, methods=["post"], url_path="learn-next")
+    def learn_next(self, request, pk=None):
+        """
+        Add this memory verse to the user's library at the front of the backlog.
+
+        Parameters
+        ----------
+        request : Request
+            The HTTP request.
+        pk : int
+            Primary key of the MemoryVerse.
+
+        Returns
+        -------
+        Response
+            Serialized representation of the created UserVerse, or 400
+            if the verse is already in the user's library.
+        """
+
+        memory_verse = self.get_object()
+
+        if UserVerse.objects.filter(
+            user=request.user, memory_verse=memory_verse
+        ).exists():
+            return Response(
+                {"detail": "This verse is already in your library."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user_verse = UserVerse.objects.create(
+            user=request.user,
+            memory_verse=memory_verse,
+            order=UserVerse.learn_next_order_for_user(request.user),
+        )
+
+        return Response(
+            UserVerseReadSerializer(user_verse, context={"request": request}).data,
+            status=status.HTTP_201_CREATED,
+        )
+
+    @action(detail=True, methods=["post"], url_path="learn-last")
+    def learn_last(self, request, pk=None):
+        """
+        Add this memory verse to the user's library at the back of the backlog.
+
+        Parameters
+        ----------
+        request : Request
+            The HTTP request.
+        pk : int
+            Primary key of the MemoryVerse.
+
+        Returns
+        -------
+        Response
+            Serialized representation of the created UserVerse, or 400
+            if the verse is already in the user's library.
+        """
+
+        memory_verse = self.get_object()
+
+        if UserVerse.objects.filter(
+            user=request.user, memory_verse=memory_verse
+        ).exists():
+            return Response(
+                {"detail": "This verse is already in your library."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user_verse = UserVerse.objects.create(
+            user=request.user,
+            memory_verse=memory_verse,
+            order=UserVerse.next_order_for_user(request.user),
+        )
+
+        return Response(
+            UserVerseReadSerializer(user_verse, context={"request": request}).data,
+            status=status.HTTP_201_CREATED,
         )

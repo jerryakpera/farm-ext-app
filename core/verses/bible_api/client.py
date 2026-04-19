@@ -75,8 +75,6 @@ def fetch_verse_text(
 
 
 # ── Private helpers ───────────────────────────────────────────────────────────
-
-
 def _fetch_chapter(*, translation: str, book: str, chapter: int) -> dict:
     """
     Call the external API for one chapter and return the parsed JSON payload.
@@ -180,11 +178,9 @@ def _extract_verses(
     Returns
     -------
     list[dict]
-        Ordered list of verse dicts for the requested range, each with at
-        least a ``"text"`` key.
+        Ordered list of ``{"verse": int, "text": str}`` dicts for the
+        requested range.
     """
-
-    # ── Bug 1 fix: validate payload shape BEFORE accessing nested keys ─────
 
     if not isinstance(payload, dict) or "chapter" not in payload:
         logger.error(
@@ -212,10 +208,7 @@ def _extract_verses(
             "Please try again later."
         )
 
-    payload_content = payload_chapter["content"]
     payload_chapter_number = payload_chapter.get("number")
-
-    # ── Bug 2 fix: logger.error takes a plain string, not a tuple ──────────
 
     if chapter != payload_chapter_number:
         logger.error(
@@ -227,15 +220,7 @@ def _extract_verses(
             "The Bible API returned an unexpected response."
         )
 
-    payload_version = payload.get("translation", {}).get("id", "")
-
-    if payload_version == BibleVersionChoices.KJV.value:
-        verse_map = process_kjv_verses(payload_content)
-    else:
-        verse_map = process_web_verses(payload_content)
-
-    # ── Bug 4 fix: slice the map to the requested verse range ──────────────
-    # ── Bug 3 fix: return a list[dict], not the raw dict ──────────────────
+    verse_map = _build_verse_map(payload_chapter["content"])
 
     end = verse_end if verse_end is not None else verse_start
     requested_numbers = list(range(verse_start, end + 1))
@@ -264,7 +249,7 @@ def _join_verse_texts(verses: list[dict]) -> str:
     Parameters
     ----------
     verses : list[dict]
-        Ordered list of verse dicts from the API response.
+        Ordered list of verse dicts, each with a ``"text"`` key.
 
     Returns
     -------
@@ -320,103 +305,96 @@ def _format_reference(
     return f"{book} {chapter}:{verse_start}-{verse_end}"
 
 
-def process_web_verses(content: list[dict]) -> dict[int, dict]:
+def _build_verse_map(content: list) -> dict[int, dict]:
     """
-    Process World English Bible (ENGWEBP) content into a verse-number-to-text mapping.
+    Build a verse-number-to-text mapping from raw chapter content.
+
+    Handles all content node types defined by the Bible API schema:
+
+    Chapter-level nodes (``type`` field present):
+        - ``"verse"``           — scripture verse; text is extracted.
+        - ``"heading"``         — section heading; skipped.
+        - ``"line_break"``      — whitespace node; skipped.
+        - ``"hebrew_subtitle"`` — manuscript subtitle; skipped.
+
+    Verse-level content elements (within a ``"verse"`` node):
+        - ``str``               — plain text; extracted directly.
+        - ``{"text": str, ...}``— ``FormattedText`` (poem indent, Words of
+                                  Jesus highlight); ``.text`` is extracted.
+        - ``{"heading": str}``  — ``InlineHeading``; skipped.
+        - ``{"lineBreak": true}``— ``InlineLineBreak``; skipped.
+        - ``{"noteId": int}``   — ``VerseFootnoteReference``; skipped.
 
     Parameters
     ----------
-    content : list[dict]
-        List of verse items from the API chapter content.
+    content : list
+        The ``chapter.content`` array from the API response.
 
     Returns
     -------
     dict[int, dict]
-        Mapping of verse number to a dict containing the verse number and cleaned text.
+        Mapping of verse number to ``{"verse": int, "text": str}``.
     """
 
     verse_map: dict[int, dict] = {}
 
-    for item in content:
-        if not isinstance(item, dict):
+    for node in content:
+        if not isinstance(node, dict):
             continue
 
-        if item.get("type") != "verse":
+        if node.get("type") != "verse":
+            # heading, line_break, hebrew_subtitle — nothing to extract
             continue
 
-        verse_number = item.get("number")
+        verse_number = node.get("number")
 
-        if verse_number is None:
+        if not isinstance(verse_number, int):
             continue
 
-        try:
-            raw_parts = item.get("content", [])
+        raw_parts = node.get("content")
 
-            if not isinstance(raw_parts, list):
-                continue
-
-            text_parts = [part for part in raw_parts if isinstance(part, str)]
-            verse_text = " ".join(text_parts).strip()
-
-            verse_map[int(verse_number)] = {
-                "verse": verse_number,
-                "text": verse_text,
-            }
-
-        except (TypeError, ValueError):
+        if not isinstance(raw_parts, list):
             continue
+
+        text = _extract_verse_text(raw_parts)
+
+        if text:
+            verse_map[verse_number] = {"verse": verse_number, "text": text}
 
     return verse_map
 
 
-def process_kjv_verses(content: list[dict]) -> dict[int, dict]:
+def _extract_verse_text(parts: list) -> str:
     """
-    Process King James Version (eng_kjv) content into a verse-number-to-text mapping.
+    Extract plain scripture text from a verse's content element list.
 
     Parameters
     ----------
-    content : list[dict]
-        List of verse items from the API chapter content.
+    parts : list
+        The ``content`` array of a single verse node. Each element may be:
+        a plain ``str``, a ``FormattedText`` dict, an ``InlineHeading`` dict,
+        an ``InlineLineBreak`` dict, or a ``VerseFootnoteReference`` dict.
 
     Returns
     -------
-    dict[int, dict]
-        Mapping of verse number to a dict containing the verse number and text.
+    str
+        The extracted scripture text, whitespace-normalised and stripped.
     """
 
-    verse_map: dict[int, dict] = {}
+    text_parts: list[str] = []
 
-    for item in content:
-        if not isinstance(item, dict):
-            continue
+    for part in parts:
+        if isinstance(part, str):
+            # Plain text node
+            text_parts.append(part)
 
-        if item.get("type") != "verse":
-            continue
+        elif isinstance(part, dict):
+            if "text" in part and isinstance(part["text"], str):
+                # FormattedText — poem indent or Words of Jesus highlight
+                text_parts.append(part["text"])
 
-        verse_number = item.get("number")
+            # InlineHeading  {"heading": str}       — skip
+            # InlineLineBreak {"lineBreak": true}    — skip
+            # VerseFootnoteReference {"noteId": int} — skip
 
-        if verse_number is None:
-            continue
-
-        # ── Bug 5 fix: guard against missing/empty content before indexing ─
-
-        raw_content = item.get("content")
-
-        if not isinstance(raw_content, list) or not raw_content:
-            continue
-
-        verse_text = raw_content[0]
-
-        if not isinstance(verse_text, str):
-            continue
-
-        try:
-            verse_map[int(verse_number)] = {
-                "verse": verse_number,
-                "text": verse_text,
-            }
-
-        except (TypeError, ValueError):
-            continue
-
-    return verse_map
+    return " ".join(text_parts).strip()

@@ -2,8 +2,8 @@
 Views for UserVerse.
 """
 
-# python_packages
-from datetime import date
+# django_packages
+from django.utils import timezone
 
 # third_party_packages
 from django_filters.rest_framework import DjangoFilterBackend
@@ -15,12 +15,13 @@ from rest_framework.viewsets import ModelViewSet
 
 # app_packages
 from ..filters import UserVerseFilterSet
-from ..models.user_verse import UserVerse
+from ..models import MemoryVerse, UserVerse
 from ..permissions import IsOwner
 from ..serializers import (
     TallyIncrementSerializer,
     UserVerseOrderSerializer,
     UserVerseReadSerializer,
+    UserVerseReorderSerializer,
     UserVerseTopicsSerializer,
     UserVerseWriteSerializer,
 )
@@ -214,36 +215,113 @@ class UserVerseViewSet(ModelViewSet):
         # Raises ValidationError → 400 if another verse was started today.
         validate_daily_verse_limit(request.user)
 
-        instance.learned_at = date.today()
+        instance.learned_at = timezone.now()
         instance.save(update_fields=["learned_at"])
 
         return Response(
             UserVerseReadSerializer(instance, context={"request": request}).data
         )
 
-    @action(detail=True, methods=["post"], url_path="learn-next")
-    def learn_next(self, request, pk=None):
+    @action(detail=False, methods=["post"], url_path="learn-next")
+    def learn_next(self, request):
         """
-        Move a verse to the front of the user's backlog queue.
+        Add a memory verse to the user's library at the front of the backlog.
 
         Parameters
         ----------
         request : Request
-            The HTTP request.
-        pk : int
-            Primary key of the UserVerse.
+            The HTTP request containing ``{"memory_verse": <id>}``.
 
         Returns
         -------
         Response
-            Updated UserVerse representation.
+            Serialized representation of the created UserVerse, or 400
+            if the memory verse is invalid or already in the library.
         """
-        instance = self.get_object()
-        instance.order = UserVerse.learn_next_order_for_user(request.user)
-        instance.save(update_fields=["order"])
+
+        memory_verse_id = request.data.get("memory_verse")
+        if not memory_verse_id:
+            return Response(
+                {"memory_verse": "This field is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            memory_verse = MemoryVerse.objects.get(pk=memory_verse_id)
+        except MemoryVerse.DoesNotExist:
+            return Response(
+                {"memory_verse": "No MemoryVerse matches the given ID."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if UserVerse.objects.filter(
+            user=request.user, memory_verse=memory_verse
+        ).exists():
+            return Response(
+                {"memory_verse": "This verse is already in your library."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user_verse = UserVerse.objects.create(
+            user=request.user,
+            memory_verse=memory_verse,
+            order=UserVerse.learn_next_order_for_user(request.user),
+        )
 
         return Response(
-            UserVerseReadSerializer(instance, context={"request": request}).data
+            UserVerseReadSerializer(user_verse, context={"request": request}).data,
+            status=status.HTTP_201_CREATED,
+        )
+
+    @action(detail=False, methods=["post"], url_path="learn-last")
+    def learn_last(self, request):
+        """
+        Add a memory verse to the user's library at the back of the backlog.
+
+        Parameters
+        ----------
+        request : Request
+            The HTTP request containing ``{"memory_verse": <id>}``.
+
+        Returns
+        -------
+        Response
+            Serialized representation of the created UserVerse, or 400
+            if the memory verse is invalid or already in the library.
+        """
+
+        memory_verse_id = request.data.get("memory_verse")
+        if not memory_verse_id:
+            return Response(
+                {"memory_verse": "This field is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            memory_verse = MemoryVerse.objects.get(pk=memory_verse_id)
+        except MemoryVerse.DoesNotExist:
+            return Response(
+                {"memory_verse": "No MemoryVerse matches the given ID."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if UserVerse.objects.filter(
+            user=request.user, memory_verse=memory_verse
+        ).exists():
+            return Response(
+                {"memory_verse": "This verse is already in your library."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user_verse = UserVerse.objects.create(
+            user=request.user,
+            memory_verse=memory_verse,
+            order=UserVerse.next_order_for_user(request.user),
+        )
+
+        return Response(
+            UserVerseReadSerializer(user_verse, context={"request": request}).data,
+            status=status.HTTP_201_CREATED,
         )
 
     @action(detail=True, methods=["post"], url_path="tally")
@@ -272,14 +350,16 @@ class UserVerseViewSet(ModelViewSet):
         serializer.is_valid(raise_exception=True)
 
         count = serializer.validated_data["count"]
+        now = timezone.now()
+
         instance.tally += count
-        instance.last_practiced_at = date.today()
+        instance.last_learned_at = now
 
-        # Stamp learned_at on the very first recitation if somehow missed.
+        # Stamp learned_at only on the very first recitation.
         if instance.learned_at is None:
-            instance.learned_at = date.today()
+            instance.learned_at = now
 
-        instance.save(update_fields=["tally", "last_practiced_at", "learned_at"])
+        instance.save(update_fields=["tally", "last_learned_at", "learned_at"])
 
         return Response(
             UserVerseReadSerializer(instance, context={"request": request}).data
@@ -314,4 +394,48 @@ class UserVerseViewSet(ModelViewSet):
 
         return Response(
             UserVerseReadSerializer(instance, context={"request": request}).data
+        )
+
+    @action(detail=False, methods=["patch"], url_path="reorder")
+    def reorder(self, request):
+        """
+        Bulk-update the queue position of multiple UserVerses in one request.
+
+        Accepts a map of UserVerse IDs to their new ``order`` values.
+        All supplied IDs must belong to the requesting user; any unknown
+        or foreign ID causes the entire request to be rejected with a 400.
+        The update is applied atomically via ``bulk_update``.
+
+        Parameters
+        ----------
+        request : Request
+            The HTTP request containing::
+
+                {
+                    "order": {
+                        "<user_verse_id>": <new_order>,
+                        ...
+                    }
+                }
+
+        Returns
+        -------
+        Response
+            Full read representation of every reordered UserVerse, or
+            400 if validation fails.
+        """
+
+        serializer = UserVerseReorderSerializer(
+            data=request.data,
+            context={"request": request},
+        )
+        serializer.is_valid(raise_exception=True)
+        updated = serializer.save()
+
+        return Response(
+            UserVerseReadSerializer(
+                updated,
+                many=True,
+                context={"request": request},
+            ).data
         )

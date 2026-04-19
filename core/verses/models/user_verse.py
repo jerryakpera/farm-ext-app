@@ -71,7 +71,15 @@ class UserVerse(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
-    learned_at = models.DateTimeField(null=True)
+    learned_at = models.DateTimeField(
+        null=True,
+        help_text="When the user first began learning this verse.",
+    )
+    last_learned_at = models.DateTimeField(
+        null=True,
+        help_text="When the user last recited this verse.",
+    )
+
     last_practiced_at = models.DateTimeField(null=True)
 
     class Meta:
