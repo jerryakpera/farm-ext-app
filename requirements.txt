@@ -91,6 +91,8 @@ mailtrap==2.4.0
     # via -r requirements.in
 packaging==26.0
     # via kombu
+pillow==12.2.0
+    # via -r requirements.in
 prompt-toolkit==3.0.52
     # via click-repl
 psycopg2-binary==2.9.9
