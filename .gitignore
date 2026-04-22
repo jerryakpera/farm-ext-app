@@ -175,6 +175,3 @@ logs/
 
 # Test & coverage output
 test_media/
-
-core/verses/bible_data/*.xml
-core/verses/bible_data/

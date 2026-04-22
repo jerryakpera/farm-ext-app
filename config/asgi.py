@@ -1,5 +1,5 @@
 """
-ASGI config for ps119 project.
+ASGI config for farm-ext project.
 """
 
 # python_packages

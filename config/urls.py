@@ -1,5 +1,5 @@
 """
-URL configuration for ps119 project.
+URL configuration for farm-ext project.
 """
 
 # django_packages
@@ -34,8 +34,4 @@ urlpatterns = [
         name="swagger-ui",
     ),
     path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
-    path(
-        "api/",
-        include("core.verses.urls"),
-    ),
 ]

@@ -34,23 +34,5 @@ PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.MD5PasswordHasher",
 ]
 
-# ─── Email ───────────────────────────────────────────────────────────────────
-# Catch all outgoing emails in memory — nothing is sent.
-
-EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
-
-# ─── Celery ──────────────────────────────────────────────────────────────────
-# Run tasks synchronously and inline — no worker or broker needed.
-
-CELERY_TASK_ALWAYS_EAGER = True
-CELERY_TASK_EAGER_PROPAGATES = True
-
 # ─── Media & Static ──────────────────────────────────────────────────────────
-
 MEDIA_ROOT = BASE_DIR / "test_media"
-
-# ─── Mailtrap ────────────────────────────────────────────────────────────────
-
-MAILTRAP_API_KEY = "test-key"
-MAILTRAP_USE_SANDBOX = True
-MAILTRAP_INBOX_ID = "0"

@@ -1,5 +1,5 @@
 """
-WSGI config for ps119 project.
+WSGI config for farm-ext project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

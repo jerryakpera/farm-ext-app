@@ -1,11 +1,8 @@
 """
-Django settings for ps119 project.
+Django settings for farm-ext project.
 """
 
 # python_packages
-import sys
-
-from datetime import timedelta
 from pathlib import Path
 
 # third_party_packages
@@ -20,7 +17,6 @@ ENV = config("ENV", default="production")
 
 IS_PRODUCTION = ENV == "production"
 
-IS_CELERY_WORKER = "celery" in sys.argv[0]
 LOGGING_TOKEN = config("LOGGING_TOKEN", default=None)
 INGESTING_HOST = config("INGESTING_HOST", default=None)
 
@@ -42,19 +38,10 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     "django_use_email_as_username.apps.DjangoUseEmailAsUsernameConfig",
     "core.custom_user.apps.CustomUserConfig",
-    "corsheaders",
-    "rest_framework",
-    "rest_framework_simplejwt",
-    # needed for BLACKLIST_AFTER_ROTATION
-    "rest_framework_simplejwt.token_blacklist",
-    "drf_spectacular",
-    "django_celery_beat",
-    "django_celery_results",
 ]
 
 LOCAL_APPS = [
     "core.common",
-    "core.verses",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -62,7 +49,6 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -138,119 +124,3 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-
-# djangrestframework
-REST_FRAMEWORK = {
-    # Authentication
-    # Primary: JWT via simplejwt. Session auth retained for the browsable API in dev.
-    "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-        "rest_framework.authentication.SessionAuthentication",  # browsable API only
-    ],
-    # Permissions
-    # All endpoints require authentication by default.
-    # Override per view with permission_classes = [...] as needed.
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
-    ],
-    # Renderers
-    # BrowsableAPI is included here; strip it out in production.py.
-    "DEFAULT_RENDERER_CLASSES": [
-        "rest_framework.renderers.JSONRenderer",
-        "rest_framework.renderers.BrowsableAPIRenderer",
-    ],
-    # Pagination
-    "DEFAULT_PAGINATION_CLASS": "core.common.pagination.StandardResultsPagination",
-    "PAGE_SIZE": 50,
-    # Schema
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-}
-
-
-# ─── SimpleJWT ────────────────────────────────────────────────────────────────
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
-    "ROTATE_REFRESH_TOKENS": True,
-    "BLACKLIST_AFTER_ROTATION": True,
-    "UPDATE_LAST_LOGIN": True,
-    "ALGORITHM": "HS256",
-    "AUTH_HEADER_TYPES": ("Bearer",),
-    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
-    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
-    "TOKEN_TYPE_CLAIM": "token_type",
-}
-
-
-# ─── drf-spectacular ─────────────────────────────────────────────────────────
-SPECTACULAR_SETTINGS = {
-    "TITLE": "PS119 API",
-    "DESCRIPTION": "Bible verse memorisation API",
-    "VERSION": "0.1.0",
-    "SERVE_INCLUDE_SCHEMA": False,
-    "COMPONENT_SPLIT_REQUEST": True,
-}
-
-CORS_ALLOWED_ORIGINS = config("CORS_ALLOWED_ORIGINS").split(",")
-
-CORS_ALLOW_CREDENTIALS = True
-
-CORS_ALLOW_HEADERS = [
-    "accept",
-    "authorization",
-    "content-type",
-    "origin",
-    "x-csrftoken",
-    "x-requested-with",
-]
-
-CORS_ALLOW_METHODS = [
-    "DELETE",
-    "GET",
-    "OPTIONS",
-    "PATCH",
-    "POST",
-    "PUT",
-]
-
-# Celery config
-CELERY_BROKER_URL = config(
-    "CELERY_BROKER_URL",
-    default="redis://localhost:6379/0",
-)
-CELERY_RESULT_BACKEND = "django-db"
-CELERY_RESULT_EXTENDED = True
-CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
-
-# Mailtrap config
-MAILTRAP_API_KEY = config("MAILTRAP_API_KEY")
-MAILTRAP_INBOX_ID = config("MAILTRAP_INBOX_ID")
-MAILTRAP_USE_SANDBOX = config(
-    "MAILTRAP_USE_SANDBOX",
-    cast=bool,
-    default=False,
-)
-
-
-# ─── Security ─────────────────────────────────────────────────────────────────
-
-# Clickjacking protection — refuse to be embedded in any iframe.
-X_FRAME_OPTIONS = "DENY"
-
-# CSRF cookie inaccessible to JavaScript.
-CSRF_COOKIE_HTTPONLY = True
-
-# Session cookie inaccessible to JavaScript.
-SESSION_COOKIE_HTTPONLY = True
-
-# Browser will not sniff content-type away from declared type.
-SECURE_CONTENT_TYPE_NOSNIFF = True
-
-# Basic XSS filter hint for older browsers (belt-and-suspenders).
-SECURE_BROWSER_XSS_FILTER = True
-
-# Referrer header — send only the origin, never the full URL.
-SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
-
-# settings.py
-BIBLE_API_BASE_URL = config("BIBLE_API_BASE_URL")
