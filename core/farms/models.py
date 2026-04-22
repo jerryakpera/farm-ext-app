@@ -1,9 +1,132 @@
 """
-Models for the `farms` app.
+Models for the farms app.
 """
 
 # django_packages
 from django.db import models
 
+# other_apps_packages
+from core.common.models import LGA
+from core.profiles.models import ExtensionAgentProfile, FarmerProfile
 
-# Create your models here.
+
+class Farm(models.Model):
+    """
+    Represents a farm registered by a farmer.
+    """
+
+    farmer = models.ForeignKey(
+        FarmerProfile,
+        on_delete=models.CASCADE,
+        related_name="farms",
+    )
+    lga = models.ForeignKey(
+        LGA,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="farms",
+    )
+    name = models.CharField(max_length=255)
+    address = models.TextField(
+        blank=True,
+        help_text="Street address or nearest landmark.",
+    )
+    size = models.DecimalField(
+        max_digits=8,
+        decimal_places=2,
+        help_text="Farm size in hectares.",
+    )
+    primary_crop = models.CharField(
+        max_length=100,
+        help_text="e.g. Maize, Tomato, Yam.",
+    )
+    other_crops = models.TextField(
+        blank=True,
+        help_text="Comma-separated list of other crops grown on the farm.",
+    )
+    latitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        help_text="Optional GPS latitude for geo-tagging.",
+    )
+    longitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        help_text="Optional GPS longitude for geo-tagging.",
+    )
+    is_verified = models.BooleanField(
+        default=False,
+        help_text="Set to True by an extension agent after physical verification.",
+    )
+    verified_by = models.ForeignKey(
+        ExtensionAgentProfile,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="verified_farms",
+        help_text="The extension agent who verified this farm.",
+    )
+    verified_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Timestamp of when the farm was verified.",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Farm"
+        verbose_name_plural = "Farms"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        """
+        Return the string representation of the farm.
+
+        Returns
+        -------
+        str
+            The farm name and the farmer's full name.
+        """
+
+        return f"{self.name} — {self.farmer.user.full_name}"
+
+
+class FarmImage(models.Model):
+    """
+    Stores individual images belonging to a Farm.
+
+    A farm can have multiple images uploaded by the farmer to help
+    extension agents understand the farm layout, crops, and conditions
+    before and during verification.
+    """
+
+    farm = models.ForeignKey(
+        Farm,
+        on_delete=models.CASCADE,
+        related_name="images",
+    )
+    image = models.ImageField(upload_to="farm_images/")
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Farm Image"
+        verbose_name_plural = "Farm Images"
+        ordering = ["uploaded_at"]
+
+    def __str__(self):
+        """
+        Return the string representation of the farm image.
+
+        Returns
+        -------
+        str
+            The str representation of the farm image.
+        """
+
+        return f"Image for {self.farm.name} ({self.uploaded_at.date()})"

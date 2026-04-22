@@ -11,4 +11,4 @@ class FarmsConfig(AppConfig):
     Configuration for the farms app.
     """
 
-    name = "farms"
+    name = "core.farms"
