@@ -21,6 +21,13 @@ def index(request):
         Rendered response for the index page.
     """
 
+    if request.user.is_authenticated:
+        return render(
+            context={},
+            request=request,
+            template_name="dashboard/pages/index.html",
+        )
+
     return render(
         context={},
         request=request,

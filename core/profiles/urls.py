@@ -8,6 +8,7 @@ from django.urls import path
 
 # other_apps_packages
 from core.farms.forms import FarmDetailsForm
+from core.profiles.decorators import guest_only
 
 # app_packages
 from .forms import ProfileBioForm, RoleSelectionForm
@@ -35,9 +36,11 @@ urlpatterns = [
     # --- Login ---
     path(
         "login/",
-        auth_views.LoginView.as_view(
-            template_name="profiles/pages/login.html",
-            redirect_authenticated_user=True,
+        guest_only(
+            auth_views.LoginView.as_view(
+                template_name="profiles/pages/login.html",
+                redirect_authenticated_user=True,
+            )
         ),
         name="login",
     ),
@@ -48,21 +51,5 @@ urlpatterns = [
             next_page="accounts:login",
         ),
         name="logout",
-    ),
-    # --- Password change ---
-    path(
-        "password/change/",
-        auth_views.PasswordChangeView.as_view(
-            template_name="profiles/password_change.html",
-            success_url="/profiles/password/change/done/",
-        ),
-        name="password_change",
-    ),
-    path(
-        "password/change/done/",
-        auth_views.PasswordChangeDoneView.as_view(
-            template_name="profiles/password_change_done.html",
-        ),
-        name="password_change_done",
     ),
 ]
