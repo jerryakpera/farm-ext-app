@@ -38,6 +38,7 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     "django_use_email_as_username.apps.DjangoUseEmailAsUsernameConfig",
     "core.custom_user.apps.CustomUserConfig",
+    "formtools",
 ]
 
 LOCAL_APPS = [
