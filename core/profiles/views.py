@@ -13,11 +13,12 @@ from formtools.wizard.views import SessionWizardView
 
 # other_apps_packages
 from core.custom_user.models import User
-from core.farms.models import Farm
+from core.farms.forms import FarmDetailsForm
+from core.farms.models import Farm, FarmerProfile
 
 # app_packages
-from .forms import FarmDetailsForm, ProfileBioForm, RoleSelectionForm
-from .models import ExtensionAgentProfile, ExtensionAgentWhitelist, FarmerProfile
+from .forms import ProfileBioForm, RoleSelectionForm
+from .models import ExtensionAgentProfile, ExtensionAgentWhitelist
 
 
 STEP_ROLE = "role_selection"

@@ -1,0 +1,20 @@
+{
+  "name": "farm-ext-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "npx tailwindcss -i ./core/static/tailwind/input.css -o ./core/static/base/css/output.css --watch",
+    "build": "npx tailwindcss -i ./core/static/tailwind/input.css -o ./core/static/base/css/output.css --minify"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "tailwindcss": "3.4.10"
+  },
+  "devDependencies": {
+    "daisyui": "4.12.14"
+  }
+}

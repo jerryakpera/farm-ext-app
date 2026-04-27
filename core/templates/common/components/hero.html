@@ -1,0 +1,94 @@
+{% load static %}
+
+<section class="relative hero-clip bg-primary grain overflow-hidden w-full pt-32 lg:pt-44">
+
+  <!-- Decorative elements (unchanged) -->
+  <svg class="leaf absolute top-12 left-8 w-16 h-16 text-primary-400 opacity-20"
+        style="--d:7s;--dl:0s"
+        viewBox="0 0 64 64" fill="currentColor">
+    <path d="M32 4C16 4 4 20 4 36C4 52 16 60 32 60C48 60 60 48 60 32C60 16 48 4 32 4Z" opacity=".6"/>
+    <path d="M32 4 L32 60" stroke="white" stroke-width="1.5" stroke-dasharray="4 4"/>
+  </svg>
+
+  <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+    <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-16 pb-24 lg:pb-32">
+
+      <!-- LEFT SIDE -->
+      <div class="flex-1 text-center lg:text-left">
+
+        <!-- Eyebrow -->
+        <span class="fade-up inline-flex items-center gap-2 rounded-full border border-primary-300
+                      bg-primary-700/50 px-4 py-1.5 text-xs font-bold tracking-widest
+                      uppercase text-secondary-200 mb-6">
+          <span class="w-1.5 h-1.5 rounded-full bg-secondary-300 animate-pulse"></span>
+          GreenPlateau Agricultural Extension Services
+        </span>
+
+        <!-- Heading -->
+        <h1 class="fade-up fade-up-d1 font-serif text-4xl sm:text-5xl lg:text-6xl font-bold
+                    text-white leading-[1.1] tracking-tight mb-6">
+          Connecting Farmers<br/>
+          <em class="not-italic text-secondary-300">with the Future</em><br/>
+          of Agriculture
+        </h1>
+
+        <!-- Description -->
+        <p class="fade-up fade-up-d2 text-primary-100 text-lg sm:text-xl leading-relaxed
+                  max-w-2xl mx-auto lg:mx-0 mb-10">
+          Swift access to expert advice, weather intelligence, and a marketplace
+          for agricultural inputs — built for farmers across Plateau State.
+        </p>
+
+        <!-- CTAs -->
+        <div class="fade-up fade-up-d3 flex flex-col sm:flex-row items-center lg:justify-start justify-center gap-3 mb-12">
+          <a href="{% url 'accounts:register' %}"
+              class="w-full sm:w-auto inline-flex items-center justify-center gap-2
+                    px-7 py-3.5 rounded-xl bg-secondary text-dark font-bold text-sm
+                    hover:bg-secondary-400 transition-colors duration-200 shadow-card-lg">
+            Join as a Farmer
+          </a>
+
+          <a href="#portals"
+              class="w-full sm:w-auto inline-flex items-center justify-center gap-2
+                    px-7 py-3.5 rounded-xl border-2 border-primary-300 text-white
+                    font-semibold text-sm hover:bg-primary-800 hover:text-white transition-colors duration-200">
+            Explore all portals
+          </a>
+        </div>
+
+        <!-- Stats -->
+        <div class="fade-up fade-up-d4 grid grid-cols-3 gap-4 max-w-lg mx-auto lg:mx-0">
+          <div class="text-center">
+            <p class="stat-pulse font-mono text-2xl font-bold text-secondary-300">500+</p>
+            <p class="text-xs text-primary-300 font-medium mt-0.5">Farmers registered</p>
+          </div>
+
+          <div class="text-center border-x border-primary-600">
+            <p class="stat-pulse font-mono text-2xl font-bold text-secondary-300">40+</p>
+            <p class="text-xs text-primary-300 font-medium mt-0.5">Extension agents</p>
+          </div>
+
+          <div class="text-center">
+            <p class="stat-pulse font-mono text-2xl font-bold text-secondary-300">17</p>
+            <p class="text-xs text-primary-300 font-medium mt-0.5">LGAs covered</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT SIDE (IMAGE) -->
+      <div class="flex-1 w-full h-[420px] lg:h-[600px] relative">
+        <img
+          src="{% static 'base/images/farmer.jpg' %}"
+          alt="Farmers working in field"
+          class="w-full h-full object-cover rounded-2xl shadow-2xl"
+        />
+
+        <!-- optional overlay glow -->
+        <div class="absolute inset-0 rounded-2xl bg-primary-400 opacity-10 blur-2xl"></div>
+      </div>
+
+    </div>
+  </div>
+</section>

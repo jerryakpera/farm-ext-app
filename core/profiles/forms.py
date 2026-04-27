@@ -35,7 +35,6 @@ class ProfileBioForm(forms.Form):
     last_name = forms.CharField(max_length=150)
     email = forms.EmailField()
     phone_number = forms.CharField(max_length=20, required=False)
-    profile_photo = forms.ImageField(required=False)
     password = forms.CharField(
         widget=forms.PasswordInput,
         validators=[validate_password],

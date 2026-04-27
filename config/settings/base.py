@@ -3,6 +3,8 @@ Django settings for farm-ext project.
 """
 
 # python_packages
+import os
+
 from pathlib import Path
 
 # third_party_packages
@@ -68,7 +70,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [os.path.join(BASE_DIR, "core", "templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -96,6 +98,10 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
+LOGIN_REDIRECT_URL = "/"
+LOGIN_URL = "profiles:login"
+LOGOUT_REDIRECT_URL = "accounts:login"
+
 AUTH_USER_MODEL = "custom_user.User"
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -128,5 +134,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = "/static/"
+
+STATIC_URL = "static/"
+STATICFILES_DIRS = [BASE_DIR / "core" / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"

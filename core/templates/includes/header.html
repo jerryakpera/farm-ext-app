@@ -1,0 +1,100 @@
+{# ------------------------------------------------------------------ #}
+{# Top navigation bar                                                  #}
+{# ------------------------------------------------------------------ #}
+<header class="sticky top-0 z-40 w-full bg-white border-b border-surface-border shadow-card">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="flex h-16 items-center justify-between gap-4">
+
+      {# Brand #}
+      <a href="/" class="flex items-center gap-2 shrink-0 no-underline">
+        <span class="inline-flex h-8 w-8 items-center justify-center
+                      rounded-lg bg-primary text-white text-sm font-bold">
+          F
+        </span>
+        <span class="font-serif text-xl font-semibold text-dark">FarmLink</span>
+      </a>
+
+      {# Desktop nav — shown to authenticated users only #}
+      {% if user.is_authenticated %}
+        <nav class="hidden md:flex items-center gap-1" aria-label="Primary navigation">
+
+          {% if user.is_farmer %}
+            <a href="{% url 'farmers:dashboard' %}" class="nav-link {% block nav_dashboard %}{% endblock %}">
+              Dashboard
+            </a>
+            <a href="#" class="nav-link {% block nav_questions %}{% endblock %}">
+              My Questions
+            </a>
+            <a href="#" class="nav-link {% block nav_advisory %}{% endblock %}">
+              Advisory Tips
+            </a>
+          {% endif %}
+
+          {% if user.is_extension_agent %}
+            <a href="{% url 'agents:dashboard' %}" class="nav-link {% block nav_agent_dashboard %}{% endblock %}">
+              Dashboard
+            </a>
+            <a href="#" class="nav-link {% block nav_questions_queue %}{% endblock %}">
+              Questions
+            </a>
+            <a href="#" class="nav-link {% block nav_visits %}{% endblock %}">
+              Farm Visits
+            </a>
+            <a href="#" class="nav-link {% block nav_posts %}{% endblock %}">
+              My Posts
+            </a>
+          {% endif %}
+
+        </nav>
+      {% endif %}
+
+      {# Right-side controls #}
+      <div class="flex items-center gap-3">
+        {% if user.is_authenticated %}
+
+          {# User menu #}
+          <div class="relative" x-data="{ open: false }">
+            <button
+              class="flex items-center gap-2 rounded-lg px-3 py-1.5
+                      text-sm font-medium text-dark-600
+                      hover:bg-surface-muted transition duration-150"
+              aria-label="User menu"
+            >
+              {% if user.profile_photo %}
+                <img src="{{ user.profile_photo.url }}"
+                      alt="{{ user.get_full_name }}"
+                      class="h-7 w-7 rounded-full object-cover" />
+              {% else %}
+                <span class="inline-flex h-7 w-7 items-center justify-center
+                              rounded-full bg-primary-100 text-primary text-xs font-bold">
+                  {{ user.first_name|first|upper }}
+                </span>
+              {% endif %}
+              <span class="hidden sm:inline">{{ user.first_name }}</span>
+            </button>
+          </div>
+
+          {# Logout #}
+          <form method="post" action="{% url 'accounts:logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn--ghost btn--sm">
+              Sign out
+            </button>
+          </form>
+
+        {% else %}
+          <div class="flex items-center gap-x-3">
+            <a href="{% url 'accounts:login' %}" class="btn btn--ghost btn--sm">
+              Sign in
+            </a>
+            <a href="{% url 'accounts:register' %}" class="btn btn--primary btn--sm hover:text-white">
+              Register
+            </a>
+          </div>
+
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+</header>

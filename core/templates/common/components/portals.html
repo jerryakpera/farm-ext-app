@@ -1,0 +1,119 @@
+<!-- ═══════════════════════════════════════════════════════════════
+      PORTALS
+═══════════════════════════════════════════════════════════════ -->
+<section id="portals" class="py-24 bg-surface-muted relative">
+  <!-- Texture dots -->
+  <div class="absolute inset-0 pointer-events-none opacity-[0.03]"
+        style="background-image:radial-gradient(circle,#1A1A0F 1px,transparent 1px);background-size:24px 24px;"></div>
+
+  <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+    <div class="text-center mb-14">
+      <span class="inline-block text-xs font-bold tracking-widest uppercase text-secondary mb-3">
+        Who is this for?
+      </span>
+      <h2 class="font-serif text-3xl sm:text-4xl font-bold text-dark">
+        Two portals, one platform
+      </h2>
+      <p class="mt-3 text-dark-400 max-w-xl mx-auto text-sm leading-relaxed">
+        Whether you're tending crops or providing expertise, FarmLink has a space
+        built specifically around your role.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+
+      <!-- Farmer portal -->
+      <div class="portal-card relative bg-white rounded-2xl border border-surface-border
+                  shadow-card overflow-hidden group cursor-pointer">
+        <!-- Top accent band -->
+        <div class="h-1.5 bg-gradient-to-r from-primary-400 to-primary-600"></div>
+        <div class="p-8">
+          <div class="w-12 h-12 rounded-xl bg-primary-50 border border-primary-200
+                      flex items-center justify-center mb-5">
+            <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+              <polyline stroke-linecap="round" stroke-linejoin="round" points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <h3 class="font-serif text-xl font-bold text-dark mb-2">Farmers Portal</h3>
+          <p class="text-sm text-dark-400 leading-relaxed mb-6">
+            Register your farm, post questions seeking expert advice, browse
+            advisory tips, and track your farm's verification status — all
+            in one place.
+          </p>
+          <ul class="space-y-2 mb-8 text-sm text-dark-500">
+            <li class="flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-primary shrink-0"></span>
+              Post questions with images
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-primary shrink-0"></span>
+              Rate answers from extension agents
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-primary shrink-0"></span>
+              Manage multiple farm profiles
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-primary shrink-0"></span>
+              Browse advisory articles and videos
+            </li>
+          </ul>
+          <a href="{% url 'accounts:register' %}"
+              class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg
+                    bg-primary text-white hover:text-white text-sm font-bold
+                    hover:bg-primary-600 transition-colors duration-150 shadow-card">
+            Join as a Farmer
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Extension Agent portal -->
+      <div class="portal-card relative bg-white rounded-2xl border border-surface-border
+                  shadow-card overflow-hidden group cursor-pointer">
+        <div class="h-1.5 bg-gradient-to-r from-secondary-400 to-secondary-600"></div>
+        <div class="p-8">
+          <div class="w-12 h-12 rounded-xl bg-secondary-50 border border-secondary-200
+                      flex items-center justify-center mb-5">
+            <svg class="w-6 h-6 text-secondary" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/>
+            </svg>
+          </div>
+          <h3 class="font-serif text-xl font-bold text-dark mb-2">Extension Agents Portal</h3>
+          <p class="text-sm text-dark-400 leading-relaxed mb-6">
+            Respond to farmer questions, log farm visits, post advisory content,
+            and verify farms — accessible by invitation only to maintain trust
+            and quality.
+          </p>
+          <ul class="space-y-2 mb-8 text-sm text-dark-500">
+            <li class="flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-secondary shrink-0"></span>
+              Answer and escalate farmer questions
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-secondary shrink-0"></span>
+              Log and manage farm visits
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-secondary shrink-0"></span>
+              Publish articles, videos, and tips
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-secondary shrink-0"></span>
+              Verify farms after physical inspection
+            </li>
+          </ul>
+          <span class="inline-flex items-center gap-2 px-4 py-2 rounded-lg
+                        border border-surface-border bg-surface-muted
+                        text-dark-400 text-xs font-semibold cursor-default">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            By invitation only
+          </span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
