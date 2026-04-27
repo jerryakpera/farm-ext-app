@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block content %}
+<div class="auth-page">
+
+  <div class="auth-card">
+
+    <!-- Header -->
+    <div class="auth-card__header">
+      <h1 class="auth-card__title">Welcome back</h1>
+      <p class="auth-card__subtitle">
+        Sign in to continue to your dashboard
+      </p>
+    </div>
+
+    <!-- Errors -->
+    {% if form.errors %}
+      <ul class="auth-form__errors">
+        <li>Invalid email or password. Please try again.</li>
+      </ul>
+    {% endif %}
+
+    <!-- Form -->
+    <form method="post" class="space-y-5">
+      {% csrf_token %}
+
+      <!-- Email -->
+      <div class="auth-form__field">
+        <label for="id_username">Email</label>
+        <input
+          type="email"
+          name="username"
+          id="id_username"
+          placeholder="you@example.com"
+          required
+          autocomplete="email"
+        />
+      </div>
+
+      <!-- Password -->
+      <div class="auth-form__field">
+        <label for="id_password">Password</label>
+        <input
+          type="password"
+          name="password"
+          id="id_password"
+          placeholder="••••••••"
+          required
+          autocomplete="current-password"
+        />
+      </div>
+
+      <!-- Actions -->
+      <div class="auth-form__actions auth-form__actions--split">
+        <a href="#" class="text-sm text-primary hover:underline">
+          Forgot password?
+        </a>
+      </div>
+
+      <button type="submit" class="btn btn--primary w-full">
+        Sign in
+      </button>
+    </form>
+
+    <!-- Footer -->
+    <p class="auth-card__footer-note">
+      Don’t have an account?
+      <a href="{% url 'accounts:register' %}" class="font-semibold">
+        Create one
+      </a>
+    </p>
+
+  </div>
+
+</div>
+{% endblock %}
