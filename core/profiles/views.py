@@ -32,9 +32,9 @@ FORMS = [
 ]
 
 TEMPLATES = {
-    STEP_ROLE: "accounts/register/step_role.html",
-    STEP_BIO: "accounts/register/step_bio.html",
-    STEP_FARM: "accounts/register/step_farm.html",
+    STEP_ROLE: "profiles/pages/register/step_role.html",
+    STEP_BIO: "profiles/pages/register/step_bio.html",
+    STEP_FARM: "profiles/pages/register/step_farm.html",
 }
 
 
@@ -160,8 +160,10 @@ class RegistrationWizardView(SessionWizardView):
         """
 
         context = super().get_context_data(form=form, **kwargs)
+
         context["total_steps"] = self.steps.count
         context["current_step_num"] = self.steps.step1  # 1-based index
+
         return context
 
     # -----------------------------------------------------------------------
@@ -193,17 +195,24 @@ class RegistrationWizardView(SessionWizardView):
             Redirect to the appropriate dashboard.
         """
 
-        # Collect cleaned data from each step by name for clarity.
         step1 = self.get_cleaned_data_for_step(STEP_ROLE) or {}
         step2 = self.get_cleaned_data_for_step(STEP_BIO) or {}
-        step3 = self.get_cleaned_data_for_step(STEP_FARM) or {}
 
         role = step1["role"]
+        email = step2["email"].lower()
+
+        # Guard against double-submission. If a User with this email was already
+        # created (e.g. done() fired twice due to a browser retry), log them in
+        # and redirect rather than attempting a duplicate insert.
+        existing = User.objects.filter(email=email).first()
+        if existing:
+            login(self.request, existing)
+
+            return redirect("common:index")
 
         with transaction.atomic():
-            # --- create User ---
             user = User.objects.create_user(
-                email=step2["email"],
+                email=email,
                 password=step2["password"],
                 first_name=step2["first_name"],
                 last_name=step2["last_name"],
@@ -212,14 +221,14 @@ class RegistrationWizardView(SessionWizardView):
             )
 
             if role == User.Role.FARMER:
+                step3 = self.get_cleaned_data_for_step(STEP_FARM) or {}
                 self._create_farmer_records(user, step2, step3)
 
             elif role == User.Role.EXTENSION_AGENT:
                 self._create_agent_records(user, step2)
 
-        # Log the user in and redirect to their dashboard.
         login(self.request, user)
-        return redirect(self._get_dashboard_url(role))
+        return redirect("common:index")
 
     # -----------------------------------------------------------------------
     # Private helpers
@@ -276,24 +285,3 @@ class RegistrationWizardView(SessionWizardView):
 
         # Mark the whitelist entry so the email cannot be reused.
         ExtensionAgentWhitelist.objects.filter(email=user.email).update(is_used=True)
-
-    @staticmethod
-    def _get_dashboard_url(role):
-        """
-        Return the dashboard URL for the given role.
-
-        Parameters
-        ----------
-        role : str
-            One of User.Role.FARMER or User.Role.EXTENSION_AGENT.
-
-        Returns
-        -------
-        str
-            The resolved URL string for the role's dashboard.
-        """
-
-        if role == User.Role.FARMER:
-            return reverse_lazy("farmers:dashboard")
-
-        return reverse_lazy("agents:dashboard")

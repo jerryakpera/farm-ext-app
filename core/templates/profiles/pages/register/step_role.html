@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="min-h-screen flex flex-col lg:flex-row">
+
+  <!-- LEFT: FORM -->
+  <div class="flex-1 flex items-center justify-center px-6 py-16 bg-light">
+    <div class="w-full max-w-xl">
+
+      <h1 class="font-serif text-3xl font-bold text-dark mb-2">
+        Create your account
+      </h1>
+      <p class="text-sm text-dark-400 mb-6">
+        Step {{ current_step_num }} of {{ total_steps }}
+      </p>
+
+      {% include "profiles/pages/register/_stepper.html" %}
+
+      <form method="post" class="space-y-6">
+        {% csrf_token %}
+        {{ wizard.management_form }}
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+          <!-- Farmer -->
+          <label class="role-card">
+            <input type="radio" name="{{ form.role.html_name }}" value="farmer">
+            <span class="role-card__label">Farmer</span>
+          </label>
+
+          <!-- Agent -->
+          <label class="role-card">
+            <input type="radio" name="{{ form.role.html_name }}" value="extension_agent">
+            <span class="role-card__label">Extension Agent</span>
+          </label>
+
+        </div>
+
+        <button class="btn btn--primary w-full">Continue</button>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- RIGHT: IMAGE -->
+  <div class="flex-1 hidden lg:block relative">
+    <img src="{% static 'base/images/maize1.jpg' %}"
+         class="w-full h-full object-cover" />
+    <div class="absolute inset-0 bg-primary/20"></div>
+  </div>
+
+</section>
+{% endblock %}

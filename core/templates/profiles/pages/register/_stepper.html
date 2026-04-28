@@ -1,0 +1,33 @@
+{% comment %}
+Partial — step indicator bar.
+Included at the top of every registration step template.
+{% endcomment %}
+
+<div class="flex items-center mb-8" aria-label="Registration progress">
+  {% for step in wizard.steps.all %}
+
+    {# Resolve display label for each step name #}
+    {% if step == "role_selection" %}
+      {% with label="Role" %}
+        {% include "profiles/pages/register/_stepper_node.html" with step_name=step label=label %}
+      {% endwith %}
+    {% elif step == "profile_bio" %}
+      {% with label="Your Details" %}
+        {% include "profiles/pages/register/_stepper_node.html" with step_name=step label=label %}
+      {% endwith %}
+    {% elif step == "farm_details" %}
+      {% with label="Farm & Crops" %}
+        {% include "profiles/pages/register/_stepper_node.html" with step_name=step label=label %}
+      {% endwith %}
+    {% endif %}
+
+    {# Connector line — omit after the last step #}
+    {% if not forloop.last %}
+      <div class="flex-1 h-0.5 mx-2 mb-5
+        {% if forloop.counter < current_step_num %}bg-primary{% else %}bg-surface-border{% endif %}
+        transition-colors duration-300">
+      </div>
+    {% endif %}
+
+  {% endfor %}
+</div>

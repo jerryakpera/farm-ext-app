@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Register — Your Details{% endblock %}
+
+{% block content %}
+<section class="min-h-screen flex flex-col lg:flex-row">
+
+  <!-- LEFT -->
+  <div class="flex-1 flex items-center justify-center px-6 py-16 bg-light">
+    <div class="w-full max-w-xl">
+
+      <h1 class="font-serif text-3xl font-bold text-dark mb-2">
+        Your details
+      </h1>
+
+      {% include "profiles/pages/register/_stepper.html" %}
+
+      <form method="post" class="space-y-6">
+        {% csrf_token %}
+        {{ wizard.management_form }}
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {% for field in form %}
+            <div class="{% if field.name in 'email phone_number lga agency_name staff_id' %}sm:col-span-2{% endif %}">
+              {% include "common/forms/form_field.html" with field=field %}
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="flex justify-between">
+          <button
+            type="submit"
+            formnovalidate
+            class="btn btn--ghost"
+            name="wizard_goto_step"
+            value="{{ wizard.steps.prev }}"
+          >
+            Back
+          </button>
+
+          <button class="btn btn--primary" type="submit">Continue</button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="flex-1 hidden lg:block">
+    <img src="{% static 'base/images/rice2.jpg' %}"
+         class="w-full h-full object-cover" />
+  </div>
+
+</section>
+{% endblock %}

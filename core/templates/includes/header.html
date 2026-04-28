@@ -31,7 +31,7 @@
           {% endif %}
 
           {% if user.is_extension_agent %}
-            <a href="{% url 'agents:dashboard' %}" class="nav-link {% block nav_agent_dashboard %}{% endblock %}">
+            <a href="{% url 'common:index' %}" class="nav-link {% block nav_agent_dashboard %}{% endblock %}">
               Dashboard
             </a>
             <a href="#" class="nav-link {% block nav_questions_queue %}{% endblock %}">

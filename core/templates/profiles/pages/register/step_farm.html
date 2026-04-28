@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Register — Farm &amp; Crop Details{% endblock %}
+
+{% block content %}
+<section class="min-h-screen flex flex-col lg:flex-row">
+
+  <!-- LEFT -->
+  <div class="flex-1 flex items-center justify-center px-6 py-16 bg-light">
+    <div class="w-full max-w-xl">
+
+      <h1 class="font-serif text-3xl font-bold text-dark mb-2">
+        Your farm
+      </h1>
+
+      {% include "profiles/pages/register/_stepper.html" %}
+
+      <form method="post" class="space-y-6">
+        {% csrf_token %}
+        {{ wizard.management_form }}
+
+        {% include "common/forms/form_errors.html" %}
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+          <div>
+            {% include "common/forms/form_field.html" with field=form.farm_name %}
+          </div>
+
+          <div>
+            {% include "common/forms/form_field.html" with field=form.size %}
+          </div>
+
+          <div>
+            {% include "common/forms/form_field.html" with field=form.primary_crop %}
+          </div>
+
+          <div class="sm:col-span-2">
+            {% include "common/forms/form_field.html" with field=form.farm_address %}
+          </div>
+
+        </div>
+
+        <div class="flex justify-between">
+          <button
+            type="submit"
+            name="wizard_goto_step"
+            value="{{ wizard.steps.prev }}"
+            class="btn btn--ghost"
+            formnovalidate
+          >
+            Back
+          </button>
+
+          <button class="btn btn--primary" type="submit">
+            Create Account
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="flex-1 hidden lg:block">
+    <img
+      src="{% static 'base/images/farmer1.jpg' %}"
+      class="w-full h-full object-cover"
+    />
+  </div>
+
+</section>
+{% endblock %}
