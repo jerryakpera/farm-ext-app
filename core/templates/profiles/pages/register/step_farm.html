@@ -32,8 +32,71 @@
             {% include "common/forms/form_field.html" with field=form.size %}
           </div>
 
-          <div>
-            {% include "common/forms/form_field.html" with field=form.primary_crop %}
+          {# farm_lga was missing — required field, was silently failing #}
+          <div class="sm:col-span-2">
+            {% include "common/forms/form_field.html" with field=form.farm_lga %}
+          </div>
+
+          <!-- Primary crop — single select -->
+          <div class="flex flex-col gap-1 sm:col-span-2">
+            <label for="{{ form.primary_crop.id_for_label }}"
+                  class="text-sm font-semibold text-dark-700">
+              Primary Crop
+            </label>
+            {{ form.primary_crop }}
+            <span class="text-xs text-dark-400">{{ form.primary_crop.help_text }}</span>
+            {% for error in form.primary_crop.errors %}
+              <span class="text-xs text-danger">{{ error }}</span>
+            {% endfor %}
+          </div>
+
+          <!-- Other crops — badge-style checkbox group -->
+          <div class="flex flex-col gap-2 sm:col-span-2">
+            <span class="text-sm font-semibold text-dark-700">
+              Other Crops
+              <span class="text-dark-300 font-normal">(optional)</span>
+            </span>
+            <span class="text-xs text-dark-400">{{ form.other_crops.help_text }}</span>
+
+            <div class="flex flex-wrap gap-1">
+              {% for checkbox in form.other_crops %}
+                <label class="cursor-pointer">
+                  <input type="checkbox"
+                        name="{{ checkbox.data.name }}"
+                        value="{{ checkbox.data.value }}"
+                        {% if checkbox.data.selected %}checked{% endif %}
+                        class="sr-only peer" />
+                  <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium
+                              border border-surface-border bg-surface-muted text-dark-500 select-none
+                              peer-checked:border-primary peer-checked:bg-primary-50 peer-checked:text-primary
+                              hover:border-primary-300 hover:bg-primary-50
+                              transition-all duration-150 cursor-pointer">
+
+                    {# Checkmark — hidden until checked #}
+                    <svg class="w-3 h-3 hidden peer-checked:block text-primary"
+                        fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                    </svg>
+
+                    {{ checkbox.choice_label }}
+                  </span>
+                </label>
+              {% endfor %}
+            </div>
+
+            {# farm_address was missing — required field #}
+            <div class="sm:col-span-2">
+              {% include "common/forms/form_field.html" with field=form.farm_address %}
+            </div>
+
+            {# landmark is optional but should still be rendered #}
+            <div class="sm:col-span-2">
+              {% include "common/forms/form_field.html" with field=form.landmark %}
+            </div>
+
+            {% for error in form.other_crops.errors %}
+              <span class="text-xs text-danger">{{ error }}</span>
+            {% endfor %}
           </div>
 
           <div class="sm:col-span-2">

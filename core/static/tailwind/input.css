@@ -87,6 +87,10 @@
    Component layer
 ------------------------------------------------------------------------- */
 @layer components {
+  .crop-badge input[type='checkbox'] {
+    @apply sr-only peer;
+  }
+
   /* --- Buttons --- */
   .btn {
     @apply inline-flex items-center justify-center gap-2

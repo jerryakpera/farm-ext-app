@@ -6,7 +6,20 @@ Admin configuration for the farms app.
 from django.contrib import admin
 
 # app_packages
-from .models import Farm, FarmImage
+from .models import Crop, Farm, FarmImage
+
+
+admin.site.register(FarmImage)
+
+
+@admin.register(Crop)
+class CropAdmin(admin.ModelAdmin):
+    """
+    Admin configuration for managing Crop records.
+    """
+
+    list_display = ("name",)
+    search_fields = ("name",)
 
 
 class FarmImageInline(admin.TabularInline):
@@ -30,15 +43,6 @@ class FarmAdmin(admin.ModelAdmin):
     """
 
     inlines = [FarmImageInline]
-    list_display = (
-        "name",
-        "farmer",
-        "lga",
-        "primary_crop",
-        "size",
-        "is_verified",
-        "created_at",
-    )
-    list_filter = ("is_verified", "lga")
-    search_fields = ("name", "farmer__user__full_name", "primary_crop")
-    readonly_fields = ("created_at", "updated_at", "verified_at", "verified_by")
+    list_display = ("name", "farmer", "primary_crop", "lga", "is_verified")
+    list_filter = ("is_verified", "lga", "primary_crop")
+    filter_horizontal = ("other_crops",)

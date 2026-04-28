@@ -253,17 +253,20 @@ class RegistrationWizardView(SessionWizardView):
             lga=step2.get("lga"),
         )
 
-        Farm.objects.create(
+        farm = Farm.objects.create(
             farmer=farmer_profile,
             name=step3["farm_name"],
             lga=step3.get("farm_lga"),
             address=step3.get("farm_address", ""),
             size=step3["size"],
-            primary_crop=step3["primary_crop"],
-            other_crops=step3.get("other_crops", ""),
-            latitude=step3.get("latitude"),
-            longitude=step3.get("longitude"),
+            primary_crop=step3.get("primary_crop"),
         )
+
+        # M2M must be assigned after the instance has been saved.
+        other_crops = step3.get("other_crops")
+
+        if other_crops:
+            farm.other_crops.set(other_crops)
 
     def _create_agent_records(self, user, step2):
         """

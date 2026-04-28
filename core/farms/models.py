@@ -10,6 +10,31 @@ from core.common.models import LGA
 from core.profiles.models import ExtensionAgentProfile, FarmerProfile
 
 
+class Crop(models.Model):
+    """
+    A reference crop that can be associated with one or more farms.
+    """
+
+    name = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        verbose_name = "Crop"
+        verbose_name_plural = "Crops"
+        ordering = ["name"]
+
+    def __str__(self):
+        """
+        Return the string representation of the crop.
+
+        Returns
+        -------
+        str
+            The crop name.
+        """
+
+        return self.name
+
+
 class Farm(models.Model):
     """
     Represents a farm registered by a farmer.
@@ -37,28 +62,21 @@ class Farm(models.Model):
         decimal_places=2,
         help_text="Farm size in hectares.",
     )
-    primary_crop = models.CharField(
-        max_length=100,
-        help_text="e.g. Maize, Tomato, Yam.",
-    )
-    other_crops = models.TextField(
-        blank=True,
-        help_text="Comma-separated list of other crops grown on the farm.",
-    )
-    latitude = models.DecimalField(
-        max_digits=9,
-        decimal_places=6,
+    primary_crop = models.ForeignKey(
+        Crop,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        help_text="Optional GPS latitude for geo-tagging.",
+        related_name="primary_farms",
+        help_text="The main crop grown on this farm.",
     )
-    longitude = models.DecimalField(
-        max_digits=9,
-        decimal_places=6,
-        null=True,
+    other_crops = models.ManyToManyField(
+        Crop,
         blank=True,
-        help_text="Optional GPS longitude for geo-tagging.",
+        related_name="secondary_farms",
+        help_text="Additional crops grown on this farm.",
     )
+
     is_verified = models.BooleanField(
         default=False,
         help_text="Set to True by an extension agent after physical verification.",
