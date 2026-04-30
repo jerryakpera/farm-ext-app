@@ -41,6 +41,7 @@ THIRD_PARTY_APPS = [
     "django_use_email_as_username.apps.DjangoUseEmailAsUsernameConfig",
     "core.custom_user.apps.CustomUserConfig",
     "formtools",
+    "storages",
 ]
 
 LOCAL_APPS = [
@@ -52,7 +53,14 @@ LOCAL_APPS = [
     "core.visits",
 ]
 
-INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+INSTALLED_APPS = (
+    DJANGO_APPS
+    + THIRD_PARTY_APPS
+    + LOCAL_APPS
+    + [
+        "django_cleanup.apps.CleanupConfig",  # must be last
+    ]
+)
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -100,7 +108,7 @@ DATABASES = {
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 LOGIN_REDIRECT_URL = "/"
 LOGIN_URL = "profiles:login"
-LOGOUT_REDIRECT_URL = "accounts:login"
+LOGOUT_REDIRECT_URL = "profiles:login"
 
 AUTH_USER_MODEL = "custom_user.User"
 AUTH_PASSWORD_VALIDATORS = [
@@ -131,10 +139,43 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/6.0/howto/static-files/
-
+# ── Static files ────────────────────────────────────────────────────────────
+WHITENOISE_USE_BROTLI = True
+WHITENOISE_AUTOREFRESH = True
 
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "core" / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+
+# ── AWS credentials ──────────────────────────────────────────────────────────
+AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME")
+AWS_LOCATION = config("AWS_LOCATION")
+
+AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None
+
+AWS_S3_OBJECT_PARAMETERS = {
+    "CacheControl": "max-age=86400",
+}
+
+# ── Media files → S3 ────────────────────────────────────────────────────────
+MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/"
+
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+    "default": {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        "OPTIONS": {
+            "bucket_name": AWS_STORAGE_BUCKET_NAME,
+            "location": AWS_LOCATION,
+            "file_overwrite": False,
+            "default_acl": None,
+        },
+    },
+}

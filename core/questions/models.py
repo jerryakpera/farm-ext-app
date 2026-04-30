@@ -6,6 +6,7 @@ Models for the questions app.
 from django.db import models
 
 # other_apps_packages
+from core.common import utils as common_utils, validators as common_validators
 from core.farms.models import Farm
 from core.profiles.models import ExtensionAgentProfile, FarmerProfile
 
@@ -85,7 +86,13 @@ class QuestionImage(models.Model):
         on_delete=models.CASCADE,
         related_name="images",
     )
-    image = models.ImageField(upload_to="question_images/")
+    image = models.ImageField(
+        upload_to=common_utils.file_upload_path,
+        validators=[
+            common_validators.validate_image_size,
+            common_validators.validate_image_format,
+        ],
+    )
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -153,7 +160,13 @@ class AnswerImage(models.Model):
         on_delete=models.CASCADE,
         related_name="images",
     )
-    image = models.ImageField(upload_to="answer_images/")
+    image = models.ImageField(
+        upload_to=common_utils.file_upload_path,
+        validators=[
+            common_validators.validate_image_size,
+            common_validators.validate_image_format,
+        ],
+    )
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

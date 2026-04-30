@@ -6,6 +6,7 @@ Models for the farms app.
 from django.db import models
 
 # other_apps_packages
+from core.common import utils as common_utils, validators as common_validators
 from core.common.models import LGA
 from core.profiles.models import ExtensionAgentProfile, FarmerProfile
 
@@ -58,9 +59,13 @@ class Farm(models.Model):
         help_text="Street address or nearest landmark.",
     )
     image = models.ImageField(
-        upload_to="farm_images/",
         null=True,
         blank=True,
+        upload_to=common_utils.file_upload_path,
+        validators=[
+            common_validators.validate_image_size,
+            common_validators.validate_image_format,
+        ],
         help_text="A single representative image of the farm.",
     )
     size = models.DecimalField(

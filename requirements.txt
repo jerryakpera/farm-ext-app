@@ -50,6 +50,7 @@ django==6.0.4
     #   django-cors-headers
     #   django-filter
     #   django-formtools
+    #   django-storages
     #   django-timezone-field
     #   django-use-email-as-username
     #   djangorestframework
@@ -59,6 +60,8 @@ django-celery-beat==2.9.0
     # via -r requirements.in
 django-celery-results==2.6.0
     # via -r requirements.in
+django-cleanup==9.0.0
+    # via -r requirements.in
 django-cors-headers==4.9.0
     # via -r requirements.in
 django-filter==25.2
@@ -66,6 +69,8 @@ django-filter==25.2
 django-formtools==2.5.1
     # via -r requirements.in
 django-ratelimit==4.1.0
+    # via -r requirements.in
+django-storages==1.14.5
     # via -r requirements.in
 django-timezone-field==7.2.1
     # via django-celery-beat
