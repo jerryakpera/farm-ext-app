@@ -89,9 +89,9 @@
               {% include "common/forms/form_field.html" with field=form.farm_address %}
             </div>
 
-            {# landmark is optional but should still be rendered #}
+            {# address is optional but should still be rendered #}
             <div class="sm:col-span-2">
-              {% include "common/forms/form_field.html" with field=form.landmark %}
+              {% include "common/forms/form_field.html" with field=form.address %}
             </div>
 
             {% for error in form.other_crops.errors %}

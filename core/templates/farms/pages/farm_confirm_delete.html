@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-md mx-auto px-4 py-20 text-center">
+
+  <div class="mb-6 text-red-500">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto" fill="none"
+         viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+      <path stroke-linecap="round" stroke-linejoin="round"
+            d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73
+               0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898
+               0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+    </svg>
+  </div>
+
+  <h1 class="text-xl font-bold text-gray-800 mb-2">Delete Farm</h1>
+  <p class="text-gray-600 text-sm mb-8">
+    Are you sure you want to delete <strong>{{ farm.name }}</strong>?
+    All associated images will also be removed. This cannot be undone.
+  </p>
+
+  <form method="post" class="flex justify-center gap-3">
+    {% csrf_token %}
+    <button type="submit"
+            class="bg-red-600 hover:bg-red-700 text-white text-sm font-medium
+                   px-6 py-2 rounded-md transition-colors">
+      Yes, delete it
+    </button>
+    <a href="{% url 'farm-detail' farm.pk %}"
+       class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium
+              px-6 py-2 rounded-md transition-colors">
+      Cancel
+    </a>
+  </form>
+</div>
+{% endblock %}

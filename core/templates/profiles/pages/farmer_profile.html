@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8">
+
+  <h1 class="text-2xl font-bold text-gray-800 mb-6">My Profile</h1>
+
+  {% for message in messages %}
+    <div class="mb-4 px-4 py-3 rounded-md bg-green-50 text-green-800 text-sm border border-green-200">
+      {{ message }}
+    </div>
+  {% endfor %}
+
+  <form method="post" enctype="multipart/form-data" class="space-y-5">
+    {% csrf_token %}
+
+    {% if request.user.profile_photo %}
+      <div class="flex items-center gap-4 mb-2">
+        <img src="{{ request.user.profile_photo.url }}"
+             alt="Profile photo"
+             class="w-20 h-20 rounded-full object-cover border border-gray-200">
+        <span class="text-sm text-gray-500">Upload a new photo to replace this one</span>
+      </div>
+    {% endif %}
+
+    {% for field in form %}
+      <div>
+        <label for="{{ field.id_for_label }}"
+               class="block text-sm font-medium text-gray-700 mb-1">
+          {{ field.label }}
+        </label>
+        <div class="[&>input]:w-full [&>input]:border [&>input]:border-gray-300
+                    [&>input]:rounded-md [&>input]:px-3 [&>input]:py-2 [&>input]:text-sm
+                    [&>input]:focus:outline-none [&>input]:focus:ring-2
+                    [&>input]:focus:ring-green-500
+                    [&>select]:w-full [&>select]:border [&>select]:border-gray-300
+                    [&>select]:rounded-md [&>select]:px-3 [&>select]:py-2 [&>select]:text-sm
+                    [&>textarea]:w-full [&>textarea]:border [&>textarea]:border-gray-300
+                    [&>textarea]:rounded-md [&>textarea]:px-3 [&>textarea]:py-2
+                    [&>textarea]:text-sm">
+          {{ field }}
+        </div>
+        {% if field.help_text %}
+          <p class="mt-1 text-xs text-gray-400">{{ field.help_text }}</p>
+        {% endif %}
+        {% for error in field.errors %}
+          <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+        {% endfor %}
+      </div>
+    {% endfor %}
+
+    <button type="submit"
+            class="w-full bg-green-600 hover:bg-green-700 text-white font-medium
+                   py-2 px-4 rounded-md transition-colors text-sm">
+      Save Changes
+    </button>
+  </form>
+</div>
+{% endblock %}

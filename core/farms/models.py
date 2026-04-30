@@ -57,6 +57,12 @@ class Farm(models.Model):
         blank=True,
         help_text="Street address or nearest landmark.",
     )
+    image = models.ImageField(
+        upload_to="farm_images/",
+        null=True,
+        blank=True,
+        help_text="A single representative image of the farm.",
+    )
     size = models.DecimalField(
         max_digits=8,
         decimal_places=2,
@@ -113,38 +119,3 @@ class Farm(models.Model):
         """
 
         return f"{self.name} — {self.farmer.user.full_name}"
-
-
-class FarmImage(models.Model):
-    """
-    Stores individual images belonging to a Farm.
-
-    A farm can have multiple images uploaded by the farmer to help
-    extension agents understand the farm layout, crops, and conditions
-    before and during verification.
-    """
-
-    farm = models.ForeignKey(
-        Farm,
-        on_delete=models.CASCADE,
-        related_name="images",
-    )
-    image = models.ImageField(upload_to="farm_images/")
-    uploaded_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name = "Farm Image"
-        verbose_name_plural = "Farm Images"
-        ordering = ["uploaded_at"]
-
-    def __str__(self):
-        """
-        Return the string representation of the farm image.
-
-        Returns
-        -------
-        str
-            The str representation of the farm image.
-        """
-
-        return f"Image for {self.farm.name} ({self.uploaded_at.date()})"

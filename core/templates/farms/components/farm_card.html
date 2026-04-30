@@ -1,0 +1,113 @@
+<div class="border border-gray-200 rounded-xl bg-white overflow-hidden
+            hover:shadow-md transition-shadow">
+
+  {# ── Image / placeholder ── #}
+  <a href="{% url 'farm-detail' farm.pk %}" class="block">
+    {% if farm.image %}
+      <img src="{{ farm.image.url }}"
+           alt="Photo of {{ farm.name }}"
+           class="w-full h-40 object-cover">
+    {% else %}
+      <div class="w-full h-40 bg-gray-100 flex flex-col items-center
+                  justify-center gap-1 text-gray-400">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 opacity-40"
+             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M9 22V12h6v10"/>
+        </svg>
+        <span class="text-xs">No image</span>
+      </div>
+    {% endif %}
+  </a>
+
+  {# ── Card body ── #}
+  <div class="p-5 flex flex-col gap-3">
+
+    {# Name + verification badge #}
+    <div class="flex items-start justify-between gap-2">
+      <a href="{% url 'farm-detail' farm.pk %}"
+         class="font-semibold text-gray-800 hover:text-green-700 leading-snug">
+        {{ farm.name }}
+      </a>
+      {% if farm.is_verified %}
+        <span class="shrink-0 inline-flex items-center gap-1 text-xs font-medium
+                     bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20"
+               fill="currentColor">
+            <path fill-rule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414L8.414 15l-4.121-4.121a1 1 0
+                     00-1.414 1.414l4.828 4.828a1 1 0 001.414 0l9-9a1 1 0
+                     000-1.414z" clip-rule="evenodd"/>
+          </svg>
+          Verified
+        </span>
+      {% else %}
+        <span class="shrink-0 text-xs font-medium bg-yellow-100
+                     text-yellow-700 px-2 py-0.5 rounded-full">
+          Pending
+        </span>
+      {% endif %}
+    </div>
+
+    {# Key details grid #}
+    <dl class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+
+      <div>
+        <dt class="detail-label">Size</dt>
+        <dd class="text-gray-700 font-medium">{{ farm.size }} ha</dd>
+      </div>
+
+      <div>
+        <dt class="detail-label">Location</dt>
+        <dd class="text-gray-700 font-medium">
+          {% if farm.lga %}{{ farm.lga }}{% else %}—{% endif %}
+        </dd>
+      </div>
+
+      <div>
+        <dt class="detail-label">Primary crop</dt>
+        <dd class="text-gray-700 font-medium">
+          {% if farm.primary_crop %}{{ farm.primary_crop }}{% else %}—{% endif %}
+        </dd>
+      </div>
+
+      <div>
+        <dt class="detail-label">Other crops</dt>
+        <dd class="text-gray-700 font-medium">
+          {% with count=farm.other_crops.all|length %}
+            {% if count %}
+              {# Secondary crops pill list (shown only when present) #}
+              {% with other=farm.other_crops.all %}
+                {% if other %}
+                  <div class="flex flex-wrap gap-1">
+                    {% for crop in other %}
+                      <span class="badge badge-outline badge-primary font-light">
+                        {{ crop.name }}
+                      </span>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              {% endwith %}
+            {% else %}
+              ---
+            {% endif %}
+          {% endwith %}
+        </dd>
+      </div>
+
+    </dl>
+
+    <hr class="my-2 border-gray-200">
+
+     {# Registered date #}
+
+
+    {# Registered date #}
+    <p class="text-xs text-gray-400 text-right font-semibold">
+      Registered {{ farm.created_at|date:"d M Y" }}
+    </p>
+
+  </div>
+</div>

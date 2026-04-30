@@ -2,7 +2,7 @@
 {# Top navigation bar                                                  #}
 {# ------------------------------------------------------------------ #}
 <header class="sticky top-0 z-40 w-full bg-white border-b border-surface-border shadow-card">
-  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+  <div class="container-main">
     <div class="flex h-16 items-center justify-between gap-4">
 
       {# Brand #}
@@ -16,36 +16,7 @@
 
       {# Desktop nav — shown to authenticated users only #}
       {% if user.is_authenticated %}
-        <nav class="hidden md:flex items-center gap-1" aria-label="Primary navigation">
-
-          {% if user.is_farmer %}
-            <a href="{% url 'common:index' %}" class="nav-link {% block nav_dashboard %}{% endblock %}">
-              Dashboard
-            </a>
-            <a href="#" class="nav-link {% block nav_questions %}{% endblock %}">
-              My Questions
-            </a>
-            <a href="#" class="nav-link {% block nav_advisory %}{% endblock %}">
-              Advisory Tips
-            </a>
-          {% endif %}
-
-          {% if user.is_extension_agent %}
-            <a href="{% url 'common:index' %}" class="nav-link {% block nav_agent_dashboard %}{% endblock %}">
-              Dashboard
-            </a>
-            <a href="#" class="nav-link {% block nav_questions_queue %}{% endblock %}">
-              Questions
-            </a>
-            <a href="#" class="nav-link {% block nav_visits %}{% endblock %}">
-              Farm Visits
-            </a>
-            <a href="#" class="nav-link {% block nav_posts %}{% endblock %}">
-              My Posts
-            </a>
-          {% endif %}
-
-        </nav>
+        {% include "./authenticated_menu.html" %}
       {% endif %}
 
       {# Right-side controls #}

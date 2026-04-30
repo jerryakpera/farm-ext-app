@@ -64,10 +64,10 @@ class FarmDetailsForm(forms.Form):
         help_text="Street address or description of the farm's location.",
     )
 
-    landmark = forms.CharField(
+    address = forms.CharField(
         max_length=255,
         required=False,
-        help_text="A nearby landmark to help locate the farm.",
+        help_text="A nearby address to help locate the farm.",
     )
 
     size = forms.DecimalField(
@@ -87,4 +87,14 @@ class FarmDetailsForm(forms.Form):
         required=False,
         widget=CropCheckboxSelectMultiple,
         help_text="Select all additional crops grown on this farm.",
+    )
+
+
+class FarmImageUploadForm(forms.Form):
+    """
+    Accepts a single image for a given farm.
+    """
+
+    image = forms.ImageField(
+        help_text="Upload an image of your farm.",
     )

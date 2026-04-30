@@ -3,10 +3,10 @@ Views for the accounts app.
 """
 
 # django_packages
+from django.contrib import messages
 from django.contrib.auth import login
 from django.db import transaction
-from django.shortcuts import redirect
-from django.urls import reverse_lazy
+from django.shortcuts import redirect, render
 
 # third_party_packages
 from formtools.wizard.views import SessionWizardView
@@ -17,7 +17,7 @@ from core.farms.forms import FarmDetailsForm
 from core.farms.models import Farm, FarmerProfile
 
 # app_packages
-from .forms import ProfileBioForm, RoleSelectionForm
+from .forms import FarmerProfileForm, ProfileBioForm, RoleSelectionForm
 from .models import ExtensionAgentProfile, ExtensionAgentWhitelist
 
 
@@ -288,3 +288,86 @@ class RegistrationWizardView(SessionWizardView):
 
         # Mark the whitelist entry so the email cannot be reused.
         ExtensionAgentWhitelist.objects.filter(email=user.email).update(is_used=True)
+
+
+def farmer_required(view_func):
+    """
+    Decorator that restricts access to views to authenticated users with the farmer role.
+    Redirects unauthenticated users to login and non-farmers to home.
+
+    Parameters
+    ----------
+    view_func : callable
+        The view function to be wrapped.
+
+    Returns
+    -------
+    callable
+        The wrapped view function enforcing farmer-only access.
+    """
+
+    def wrapper(request, *args, **kwargs):
+        """
+        Enforce authentication and farmer role access control.
+
+        Parameters
+        ----------
+        request : HttpRequest
+            The incoming HTTP request.
+        *args
+            Positional arguments passed to the view.
+        **kwargs
+            Keyword arguments passed to the view.
+
+        Returns
+        -------
+        HttpResponse
+            Redirects to login or home if unauthorized, otherwise executes the view.
+        """
+
+        if not request.user.is_authenticated:
+            return redirect("login")
+        if not request.user.is_farmer:
+            messages.error(request, "Access restricted to farmers only.")
+            return redirect("home")
+        return view_func(request, *args, **kwargs)
+
+    return wrapper
+
+
+@farmer_required
+def farmer_profile_view(request):
+    """
+    Display and update the authenticated farmer's profile.
+
+    GET renders the profile form pre-filled with existing data.
+    POST validates and updates both User and FarmerProfile models.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        The incoming HTTP request.
+
+    Returns
+    -------
+    HttpResponse
+        Rendered profile page or redirect after successful update.
+    """
+
+    profile = request.user.farmer_profile
+
+    if request.method == "POST":
+        form = FarmerProfileForm(
+            request.POST,
+            request.FILES,
+            user=request.user,
+            profile=profile,
+        )
+        if form.is_valid():
+            form.save(user=request.user, profile=profile)
+            messages.success(request, "Profile updated successfully.")
+            return redirect("farmer-profile")
+    else:
+        form = FarmerProfileForm(user=request.user, profile=profile)
+
+    return render(request, "profiles/farmer_profile.html", {"form": form})

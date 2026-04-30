@@ -110,3 +110,83 @@ class ProfileBioForm(forms.Form):
             self.add_error("confirm_password", "Passwords do not match.")
 
         return cleaned_data
+
+
+class FarmerProfileForm(forms.Form):
+    """
+    Allows a farmer to update their profile and the underlying User fields.
+
+    Parameters
+    ----------
+    *args
+        Positional arguments passed to the parent form class.
+    user : User, optional
+        The authenticated user whose fields are used to populate the form.
+    profile : FarmerProfile, optional
+        The farmer profile instance used to populate profile-specific fields.
+    **kwargs
+        Keyword arguments passed to the parent form class.
+    """
+
+    # --- user fields ---
+    first_name = forms.CharField(max_length=150)
+    last_name = forms.CharField(max_length=150)
+    phone_number = forms.CharField(max_length=20, required=False)
+    profile_photo = forms.ImageField(required=False)
+
+    # --- profile fields ---
+    lga = forms.ModelChoiceField(
+        queryset=LGA.objects.all(),
+        required=False,
+        label="Local Government Area",
+    )
+    address = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={"rows": 3}),
+    )
+    date_of_birth = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={"type": "date"}),
+    )
+
+    def __init__(self, *args, user=None, profile=None, **kwargs):
+        """
+        Initialize the form with optional user and profile instances
+        to prepopulate existing data.
+        """
+
+        super().__init__(*args, **kwargs)
+        if user:
+            self.fields["first_name"].initial = user.first_name
+            self.fields["last_name"].initial = user.last_name
+            self.fields["phone_number"].initial = user.phone_number
+        if profile:
+            self.fields["lga"].initial = profile.lga
+            self.fields["address"].initial = profile.address
+            self.fields["date_of_birth"].initial = profile.date_of_birth
+
+    def save(self, user, profile):
+        """
+        Persist changes to both the User and FarmerProfile instances.
+
+        Parameters
+        ----------
+        user : User
+            The authenticated user whose fields will be updated.
+        profile : FarmerProfile
+            The farmer profile whose fields will be updated.
+        """
+
+        user.first_name = self.cleaned_data["first_name"]
+        user.last_name = self.cleaned_data["last_name"]
+        user.phone_number = self.cleaned_data["phone_number"]
+
+        if self.cleaned_data.get("profile_photo"):
+            user.profile_photo = self.cleaned_data["profile_photo"]
+
+        user.save()
+
+        profile.lga = self.cleaned_data["lga"]
+        profile.address = self.cleaned_data["address"]
+        profile.date_of_birth = self.cleaned_data["date_of_birth"]
+        profile.save()

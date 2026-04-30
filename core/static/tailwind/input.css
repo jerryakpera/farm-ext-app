@@ -379,4 +379,12 @@
   .stat-card__delta--down {
     @apply text-danger;
   }
+
+  .container-main {
+    @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .detail-label {
+    @apply text-xs text-gray-400 font-light;
+  }
 }

@@ -11,8 +11,8 @@ from core.farms.forms import FarmDetailsForm
 from core.profiles.decorators import guest_only
 
 # app_packages
+from . import views
 from .forms import ProfileBioForm, RoleSelectionForm
-from .views import RegistrationWizardView
 
 
 app_name = "accounts"
@@ -30,7 +30,7 @@ urlpatterns = [
     # --- Registration wizard ---
     path(
         "register/",
-        RegistrationWizardView.as_view(WIZARD_FORMS),
+        views.RegistrationWizardView.as_view(WIZARD_FORMS),
         name="register",
     ),
     # --- Login ---
@@ -51,5 +51,10 @@ urlpatterns = [
             next_page="accounts:login",
         ),
         name="logout",
+    ),
+    path(
+        "farmer/profile/",
+        view=views.farmer_profile_view,
+        name="farmer-profile",
     ),
 ]
