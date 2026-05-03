@@ -6,36 +6,7 @@ Admin configuration for the questions app.
 from django.contrib import admin
 
 # app_packages
-from .models import (
-    Answer,
-    AnswerHelpfulness,
-    AnswerImage,
-    Escalation,
-    Question,
-    QuestionImage,
-)
-
-
-class QuestionImageInline(admin.TabularInline):
-    """
-    Inline admin for QuestionImage.
-    Displays attached images within the Question detail page.
-    """
-
-    model = QuestionImage
-    extra = 1
-    readonly_fields = ("uploaded_at",)
-
-
-class AnswerImageInline(admin.TabularInline):
-    """
-    Inline admin for AnswerImage.
-    Displays attached images within the Answer detail page.
-    """
-
-    model = AnswerImage
-    extra = 1
-    readonly_fields = ("uploaded_at",)
+from .models import Answer, AnswerHelpfulness, Escalation, Question
 
 
 class AnswerInline(admin.TabularInline):
@@ -59,7 +30,7 @@ class QuestionAdmin(admin.ModelAdmin):
     Answers and images are accessible inline.
     """
 
-    inlines = [QuestionImageInline, AnswerInline]
+    inlines = [AnswerInline]
     list_display = (
         "title",
         "farmer",
@@ -82,7 +53,6 @@ class AnswerAdmin(admin.ModelAdmin):
     Answer images are accessible inline.
     """
 
-    inlines = [AnswerImageInline]
     list_display = ("question", "agent", "created_at")
     search_fields = ("question__title", "agent__user__full_name")
     readonly_fields = ("created_at", "updated_at")

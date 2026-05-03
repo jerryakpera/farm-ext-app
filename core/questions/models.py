@@ -39,12 +39,26 @@ class Question(models.Model):
         related_name="questions",
         help_text="The farm this question relates to, if applicable.",
     )
+    image = models.ImageField(
+        upload_to=common_utils.file_upload_path,
+        validators=[
+            common_validators.validate_image_size,
+            common_validators.validate_image_format,
+        ],
+        null=True,
+        blank=True,
+        help_text="An optional image to help illustrate the question.",
+    )
+
     title = models.CharField(max_length=255)
     body = models.TextField()
-    crop_concern = models.CharField(
-        max_length=100,
+    crop_concern = models.ForeignKey(
+        "farms.Crop",
+        on_delete=models.SET_NULL,
+        null=True,
         blank=True,
-        help_text="The crop this question is about, e.g. Maize, Tomato.",
+        related_name="questions",
+        help_text="The crop this question is about.",
     )
     status = models.CharField(
         max_length=20,
@@ -73,44 +87,7 @@ class Question(models.Model):
             The question title and farmer's full name.
         """
 
-        return f"{self.title} — {self.farmer.user.full_name}"
-
-
-class QuestionImage(models.Model):
-    """
-    An image attached to a Question by the farmer.
-    """
-
-    question = models.ForeignKey(
-        Question,
-        on_delete=models.CASCADE,
-        related_name="images",
-    )
-    image = models.ImageField(
-        upload_to=common_utils.file_upload_path,
-        validators=[
-            common_validators.validate_image_size,
-            common_validators.validate_image_format,
-        ],
-    )
-    uploaded_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name = "Question Image"
-        verbose_name_plural = "Question Images"
-        ordering = ["uploaded_at"]
-
-    def __str__(self):
-        """
-        Return the string representation of a question image.
-
-        Returns
-        -------
-        str
-            The question title associated with the image.
-        """
-
-        return f"Image for question: {self.question.title}"
+        return f"{self.title} — {self.farmer.user}"
 
 
 class Answer(models.Model):
@@ -128,6 +105,18 @@ class Answer(models.Model):
         on_delete=models.CASCADE,
         related_name="answers",
     )
+
+    image = models.ImageField(
+        upload_to=common_utils.file_upload_path,
+        validators=[
+            common_validators.validate_image_size,
+            common_validators.validate_image_format,
+        ],
+        null=True,
+        blank=True,
+        help_text="An optional image to help illustrate the answer.",
+    )
+
     body = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -148,43 +137,6 @@ class Answer(models.Model):
         """
 
         return f"Answer by {self.agent.user.full_name} on: {self.question.title}"
-
-
-class AnswerImage(models.Model):
-    """
-    An image attached to an Answer by the extension agent.
-    """
-
-    answer = models.ForeignKey(
-        Answer,
-        on_delete=models.CASCADE,
-        related_name="images",
-    )
-    image = models.ImageField(
-        upload_to=common_utils.file_upload_path,
-        validators=[
-            common_validators.validate_image_size,
-            common_validators.validate_image_format,
-        ],
-    )
-    uploaded_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name = "Answer Image"
-        verbose_name_plural = "Answer Images"
-        ordering = ["uploaded_at"]
-
-    def __str__(self):
-        """
-        Return the string representation of an answer image.
-
-        Returns
-        -------
-        str
-            The answer ID associated with the image.
-        """
-
-        return f"Image for answer ID {self.answer.id}"
 
 
 class AnswerHelpfulness(models.Model):
@@ -222,7 +174,7 @@ class AnswerHelpfulness(models.Model):
 
         rating = "Helpful" if self.is_helpful else "Not helpful"
 
-        return f"{rating} — {self.farmer.user.full_name} on answer ID {self.answer.id}"
+        return f"{rating} — {self.farmer.user} on answer ID {self.answer.id}"
 
 
 class Escalation(models.Model):

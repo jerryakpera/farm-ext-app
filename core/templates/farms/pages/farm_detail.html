@@ -11,7 +11,7 @@
   {% endfor %}
 
   {# ── Back link ── #}
-  <a href="{% url 'farm-list' %}"
+  <a href="{% url 'farms:farm_list' %}"
      class="inline-flex items-center gap-1.5 text-sm text-gray-500
             hover:text-gray-700 mb-6">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
@@ -34,12 +34,12 @@
       </p>
     </div>
     <div class="flex gap-2 shrink-0">
-      <a href="{% url 'farm-edit' farm.pk %}"
+      <a href="{% url 'farms:farm_edit' farm.pk %}"
          class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700
                 px-3 py-1.5 rounded-md transition-colors">
         Edit
       </a>
-      <form method="post" action="{% url 'farm-delete' farm.pk %}"
+      <form method="post" action="{% url 'farms:farm_delete' farm.pk %}"
             onsubmit="return confirm('Delete {{ farm.name }}? This cannot be undone.');">
         {% csrf_token %}
         <button type="submit"
@@ -185,7 +185,7 @@
         Upload a clear photo of your farm. This replaces any existing image.
       </p>
       <form method="post"
-            action="{% url 'farm-image-upload' farm.pk %}"
+            action="{% url 'farms:farm_image_upload' farm.pk %}"
             enctype="multipart/form-data"
             class="flex items-center gap-3">
         {% csrf_token %}

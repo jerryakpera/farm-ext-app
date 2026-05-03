@@ -17,31 +17,34 @@ from .views import (
 )
 
 
+app_name = "farms"
+
+
 urlpatterns = [
     path(
         "farmer/farms/",
         farm_list_view,
-        name="farm-list",
+        name="farm_list",
     ),
     path(
         "farmer/farms/create/",
         farm_create_view,
-        name="farm-create",
+        name="farm_create",
     ),
     path(
         "farmer/farms/<int:farm_id>/",
         farm_detail_view,
-        name="farm-detail",
+        name="farm_detail",
     ),
     path(
         "farmer/farms/<int:farm_id>/edit/",
         farm_edit_view,
-        name="farm-edit",
+        name="farm_edit",
     ),
-    path("farmer/farms/<int:farm_id>/delete/", farm_delete_view, name="farm-delete"),
+    path("farmer/farms/<int:farm_id>/delete/", farm_delete_view, name="farm_delete"),
     path(
         "farmer/farms/<int:farm_id>/images/",
         farm_image_upload_view,
-        name="farm-image-upload",
+        name="farm_image_upload",
     ),
 ]

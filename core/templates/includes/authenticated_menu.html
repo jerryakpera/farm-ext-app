@@ -3,10 +3,10 @@
     <a href="{% url 'common:index' %}" class="nav-link {% block nav_dashboard %}{% endblock %}">
       Dashboard
     </a>
-    <a href="{% url 'farm-list' %}" class="nav-link {% block nav_farms %}{% endblock %}">
+    <a href="{% url 'farms:farm_list' %}" class="nav-link {% block nav_farms %}{% endblock %}">
       My Farms
     </a>
-    <a href="#" class="nav-link {% block nav_questions %}{% endblock %}">
+    <a href="{% url "questions:question_list" %}" class="nav-link {% block nav_questions %}{% endblock %}">
       My Questions
     </a>
     <a href="#" class="nav-link {% block nav_advisory %}{% endblock %}">

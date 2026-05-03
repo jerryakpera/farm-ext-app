@@ -4,57 +4,15 @@ Views for the farms app.
 
 # django_packages
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
-# app_packages
+# other_apps_packages
 # local_packages
+from core.profiles.decorators import farmer_required
+
+# app_packages
 from .forms import FarmDetailsForm, FarmImageUploadForm
 from .models import Farm
-
-
-def farmer_required(view_func):
-    """
-    Decorator that restricts access to views to users with the farmer role.
-
-    Parameters
-    ----------
-    view_func : callable
-        The view function being wrapped.
-
-    Returns
-    -------
-    callable
-        The wrapped view function that enforces farmer-only access.
-    """
-
-    def wrapper(request, *args, **kwargs):
-        """
-        Inner wrapper that enforces authentication and role-based access control.
-
-        Parameters
-        ----------
-        request : HttpRequest
-            The incoming HTTP request.
-        *args
-            Positional arguments passed to the view.
-        **kwargs
-            Keyword arguments passed to the view.
-
-        Returns
-        -------
-        HttpResponse
-            Redirects to login or home if unauthorized, otherwise executes the view.
-        """
-
-        if not request.user.is_authenticated:
-            return redirect("login")
-        if not request.user.is_farmer:
-            messages.error(request, "Access restricted to farmers only.")
-            return redirect("home")
-        return view_func(request, *args, **kwargs)
-
-    return wrapper
 
 
 def get_farmer_farm_or_404(request, farm_id):
@@ -142,7 +100,7 @@ def farm_create_view(request):
         if form.is_valid():
             farm = form.save(farmer=request.user.farmer_profile)
             messages.success(request, "Farm created successfully.")
-            return redirect("farm-detail", farm_id=farm.pk)
+            return redirect("farms:farm_detail", farm_id=farm.pk)
     else:
         form = FarmDetailsForm()
 
@@ -215,7 +173,7 @@ def farm_edit_view(request, farm_id):
         if form.is_valid():
             form.save(farmer=request.user.farmer_profile, farm=farm)
             messages.success(request, "Farm updated successfully.")
-            return redirect("farm-detail", farm_id=farm.pk)
+            return redirect("farms:farm_detail", farm_id=farm.pk)
     else:
         form = FarmDetailsForm(farm=farm)
 
@@ -258,7 +216,7 @@ def farm_delete_view(request, farm_id):
         name = farm.name
         farm.delete()
         messages.success(request, f'"{name}" has been deleted.')
-        return redirect("farm-list")
+        return redirect("farms:farm_list")
 
     return render(request, "farms/farm_confirm_delete.html", {"farm": farm})
 
@@ -292,4 +250,4 @@ def farm_image_upload_view(request, farm_id):
         else:
             messages.error(request, "Upload failed. Please select a valid image file.")
 
-    return redirect("farm-detail", farm_id=farm.pk)
+    return redirect("farms:farm_detail", farm_id=farm.pk)

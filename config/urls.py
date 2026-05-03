@@ -13,6 +13,7 @@ urlpatterns = [
     path("", include("core.common.urls")),
     path("", include("core.farms.urls")),
     path("", include("core.profiles.urls")),
+    path("questions/", include("core.questions.urls")),
 ]
 
 if settings.DEBUG:

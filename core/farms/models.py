@@ -123,4 +123,4 @@ class Farm(models.Model):
             The farm name and the farmer's full name.
         """
 
-        return f"{self.name} — {self.farmer.user.full_name}"
+        return f"{self.name} — {self.farmer.user}"
