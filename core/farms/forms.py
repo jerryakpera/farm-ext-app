@@ -9,7 +9,7 @@ from django import forms
 from core.common.models import LGA
 
 # app_packages
-from .models import Crop
+from .models import Crop, Farm
 
 
 class CropCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
@@ -46,9 +46,15 @@ class FarmDetailsForm(forms.Form):
     """
     Step 3 — Farm and crop details. Collected for farmers only.
 
-    primary_crop is a single FK-style choice (radio or select).
-    other_crops is a many-to-many style multi-select rendered as
-    a badge-style checkbox group.
+    Parameters
+    ----------
+    *args
+        Positional arguments passed to the parent form initialiser.
+    farm : Farm or None
+        When provided, the form fields are initialised from this instance
+        so the edit view renders a pre-filled form.
+    **kwargs
+        Keyword arguments passed to the parent form initialiser.
     """
 
     farm_name = forms.CharField(max_length=255)
@@ -62,12 +68,6 @@ class FarmDetailsForm(forms.Form):
     farm_address = forms.CharField(
         widget=forms.Textarea(attrs={"rows": 3}),
         help_text="Street address or description of the farm's location.",
-    )
-
-    address = forms.CharField(
-        max_length=255,
-        required=False,
-        help_text="A nearby address to help locate the farm.",
     )
 
     size = forms.DecimalField(
@@ -88,6 +88,67 @@ class FarmDetailsForm(forms.Form):
         widget=CropCheckboxSelectMultiple,
         help_text="Select all additional crops grown on this farm.",
     )
+
+    def __init__(self, *args, farm=None, **kwargs):
+        """
+        Pre-populate fields when an existing Farm instance is supplied.
+
+        Parameters
+        ----------
+        farm : Farm or None
+            When provided, the form fields are initialised from this instance
+            so the edit view renders a pre-filled form.
+        """
+
+        super().__init__(*args, **kwargs)
+
+        if farm is not None:
+            self.fields["farm_name"].initial = farm.name
+            self.fields["farm_lga"].initial = farm.lga
+            self.fields["farm_address"].initial = farm.address
+            self.fields["size"].initial = farm.size
+            self.fields["primary_crop"].initial = farm.primary_crop
+            self.fields["other_crops"].initial = farm.other_crops.all()
+
+    def save(self, farmer, farm=None):
+        """
+        Persist the validated form data to the database.
+
+        Creates a new Farm when no `farm` instance is passed, or updates
+        the existing one when it is.
+
+        Parameters
+        ----------
+        farmer : FarmerProfile
+            The profile of the farmer who owns this farm.
+        farm : Farm or None
+            When provided the existing instance is updated; otherwise a new
+            Farm is created.
+
+        Returns
+        -------
+        Farm
+            The created or updated Farm instance.
+        """
+        data = self.cleaned_data
+
+        if farm is None:
+            farm = Farm(farmer=farmer)
+
+        farm.name = data["farm_name"]
+        farm.lga = data["farm_lga"]
+        farm.address = data["farm_address"]
+        farm.size = data["size"]
+        farm.primary_crop = data["primary_crop"]
+
+        if data.get("image"):
+            farm.image = data["image"]
+
+        farm.save()
+
+        farm.other_crops.set(data["other_crops"])
+
+        return farm
 
 
 class FarmImageUploadForm(forms.Form):

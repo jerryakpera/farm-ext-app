@@ -146,7 +146,15 @@ def farm_create_view(request):
     else:
         form = FarmDetailsForm()
 
-    return render(request, "farms/farm_form.html", {"form": form, "action": "Create"})
+    context = {
+        "form": form,
+    }
+
+    return render(
+        request=request,
+        context=context,
+        template_name="farms/pages/create_farm_page.html",
+    )
 
 
 @farmer_required
@@ -211,14 +219,15 @@ def farm_edit_view(request, farm_id):
     else:
         form = FarmDetailsForm(farm=farm)
 
+    context = {
+        "form": form,
+        "farm": farm,
+    }
+
     return render(
-        request,
-        "farms/farm_form.html",
-        {
-            "form": form,
-            "farm": farm,
-            "action": "Edit",
-        },
+        request=request,
+        context=context,
+        template_name="farms/pages/edit_farm_page.html",
     )
 
 
