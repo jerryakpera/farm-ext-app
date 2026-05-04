@@ -1,4 +1,4 @@
-Django==6.0.4
+Django==5.2.13
 django-celery-beat==2.9.0
 django-celery-results==2.6.0
 django-cleanup==9.0.0
