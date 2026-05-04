@@ -13,7 +13,6 @@ from core.profiles.models import ExtensionAgentProfile, FarmerProfile
 from core.questions.models import Answer, Question
 
 
-@login_required
 def index_view(request):
     """
     Render the dashboard for the authenticated user.
