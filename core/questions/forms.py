@@ -9,7 +9,7 @@ from django import forms
 from core.farms.models import Crop, Farm
 
 # app_packages
-from .models import Question
+from .models import Answer, Question
 
 
 class AskQuestionForm(forms.ModelForm):
@@ -92,3 +92,24 @@ class AskQuestionForm(forms.ModelForm):
             question.save()
 
         return question
+
+
+class AnswerQuestionForm(forms.ModelForm):
+    """
+    ModelForm for an extension agent to post an answer to a farmer's question.
+    """
+
+    class Meta:
+        model = Answer
+        fields = ["body", "image"]
+        widgets = {
+            "body": forms.Textarea(attrs={"rows": 5}),
+        }
+        labels = {
+            "body": "Your answer",
+            "image": "Supporting image (optional)",
+        }
+        help_texts = {
+            "body": "Provide a clear and detailed response to the farmer's question.",
+            "image": "Attach an image to help illustrate your answer.",
+        }

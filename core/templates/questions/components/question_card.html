@@ -91,11 +91,12 @@
           class="text-xs text-blue-500 hover:text-blue-700 transition-colors">
           <iconify-icon icon="lets-icons:view-fill" width="24" height="24"></iconify-icon>
         </a>
-        {% if question.status == "open" %}
+        {% if question.status == "open" and request.user.is_farmer and question.farmer.user == request.user %}
           <a href="{% url 'questions:edit_question' question.pk %}"
             class="text-xs text-amber-500 hover:text-amber-700 transition-colors">
             <iconify-icon icon="material-symbols:edit-rounded" width="24" height="24"></iconify-icon>
           </a>
+
           <form method="post"
                 action="{% url 'questions:delete_question' question.pk %}"
                 onsubmit="return confirm('Are you sure you want to delete this question?')">

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-main py-8 sm:py-12">
+
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">All Farms</h1>
+    <span class="text-sm text-gray-500">{{ farms|length }} farm{{ farms|length|pluralize }} registered</span>
+  </div>
+
+  {% for message in messages %}
+    <div class="mb-4 px-4 py-3 rounded-md bg-green-50 text-green-800
+                text-sm border border-green-200">
+      {{ message }}
+    </div>
+  {% endfor %}
+
+  {% if farms %}
+    <div class="grid gap-4 sm:grid-cols-2">
+      {% for farm in farms %}
+        {% include "farms/components/farm_card.html" %}
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="bg-white border border-gray-200 rounded-xl p-8 text-center">
+      <p class="text-sm text-gray-500">No farms have been registered yet.</p>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

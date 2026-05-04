@@ -4,12 +4,15 @@
   <div class="container-main py-8 sm:py-12">
 
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold text-gray-800">My Questions</h1>
-      <a href="{% url 'questions:ask_question' %}"
-        class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium
-                px-4 py-2 rounded-md transition-colors">
-        + Ask a Question
-      </a>
+      <h1 class="text-2xl font-bold text-gray-800">All questions</h1>
+
+      {% if request.user.is_farmer %}
+        <a href="{% url 'questions:ask_question' %}"
+          class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium
+                  px-4 py-2 rounded-md transition-colors">
+          + Ask a Question
+        </a>
+      {% endif %}
     </div>
 
     {% for message in messages %}
@@ -26,7 +29,7 @@
         {% endfor %}
       </div>
     {% else %}
-      <p class="text-gray-500 text-sm">You have not asked any questions yet.</p>
+      <p class="text-gray-500 text-sm">There are no questions yet.</p>
     {% endif %}
 
   </div>

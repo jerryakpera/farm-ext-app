@@ -1,0 +1,137 @@
+<div class="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
+
+  {# Agent info + date #}
+  <div class="flex items-center justify-between gap-2">
+    <div class="flex items-center gap-2">
+      {% if answer.agent.user.profile_photo %}
+        <img src="{{ answer.agent.user.profile_photo.url }}"
+             alt="{{ answer.agent.user.full_name }}"
+             class="h-8 w-8 rounded-full object-cover">
+      {% else %}
+        <div class="h-8 w-8 rounded-full bg-green-100 flex items-center
+                    justify-center text-green-700 text-xs font-bold">
+          {{ answer.agent.user.first_name|first }}
+        </div>
+      {% endif %}
+      <span class="text-sm font-medium text-gray-800">
+        {{ answer.agent.user.full_name }}
+      </span>
+    </div>
+    <span class="text-xs text-gray-400">
+      {{ answer.created_at|date:"d M Y" }}
+    </span>
+  </div>
+
+  {# Answer body #}
+  <p class="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+    {{ answer.body }}
+  </p>
+
+  {# Answer image #}
+  {% if answer.image %}
+    <a href="{{ answer.image.url }}" target="_blank" rel="noopener">
+      <img src="{{ answer.image.url }}"
+           alt="Answer image"
+           class="mt-1 w-full max-h-48 object-cover rounded-lg border
+                  border-gray-200 hover:opacity-90 transition-opacity">
+    </a>
+  {% endif %}
+
+  {# ── Helpfulness footer ── #}
+  <div class="flex items-center justify-between gap-4 pt-3 border-t border-gray-100">
+
+    {# Rating counts — visible to everyone #}
+    <div class="flex items-center gap-3">
+      <span class="inline-flex items-center gap-1 text-xs text-gray-500">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-green-600"
+             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0
+                   0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7
+                   20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905
+                   .905a3.61 3.61 0 01-.608 2.006L7 11v9m7-10h-2M7
+                   20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>
+        </svg>
+        {{ answer.helpful_count }}
+      </span>
+      <span class="inline-flex items-center gap-1 text-xs text-gray-500">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-red-500"
+             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0
+                   018.736 3h4.018c.163 0 .326.02.485.06L17 4m-7
+                   10v2a2 2 0 002 2h.095c.5 0 .905-.405.905-.905
+                   a3.61 3.61 0 01.608-2.006L17 13V4m-7 10h2m5-10
+                   h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5"/>
+        </svg>
+        {{ answer.not_helpful_count }}
+      </span>
+    </div>
+
+    {# Rating actions — farmers only #}
+    {% if request.user.is_farmer %}
+      {% if answer.user_rating is not None %}
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-gray-500">
+            You rated this
+            <span class="font-medium
+              {% if answer.user_rating %}text-green-700{% else %}text-red-600{% endif %}">
+              {% if answer.user_rating %}helpful{% else %}not helpful{% endif %}
+            </span>.
+          </span>
+          <form method="post"
+                action="{% url 'questions:rate_answer' answer.pk %}"
+                class="flex items-center">
+            {% csrf_token %}
+            <button name="is_helpful"
+                    value="{% if answer.user_rating %}false{% else %}true{% endif %}"
+                    type="submit"
+                    class="text-xs text-gray-400 hover:text-gray-600 underline
+                           underline-offset-2 transition-colors">
+              Change to {% if answer.user_rating %}not helpful{% else %}helpful{% endif %}
+            </button>
+          </form>
+        </div>
+      {% else %}
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-gray-500">Was this helpful?</span>
+          <form method="post"
+                action="{% url 'questions:rate_answer' answer.pk %}"
+                class="flex items-center gap-2">
+            {% csrf_token %}
+            <button name="is_helpful" value="true" type="submit"
+                    class="inline-flex items-center gap-1 text-xs font-medium
+                           text-gray-600 hover:text-green-700 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                   viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0
+                         0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7
+                         20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905
+                         .905a3.61 3.61 0 01-.608 2.006L7 11v9m7-10h-2M7
+                         20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>
+              </svg>
+              Helpful
+            </button>
+            <button name="is_helpful" value="false" type="submit"
+                    class="inline-flex items-center gap-1 text-xs font-medium
+                           text-gray-600 hover:text-red-600 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                   viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0
+                         018.736 3h4.018c.163 0 .326.02.485.06L17 4m-7
+                         10v2a2 2 0 002 2h.095c.5 0 .905-.405.905-.905
+                         a3.61 3.61 0 01.608-2.006L17 13V4m-7 10h2m5-10
+                         h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5"/>
+              </svg>
+              Not helpful
+            </button>
+          </form>
+        </div>
+      {% endif %}
+    {% endif %}
+
+  </div>
+
+</div>

@@ -1,0 +1,21 @@
+{# ── Answers ── #}
+<h2 class="text-lg font-semibold text-gray-800 mb-4">
+  {% with count=answers|length %}
+    {{ count }} Answer{{ count|pluralize }}
+  {% endwith %}
+</h2>
+
+{% if answers %}
+  <div class="space-y-5">
+    {% for answer in answers %}
+      {% include "./question_answer.html" %}
+    {% endfor %}
+  </div>
+
+{% else %}
+  <div class="bg-white border border-gray-200 rounded-xl p-8 text-center">
+    <p class="text-sm text-gray-500">
+      No answers yet. An extension agent will respond shortly.
+    </p>
+  </div>
+{% endif %}

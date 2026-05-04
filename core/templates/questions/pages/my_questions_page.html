@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container-main py-8 sm:py-12">
+
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-bold text-gray-800">My Questions</h1>
+      <a href="{% url 'questions:ask_question' %}"
+        class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium
+                px-4 py-2 rounded-md transition-colors">
+        + Ask a Question
+      </a>
+    </div>
+
+    {% for message in messages %}
+      <div class="mb-4 px-4 py-3 rounded-md bg-green-50 text-green-800
+                  text-sm border border-green-200">
+        {{ message }}
+      </div>
+    {% endfor %}
+
+    {% if questions %}
+      <div class="grid gap-4 sm:grid-cols-2">
+        {% for question in questions %}
+          {% include "questions/components/question_card.html" %}
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="bg-white border border-gray-200 rounded-xl p-8 text-center">
+        <p class="text-sm text-gray-500 mb-3">You have not asked any questions yet.</p>
+        <a href="{% url 'questions:ask_question' %}"
+          class="text-sm font-medium text-green-700 hover:underline">
+          Ask your first question →
+        </a>
+      </div>
+    {% endif %}
+
+  </div>
+{% endblock %}

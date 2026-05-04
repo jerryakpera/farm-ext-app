@@ -51,12 +51,7 @@ class User(BaseUser):
             The user's full name and email.
         """
 
-        name = f"{self.first_name}"
-
-        if self.last_name:
-            name += f" {self.last_name}"
-
-        return name
+        return self.full_name
 
     @property
     def is_farmer(self):
@@ -72,7 +67,7 @@ class User(BaseUser):
         return self.role == self.Role.FARMER
 
     @property
-    def is_extension_agent(self):
+    def is_agent(self):
         """
         Determine whether the user has the extension agent role.
 
@@ -83,3 +78,19 @@ class User(BaseUser):
         """
 
         return self.role == self.Role.EXTENSION_AGENT
+
+    @property
+    def full_name(self):
+        """
+        Return the user's full name.
+
+        Returns
+        -------
+        str
+            First and last name joined, or just first name if no last name is set.
+        """
+
+        if self.last_name:
+            return f"{self.first_name} {self.last_name}"
+
+        return self.first_name

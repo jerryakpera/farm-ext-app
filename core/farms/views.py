@@ -4,11 +4,8 @@ Views for the farms app.
 
 # django_packages
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
-
-# other_apps_packages
-# local_packages
-from core.profiles.decorators import farmer_required
 
 # app_packages
 from .forms import FarmDetailsForm, FarmImageUploadForm
@@ -41,7 +38,39 @@ def get_farmer_farm_or_404(request, farm_id):
     return get_object_or_404(Farm, pk=farm_id, farmer=request.user.farmer_profile)
 
 
-@farmer_required
+@login_required
+def all_farms_list_view(request):
+    """
+    Display all farms registered on the platform.
+
+    Accessible to extension agents. Farmers are redirected to their
+    own farm list since they should only manage their own farms.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        The incoming HTTP request.
+
+    Returns
+    -------
+    HttpResponse
+        Rendered all-farms list page.
+    """
+    if request.user.is_farmer:
+        return redirect("farms:farm_list")
+
+    farms = Farm.objects.select_related(
+        "farmer__user", "lga", "primary_crop"
+    ).prefetch_related("other_crops")
+
+    return render(
+        request=request,
+        template_name="farms/pages/all_farms_list.html",
+        context={"farms": farms},
+    )
+
+
+@login_required
 def farm_list_view(request):
     """
     Display all farms that belong to the authenticated farmer.
@@ -76,7 +105,7 @@ def farm_list_view(request):
     )
 
 
-@farmer_required
+@login_required
 def farm_create_view(request):
     """
     Handle creation of a new farm for the authenticated farmer.
@@ -115,10 +144,14 @@ def farm_create_view(request):
     )
 
 
-@farmer_required
+@login_required
 def farm_detail_view(request, farm_id):
     """
-    Display details of a single farm belonging to the authenticated farmer.
+    Display details of a single farm.
+
+    Farmers may only view their own farms — ownership is enforced via
+    get_farmer_farm_or_404. Extension agents may view any farm on the
+    platform without an ownership check.
 
     Parameters
     ----------
@@ -132,20 +165,27 @@ def farm_detail_view(request, farm_id):
     HttpResponse
         Rendered farm detail page.
     """
-
-    farm = get_farmer_farm_or_404(request, farm_id)
+    if request.user.is_farmer:
+        farm = get_farmer_farm_or_404(request, farm_id)
+    else:
+        farm = get_object_or_404(
+            Farm.objects.select_related(
+                "farmer__user", "lga", "primary_crop"
+            ).prefetch_related("other_crops"),
+            pk=farm_id,
+        )
 
     return render(
         request,
         "farms/pages/farm_detail.html",
         {
             "farm": farm,
-            "image_form": FarmImageUploadForm(),
+            "image_form": FarmImageUploadForm() if request.user.is_farmer else None,
         },
     )
 
 
-@farmer_required
+@login_required
 def farm_edit_view(request, farm_id):
     """
     Handle updating an existing farm.
@@ -189,7 +229,7 @@ def farm_edit_view(request, farm_id):
     )
 
 
-@farmer_required
+@login_required
 def farm_delete_view(request, farm_id):
     """
     Handle deletion of a farm.
@@ -221,7 +261,7 @@ def farm_delete_view(request, farm_id):
     return render(request, "farms/farm_confirm_delete.html", {"farm": farm})
 
 
-@farmer_required
+@login_required
 def farm_image_upload_view(request, farm_id):
     """
     Handle POST request to upload and update a farm's image.

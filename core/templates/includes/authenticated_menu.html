@@ -7,18 +7,21 @@
       My Farms
     </a>
     <a href="{% url "questions:question_list" %}" class="nav-link {% block nav_questions %}{% endblock %}">
-      My Questions
+      Questions
     </a>
     <a href="#" class="nav-link {% block nav_advisory %}{% endblock %}">
       Advisory Tips
     </a>
   {% endif %}
 
-  {% if user.is_extension_agent %}
+  {% if user.is_agent %}
     <a href="{% url 'common:index' %}" class="nav-link {% block nav_agent_dashboard %}{% endblock %}">
       Dashboard
     </a>
-    <a href="#" class="nav-link {% block nav_questions_queue %}{% endblock %}">
+    <a href="{% url 'farms:all_farms_list' %}" class="nav-link {% block nav_all_farms %}{% endblock %}">
+      Farms
+    </a>
+    <a href="{% url 'questions:question_list' %}" class="nav-link {% block nav_questions_queue %}{% endblock %}">
       Questions
     </a>
     <a href="#" class="nav-link {% block nav_visits %}{% endblock %}">
@@ -28,5 +31,4 @@
       My Posts
     </a>
   {% endif %}
-
 </nav>

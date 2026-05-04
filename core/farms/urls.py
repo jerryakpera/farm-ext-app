@@ -8,6 +8,7 @@ from django.urls import path
 # app_packages
 # local_packages
 from .views import (
+    all_farms_list_view,
     farm_create_view,
     farm_delete_view,
     farm_detail_view,
@@ -21,6 +22,7 @@ app_name = "farms"
 
 
 urlpatterns = [
+    path("all/", all_farms_list_view, name="all_farms_list"),
     path(
         "farmer/farms/",
         farm_list_view,
