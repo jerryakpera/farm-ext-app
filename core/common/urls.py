@@ -15,7 +15,7 @@ app_name = "common"
 urlpatterns = [
     path(
         "",
-        view=views.index,
+        view=views.index_view,
         name="index",
     )
 ]

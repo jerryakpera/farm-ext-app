@@ -1,5 +1,215 @@
 {% extends "base.html" %}
-
 {% block content %}
-  <h1 class="text-3xl">SOLID</h1>
-{% endblock content %}
+<div class="container-main py-8 sm:py-12 space-y-10">
+
+  {# ── Greeting ── #}
+  <div>
+    <h1 class="text-2xl font-bold text-gray-800">
+      Welcome back, {{ request.user.first_name }} 👋
+    </h1>
+    <p class="text-sm text-gray-500 mt-1">
+      {% if request.user.is_farmer %}
+        Here's an overview of your farms and questions.
+      {% else %}
+        Here's a platform-wide summary of activity.
+      {% endif %}
+    </p>
+  </div>
+
+  {# ── Stat cards ── #}
+  {% if request.user.is_farmer %}
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+
+      <div class="bg-white border border-gray-200 rounded-xl p-5">
+        <p class="detail-label mb-1">My Farms</p>
+        <p class="text-3xl font-bold text-gray-800">{{ stats.farms }}</p>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-xl p-5">
+        <p class="detail-label mb-1">My Questions</p>
+        <p class="text-3xl font-bold text-gray-800">{{ stats.questions }}</p>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-xl p-5">
+        <p class="detail-label mb-1">Open</p>
+        <p class="text-3xl font-bold text-blue-600">{{ stats.open_questions }}</p>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-xl p-5">
+        <p class="detail-label mb-1">Answered</p>
+        <p class="text-3xl font-bold text-green-600">{{ stats.answered_questions }}</p>
+      </div>
+
+    </div>
+
+  {% elif request.user.is_agent %}
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+
+      <div class="bg-white border border-gray-200 rounded-xl p-5">
+        <p class="detail-label mb-1">Total Farms</p>
+        <p class="text-3xl font-bold text-gray-800">{{ stats.total_farms }}</p>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-xl p-5">
+        <p class="detail-label mb-1">Farmers</p>
+        <p class="text-3xl font-bold text-gray-800">{{ stats.total_farmers }}</p>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-xl p-5">
+        <p class="detail-label mb-1">Agents</p>
+        <p class="text-3xl font-bold text-gray-800">{{ stats.total_agents }}</p>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-xl p-5">
+        <p class="detail-label mb-1">Total Questions</p>
+        <p class="text-3xl font-bold text-gray-800">{{ stats.total_questions }}</p>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-xl p-5">
+        <p class="detail-label mb-1">Open Questions</p>
+        <p class="text-3xl font-bold text-blue-600">{{ stats.open_questions }}</p>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-xl p-5">
+        <p class="detail-label mb-1">My Answers</p>
+        <p class="text-3xl font-bold text-green-600">{{ stats.my_answers }}</p>
+      </div>
+
+    </div>
+  {% endif %}
+
+  {# ── Two-column section ── #}
+  <div class="grid gap-8 lg:grid-cols-2">
+
+    {# Recent farms #}
+    <div>
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-base font-semibold text-gray-800">Recent Farms</h2>
+        {% if request.user.is_farmer %}
+          <a href="{% url 'farms:farm_list' %}"
+             class="text-xs text-green-700 hover:underline">View all →</a>
+        {% else %}
+          <a href="{% url 'farms:all_farms_list' %}"
+             class="text-xs text-green-700 hover:underline">View all →</a>
+        {% endif %}
+      </div>
+
+      {% if recent_farms %}
+        <div class="space-y-3">
+          {% for farm in recent_farms %}
+            <a href="{% url 'farms:farm_detail' farm.pk %}"
+               class="flex items-center justify-between bg-white border border-gray-200
+                      rounded-xl px-4 py-3 hover:shadow-sm transition-shadow">
+              <div class="flex items-center gap-3 min-w-0">
+                {% if farm.image %}
+                  <img src="{{ farm.image.url }}" alt="{{ farm.name }}"
+                       class="h-10 w-10 rounded-lg object-cover shrink-0">
+                {% else %}
+                  <div class="h-10 w-10 rounded-lg bg-gray-100 flex items-center
+                              justify-center shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400"
+                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                    </svg>
+                  </div>
+                {% endif %}
+                <div class="min-w-0">
+                  <p class="text-sm font-medium text-gray-800 truncate">{{ farm.name }}</p>
+                  <p class="text-xs text-gray-500 truncate">
+                    {% if request.user.is_agent %}
+                      {{ farm.farmer.user.full_name }} ·
+                    {% endif %}
+                    {% if farm.lga %}{{ farm.lga }}{% else %}No location{% endif %}
+                  </p>
+                </div>
+              </div>
+              <div class="shrink-0 ml-3">
+                {% if farm.is_verified %}
+                  <span class="text-xs font-medium bg-green-100 text-green-700
+                               px-2 py-0.5 rounded-full">Verified</span>
+                {% else %}
+                  <span class="text-xs font-medium bg-yellow-100 text-yellow-700
+                               px-2 py-0.5 rounded-full">Pending</span>
+                {% endif %}
+              </div>
+            </a>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="bg-white border border-gray-200 rounded-xl p-6 text-center">
+          <p class="text-sm text-gray-500">No farms yet.</p>
+          {% if request.user.is_farmer %}
+            <a href="{% url 'farms:farm_create' %}"
+               class="mt-2 inline-block text-sm text-green-700 hover:underline">
+              Register your first farm →
+            </a>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+
+    {# Top answers by helpfulness #}
+    <div>
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-base font-semibold text-gray-800">
+          {% if request.user.is_farmer %}Most Helpful Answers{% else %}My Top Answers{% endif %}
+        </h2>
+        <a href="{% url 'questions:question_list' %}"
+           class="text-xs text-green-700 hover:underline">View all →</a>
+      </div>
+
+      {% if top_answers %}
+        <div class="space-y-3">
+          {% for answer in top_answers %}
+            <a href="{% url 'questions:question_detail' answer.question.pk %}"
+               class="block bg-white border border-gray-200 rounded-xl px-4 py-3
+                      hover:shadow-sm transition-shadow">
+              <p class="text-sm font-medium text-gray-800 truncate mb-1">
+                {{ answer.question.title }}
+              </p>
+              <p class="text-xs text-gray-500 line-clamp-2 mb-2">{{ answer.body }}</p>
+              <div class="flex items-center gap-3">
+                <span class="inline-flex items-center gap-1 text-xs text-gray-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-green-600"
+                       fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0
+                             0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7
+                             20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905
+                             .905a3.61 3.61 0 01-.608 2.006L7 11v9m7-10h-2M7
+                             20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>
+                  </svg>
+                  {{ answer.helpful_count }} helpful
+                </span>
+                {% if request.user.is_farmer %}
+                  <span class="text-xs text-gray-400">
+                    by {{ answer.agent.user.full_name }}
+                  </span>
+                {% endif %}
+              </div>
+            </a>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="bg-white border border-gray-200 rounded-xl p-6 text-center">
+          <p class="text-sm text-gray-500">
+            {% if request.user.is_farmer %}
+              No answers on your questions yet.
+            {% else %}
+              You have not posted any answers yet.
+            {% endif %}
+          </p>
+          {% if request.user.is_agent %}
+            <a href="{% url 'questions:question_list' %}"
+               class="mt-2 inline-block text-sm text-green-700 hover:underline">
+              Browse open questions →
+            </a>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

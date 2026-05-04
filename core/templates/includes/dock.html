@@ -1,0 +1,144 @@
+{% if user.is_authenticated %}
+  <nav class="fixed bottom-0 inset-x-0 sm:hidden z-50
+              bg-white border-t border-gray-200 shadow-lg
+              pb-[env(safe-area-inset-bottom)]">
+    <div class="flex items-stretch justify-around">
+
+      {% if user.is_farmer %}
+
+        <a href="{% url 'common:index' %}"
+           class="flex flex-col items-center justify-center gap-0.5 flex-1
+                  py-3 text-gray-500 hover:text-green-700 transition-colors
+                  {% block dock_dashboard %}{% endblock %}">
+          <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="square" stroke-miterlimit="10">
+            <polyline points="1 11 12 2 23 11"/>
+            <path d="m5,13v7c0,1.105.895,2,2,2h10c1.105,0,2-.895,2-2v-7"/>
+            <line x1="12" y1="22" x2="12" y2="18"/>
+          </svg>
+          <span class="text-[10px] font-medium leading-none">Dashboard</span>
+        </a>
+
+        <a href="{% url 'farms:farm_list' %}"
+           class="flex flex-col items-center justify-center gap-0.5 flex-1
+                  py-3 text-gray-500 hover:text-green-700 transition-colors
+                  {% block dock_farms %}{% endblock %}">
+          <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="square" stroke-miterlimit="10">
+            <path d="M3 9.5V21h18V9.5"/>
+            <path d="M9 21V13h6v8"/>
+            <polyline points="1 10 12 2 23 10"/>
+          </svg>
+          <span class="text-[10px] font-medium leading-none">My Farms</span>
+        </a>
+
+        <a href="{% url 'questions:my_questions' %}"
+           class="flex flex-col items-center justify-center gap-0.5 flex-1
+                  py-3 text-gray-500 hover:text-green-700 transition-colors
+                  {% block dock_my_questions %}{% endblock %}">
+          <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="square" stroke-miterlimit="10">
+            <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+            <path d="M9 9a3 3 0 1 1 3 3v2"/>
+            <circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"/>
+          </svg>
+          <span class="text-[10px] font-medium leading-none">Questions</span>
+        </a>
+
+        <a href="#"
+           class="flex flex-col items-center justify-center gap-0.5 flex-1
+                  py-3 text-gray-500 hover:text-green-700 transition-colors
+                  {% block dock_advisory %}{% endblock %}">
+          <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="square" stroke-miterlimit="10">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+          <span class="text-[10px] font-medium leading-none">Advisory</span>
+        </a>
+
+      {% elif user.is_agent %}
+
+        <a href="{% url 'common:index' %}"
+           class="flex flex-col items-center justify-center gap-0.5 flex-1
+                  py-3 text-gray-500 hover:text-green-700 transition-colors
+                  {% block dock_agent_dashboard %}{% endblock %}">
+          <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="square" stroke-miterlimit="10">
+            <polyline points="1 11 12 2 23 11"/>
+            <path d="m5,13v7c0,1.105.895,2,2,2h10c1.105,0,2-.895,2-2v-7"/>
+            <line x1="12" y1="22" x2="12" y2="18"/>
+          </svg>
+          <span class="text-[10px] font-medium leading-none">Dashboard</span>
+        </a>
+
+        <a href="{% url 'farms:all_farms_list' %}"
+           class="flex flex-col items-center justify-center gap-0.5 flex-1
+                  py-3 text-gray-500 hover:text-green-700 transition-colors
+                  {% block dock_all_farms %}{% endblock %}">
+          <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="square" stroke-miterlimit="10">
+            <path d="M3 9.5V21h18V9.5"/>
+            <path d="M9 21V13h6v8"/>
+            <polyline points="1 10 12 2 23 10"/>
+          </svg>
+          <span class="text-[10px] font-medium leading-none">Farms</span>
+        </a>
+
+        <a href="{% url 'questions:question_list' %}"
+           class="flex flex-col items-center justify-center gap-0.5 flex-1
+                  py-3 text-gray-500 hover:text-green-700 transition-colors
+                  {% block dock_questions %}{% endblock %}">
+          <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="square" stroke-miterlimit="10">
+            <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+            <path d="M9 9a3 3 0 1 1 3 3v2"/>
+            <circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"/>
+          </svg>
+          <span class="text-[10px] font-medium leading-none">Questions</span>
+        </a>
+
+        <a href="#"
+           class="flex flex-col items-center justify-center gap-0.5 flex-1
+                  py-3 text-gray-500 hover:text-green-700 transition-colors
+                  {% block dock_visits %}{% endblock %}">
+          <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="square" stroke-miterlimit="10">
+            <circle cx="12" cy="5" r="3"/>
+            <path d="M12 8v13"/>
+            <path d="M9 18l3 3 3-3"/>
+            <path d="M6 21a6 6 0 0 1 12 0"/>
+          </svg>
+          <span class="text-[10px] font-medium leading-none">Visits</span>
+        </a>
+
+        <a href="#"
+           class="flex flex-col items-center justify-center gap-0.5 flex-1
+                  py-3 text-gray-500 hover:text-green-700 transition-colors
+                  {% block dock_posts %}{% endblock %}">
+          <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="square" stroke-miterlimit="10">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+          <span class="text-[10px] font-medium leading-none">Posts</span>
+        </a>
+
+      {% endif %}
+
+    </div>
+  </nav>
+{% endif %}

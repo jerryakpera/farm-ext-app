@@ -4,10 +4,10 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="description" content="{% block meta_description %}Farm advisory platform connecting farmers with extension agents.{% endblock %}" />
 
-  <title>{% block title %}FarmLink{% endblock %} — FarmLink</title>
+  <title>{% block title %}PAC{% endblock %} — Plateau Agro Connect</title>
 
   {# Compiled Tailwind output #}
   <link rel="stylesheet" href="{% static 'base/css/output.css' %}" />
@@ -30,6 +30,7 @@
     {% block content %}{% endblock %}
   </main>
 
+  {% include "includes/dock.html" %}
   {% include "includes/footer.html" %}
 
   {% block extra_body %}{% endblock %}
