@@ -7,23 +7,18 @@ from decouple import config
 
 # app_packages
 from .base import *
-from .base import REST_FRAMEWORK
 
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": config("POSTGRES_DB"),
-        "USER": config("POSTGRES_USER"),
-        "PASSWORD": config("POSTGRES_PASSWORD"),
-        "HOST": "localhost",
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": config("MYSQL_DB"),
+        "USER": config("MYSQL_USER"),
+        "PASSWORD": config("MYSQL_PASSWORD"),
+        "HOST": config("MYSQL_HOST"),
+        "PORT": "3306",
     }
 }
-
-
-REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = [
-    "rest_framework.renderers.JSONRenderer",
-]
 
 STORAGES = {
     "default": {
