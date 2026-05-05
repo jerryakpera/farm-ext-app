@@ -19,7 +19,10 @@ class RoleSelectionForm(forms.Form):
     """
 
     role = forms.ChoiceField(
-        choices=User.Role.choices,
+        choices=[
+            (User.Role.FARMER, "Farmer"),
+            (User.Role.EXTENSION_AGENT, "Extension Agent"),
+        ],
         widget=forms.RadioSelect,
         label="I am registering as a",
     )

@@ -21,6 +21,7 @@ class User(BaseUser):
 
         FARMER = "farmer", "Farmer"
         EXTENSION_AGENT = "extension_agent", "Extension Agent"
+        EXPERT = "expert", "Expert"
 
     objects = BaseUserManager()
 

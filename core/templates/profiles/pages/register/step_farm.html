@@ -89,11 +89,6 @@
               {% include "common/forms/form_field.html" with field=form.farm_address %}
             </div>
 
-            {# address is optional but should still be rendered #}
-            <div class="sm:col-span-2">
-              {% include "common/forms/form_field.html" with field=form.address %}
-            </div>
-
             {% for error in form.other_crops.errors %}
               <span class="text-xs text-danger">{{ error }}</span>
             {% endfor %}
