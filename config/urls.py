@@ -14,6 +14,7 @@ urlpatterns = [
     path("", include("core.farms.urls")),
     path("", include("core.profiles.urls")),
     path("questions/", include("core.questions.urls")),
+    path("advisory/", include("core.advisory.urls")),
 ]
 
 if settings.DEBUG:

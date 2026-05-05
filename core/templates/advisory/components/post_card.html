@@ -1,0 +1,77 @@
+<div class="border border-gray-200 rounded-xl bg-white overflow-hidden
+            hover:shadow-md transition-shadow">
+
+  {# ── Cover image / placeholder ── #}
+  <a href="{% url 'advisory:post_detail' post.pk %}" class="block">
+    {% if post.cover_image %}
+      <img src="{{ post.cover_image.url }}"
+           alt="{{ post.title }}"
+           class="w-full h-40 object-cover">
+    {% else %}
+      <div class="w-full h-40 bg-gray-100 flex flex-col items-center
+                  justify-center gap-1 text-gray-400">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 opacity-40"
+             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0
+                   0 2-2V8z"/>
+          <polyline stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="1.5" points="14 2 14 8 20 8"/>
+        </svg>
+        <span class="text-xs">No cover</span>
+      </div>
+    {% endif %}
+  </a>
+
+  {# ── Card body ── #}
+  <div class="p-5 flex flex-col gap-3">
+
+    {# Title + type badge #}
+    <div class="flex items-start justify-between gap-2">
+      <a href="{% url 'advisory:post_detail' post.pk %}"
+         class="font-semibold text-gray-800 hover:text-green-700 leading-snug">
+        {{ post.title }}
+      </a>
+      <span class="shrink-0 text-xs font-medium px-2 py-0.5 rounded-full
+                   bg-gray-100 text-gray-600 capitalize">
+        {{ post.get_post_type_display }}
+      </span>
+    </div>
+
+    {# Body preview #}
+    <p class="text-sm text-gray-600 leading-relaxed line-clamp-2">
+      {{ post.body }}
+    </p>
+
+    {# Author + draft badge #}
+    <div class="flex items-center justify-between text-xs text-gray-400">
+      <span>{{ post.author.user.full_name }}</span>
+      {% if not post.is_published %}
+        <span class="font-medium bg-yellow-100 text-yellow-700
+                     px-2 py-0.5 rounded-full">Draft</span>
+      {% endif %}
+    </div>
+
+    <hr class="border-gray-100">
+
+    <div class="flex items-center justify-between">
+      <span class="text-xs text-gray-400 font-semibold">
+        {% if post.published_at %}
+          {{ post.published_at|date:"d M Y" }}
+        {% else %}
+          Not published
+        {% endif %}
+      </span>
+      {# Agent-only actions #}
+      {% if request.user.is_agent and post.author.user == request.user %}
+        <div class="flex items-center gap-3">
+          <a href="{% url 'advisory:edit_post' post.pk %}"
+             class="text-xs text-gray-500 hover:text-green-700 transition-colors">
+            Edit
+          </a>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>

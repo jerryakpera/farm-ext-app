@@ -3,11 +3,11 @@ Views for the common app.
 """
 
 # django_packages
-from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.shortcuts import render
 
 # other_apps_packages
+from core.advisory.models import AdvisoryPost
 from core.farms.models import Farm
 from core.profiles.models import ExtensionAgentProfile, FarmerProfile
 from core.questions.models import Answer, Question
@@ -41,6 +41,13 @@ def index_view(request):
     user = request.user
     context = {}
 
+    recent_advisory_posts = (
+        AdvisoryPost.objects.filter(is_published=True)
+        .select_related("author__user")
+        .prefetch_related("tags")
+        .order_by("-published_at")[:3]
+    )
+
     if user.is_farmer:
         farmer = user.farmer_profile
 
@@ -72,6 +79,7 @@ def index_view(request):
                 .select_related("agent__user", "question")
                 .order_by("-helpful_count")[:5]
             ),
+            "recent_advisory_posts": recent_advisory_posts,
         }
 
     elif user.is_agent:
@@ -105,6 +113,7 @@ def index_view(request):
                 .select_related("question")
                 .order_by("-helpful_count")[:5]
             ),
+            "recent_advisory_posts": recent_advisory_posts,
         }
 
     return render(

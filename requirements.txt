@@ -51,6 +51,7 @@ django==5.2.13
     #   django-filter
     #   django-formtools
     #   django-storages
+    #   django-taggit
     #   django-timezone-field
     #   django-use-email-as-username
     #   djangorestframework
@@ -71,6 +72,8 @@ django-formtools==2.5.1
 django-ratelimit==4.1.0
     # via -r requirements.in
 django-storages==1.14.5
+    # via -r requirements.in
+django-taggit==6.1.0
     # via -r requirements.in
 django-timezone-field==7.2.1
     # via django-celery-beat

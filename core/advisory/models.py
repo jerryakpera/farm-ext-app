@@ -6,6 +6,9 @@ Models for the advisory app.
 from django.db import models
 from django.utils import timezone
 
+# third_party_packages
+from taggit.managers import TaggableManager
+
 # other_apps_packages
 from core.profiles.models import ExtensionAgentProfile
 
@@ -53,11 +56,7 @@ class AdvisoryPost(models.Model):
         null=True,
         blank=True,
     )
-    tags = models.CharField(
-        max_length=500,
-        blank=True,
-        help_text="Comma-separated tags, e.g. 'maize, pest control, irrigation'.",
-    )
+    tags = TaggableManager(blank=True)
     is_published = models.BooleanField(default=False)
     published_at = models.DateTimeField(
         null=True,

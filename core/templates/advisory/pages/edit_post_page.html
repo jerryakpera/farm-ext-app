@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container-main py-8 sm:py-12">
+
+    <a href="{% url 'advisory:post_list' %}"
+      class="inline-flex items-center gap-1 text-sm text-gray-500
+              hover:text-green-700 mb-6">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+          viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M15 19l-7-7 7-7"/>
+      </svg>
+      Back to Posts
+    </a>
+
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-bold text-gray-800">Edit Post</h1>
+      {% if post.is_published %}
+        <span class="text-xs font-medium bg-green-100 text-green-700
+                    px-2 py-0.5 rounded-full">Published</span>
+      {% else %}
+        <span class="text-xs font-medium bg-gray-100 text-gray-500
+                    px-2 py-0.5 rounded-full">Draft</span>
+      {% endif %}
+    </div>
+
+    <div class="bg-white border border-gray-200 rounded-xl p-6">
+      {% include "advisory/forms/advisory_post_form.html" with post=post %}
+    </div>
+
+  </div>
+{% endblock %}

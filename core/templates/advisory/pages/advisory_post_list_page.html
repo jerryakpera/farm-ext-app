@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block nav_advisory %}active{% endblock %}
+{% block dock_advisory %}text-green-700{% endblock %}
+
+{% block content %}
+  <div class="container-main py-8 sm:py-12">
+
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-bold text-gray-800">Advisory Tips</h1>
+      {% if request.user.is_agent %}
+        <a href="{% url 'advisory:create_post' %}"
+          class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium
+                  px-4 py-2 rounded-md transition-colors">
+          + New Post
+        </a>
+      {% endif %}
+    </div>
+
+    {% if posts %}
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {% for post in posts %}
+          {% include "advisory/components/post_card.html" %}
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="bg-white border border-gray-200 rounded-xl p-8 text-center">
+        <p class="text-sm text-gray-500">No advisory posts have been published yet.</p>
+        {% if request.user.is_agent %}
+          <a href="{% url 'advisory:create_post' %}"
+            class="mt-2 inline-block text-sm text-green-700 hover:underline">
+            Write the first post →
+          </a>
+        {% endif %}
+      </div>
+    {% endif %}
+
+  </div>
+{% endblock %}

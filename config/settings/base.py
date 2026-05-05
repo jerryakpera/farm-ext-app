@@ -42,6 +42,7 @@ THIRD_PARTY_APPS = [
     "core.custom_user.apps.CustomUserConfig",
     "formtools",
     "storages",
+    "taggit",
 ]
 
 LOCAL_APPS = [

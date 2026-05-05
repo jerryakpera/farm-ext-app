@@ -9,7 +9,7 @@
     <a href="{% url "questions:question_list" %}" class="nav-link {% block nav_questions %}{% endblock %}">
       Questions
     </a>
-    <a href="#" class="nav-link {% block nav_advisory %}{% endblock %}">
+    <a href="{% url 'advisory:post_list' %}" class="nav-link {% block nav_advisory %}{% endblock %}">
       Advisory Tips
     </a>
   {% endif %}
@@ -27,7 +27,7 @@
     <a href="#" class="nav-link {% block nav_visits %}{% endblock %}">
       Farm Visits
     </a>
-    <a href="#" class="nav-link {% block nav_posts %}{% endblock %}">
+    <a href="{% url 'advisory:my_posts' %}" class="nav-link {% block nav_posts %}{% endblock %}">
       My Posts
     </a>
   {% endif %}

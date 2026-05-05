@@ -2,14 +2,6 @@
 
 {% block content %}
 <div class="container-main py-8 sm:py-12">
-
-  {# ── Flash messages ── #}
-  {% for message in messages %}
-    <div class="mb-4 px-4 py-3 rounded-md bg-green-50 text-green-800 text-sm border border-green-200">
-      {{ message }}
-    </div>
-  {% endfor %}
-
   {# ── Back link ── #}
   <a href="{% url 'farms:farm_list' %}"
      class="inline-flex items-center gap-1.5 text-sm text-gray-500

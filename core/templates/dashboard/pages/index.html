@@ -211,5 +211,81 @@
     </div>
 
   </div>
+
+  {# ── Recent Advisory Posts ── #}
+  {% if recent_advisory_posts %}
+  <div>
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-base font-semibold text-gray-800">Recent Advisory Posts</h2>
+      <a href="{% url 'advisory:post_list' %}"
+        class="text-xs text-green-700 hover:underline">View all →</a>
+    </div>
+
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {% for post in recent_advisory_posts %}
+        <a href="{% url 'advisory:post_detail' post_id=post.pk %}"
+          class="flex flex-col bg-white border border-gray-200 rounded-xl overflow-hidden
+                  hover:shadow-sm transition-shadow">
+
+          {# Cover image #}
+          {% if post.cover_image %}
+            <img src="{{ post.cover_image.url }}" alt="{{ post.title }}"
+                class="h-36 w-full object-cover">
+          {% else %}
+            <div class="h-36 w-full bg-green-50 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-300"
+                  fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0
+                        012-2h5.586a1 1 0 01.707.293l5.414 5.414a1
+                        1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+            </div>
+          {% endif %}
+
+          <div class="p-4 flex flex-col flex-1 gap-2">
+
+            {# Post type badge #}
+            <span class="self-start text-xs font-medium px-2 py-0.5 rounded-full
+                        bg-green-100 text-green-700 capitalize">
+              {{ post.get_post_type_display }}
+            </span>
+
+            {# Title #}
+            <p class="text-sm font-semibold text-gray-800 line-clamp-2 leading-snug">
+              {{ post.title }}
+            </p>
+
+            {# Body excerpt #}
+            <p class="text-xs text-gray-500 line-clamp-2 flex-1">
+              {{ post.body|truncatewords:20 }}
+            </p>
+
+            {# Tags #}
+            {% with post.tags.all as tag_list %}
+              {% if tag_list %}
+                <div class="flex flex-wrap gap-1">
+                  {% for tag in tag_list %}
+                    <span class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
+                      {{ tag.name }}
+                    </span>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            {% endwith %}
+
+            {# Author + date #}
+            <div class="flex items-center justify-between mt-auto pt-2
+                        border-t border-gray-100 text-xs text-gray-400">
+              <span>{{ post.author.user.full_name }}</span>
+              <span>{{ post.published_at|date:"d M Y" }}</span>
+            </div>
+
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
 </div>
 {% endblock %}
