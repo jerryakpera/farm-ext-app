@@ -18,6 +18,18 @@
             </label>
           {% endfor %}
         </div>
+      {% elif field.name == "animals" %}
+        <div class="flex flex-wrap gap-2 mt-1">
+          {% for choice in field %}
+            <label class="flex items-center gap-1.5 cursor-pointer border border-gray-300
+                          rounded-full px-3 py-1 text-sm has-[:checked]:bg-green-600
+                          has-[:checked]:text-white has-[:checked]:border-green-600
+                          transition-colors">
+              {{ choice.tag }}
+              {{ choice.choice_label }}
+            </label>
+          {% endfor %}
+        </div>
       {% else %}
         <div class="[&>input]:w-full [&>input]:border [&>input]:border-gray-300
                     [&>input]:rounded-md [&>input]:px-3 [&>input]:py-2 [&>input]:text-sm

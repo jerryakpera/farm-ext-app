@@ -61,7 +61,10 @@ def all_farms_list_view(request):
 
     farms = Farm.objects.select_related(
         "farmer__user", "lga", "primary_crop"
-    ).prefetch_related("other_crops")
+    ).prefetch_related(
+        "other_crops",
+        "animals",
+    )
 
     return render(
         request=request,
@@ -91,7 +94,10 @@ def farm_list_view(request):
             farmer=request.user.farmer_profile,
         )
         .select_related("lga", "primary_crop")
-        .prefetch_related("other_crops")
+        .prefetch_related(
+            "other_crops",
+            "animals",
+        )
     )
 
     context = {
@@ -171,7 +177,10 @@ def farm_detail_view(request, farm_id):
         farm = get_object_or_404(
             Farm.objects.select_related(
                 "farmer__user", "lga", "primary_crop"
-            ).prefetch_related("other_crops"),
+            ).prefetch_related(
+                "other_crops",
+                "animals",
+            ),
             pk=farm_id,
         )
 

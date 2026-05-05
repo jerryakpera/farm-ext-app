@@ -263,10 +263,14 @@ class RegistrationWizardView(SessionWizardView):
         )
 
         # M2M must be assigned after the instance has been saved.
+        animals = step3.get("animals")
         other_crops = step3.get("other_crops")
 
         if other_crops:
             farm.other_crops.set(other_crops)
+
+        if animals:
+            farm.animals.set(animals)
 
     def _create_agent_records(self, user, step2):
         """

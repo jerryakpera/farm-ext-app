@@ -162,6 +162,26 @@
         </dd>
       </div>
 
+      <div class="grid grid-cols-3 px-5 py-3">
+        <dt class="text-gray-500">Animals</dt>
+        <dd class="col-span-2">
+          {% with animal=farm.animals.all %}
+            {% if animal %}
+              <div class="flex flex-wrap gap-1.5">
+                {% for animal in animal %}
+                  <span class="text-xs bg-gray-100 text-gray-600
+                               px-2 py-0.5 rounded-full">
+                    {{ animal.name }}
+                  </span>
+                {% endfor %}
+              </div>
+            {% else %}
+              <span class="font-medium text-gray-800">—</span>
+            {% endif %}
+          {% endwith %}
+        </dd>
+      </div>
+
     </dl>
   </div>
 

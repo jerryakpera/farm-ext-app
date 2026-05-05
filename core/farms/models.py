@@ -36,6 +36,22 @@ class Crop(models.Model):
         return self.name
 
 
+class Animal(models.Model):
+    """
+    A reference animal that can be associated with one or more farms.
+    """
+
+    name = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        verbose_name = "Animal"
+        verbose_name_plural = "Animals"
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+
 class Farm(models.Model):
     """
     Represents a farm registered by a farmer.
@@ -86,6 +102,12 @@ class Farm(models.Model):
         blank=True,
         related_name="secondary_farms",
         help_text="Additional crops grown on this farm.",
+    )
+    animals = models.ManyToManyField(
+        Animal,
+        blank=True,
+        related_name="farms",
+        help_text="Livestock or animals kept on this farm.",
     )
 
     is_verified = models.BooleanField(

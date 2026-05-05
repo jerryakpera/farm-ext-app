@@ -30,4 +30,7 @@ class FarmAdmin(admin.ModelAdmin):
 
     list_display = ("name", "farmer", "primary_crop", "lga", "is_verified")
     list_filter = ("is_verified", "lga", "primary_crop")
-    filter_horizontal = ("other_crops",)
+    filter_horizontal = (
+        "other_crops",
+        "animals",
+    )

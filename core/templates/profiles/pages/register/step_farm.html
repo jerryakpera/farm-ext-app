@@ -94,6 +94,38 @@
             {% endfor %}
           </div>
 
+          <!-- Animals — badge-style checkbox group -->
+          <div class="flex flex-col gap-2 sm:col-span-2">
+            <span class="text-sm font-semibold text-dark-700">
+              Animals / Livestock
+              <span class="text-dark-300 font-normal">(optional)</span>
+            </span>
+            <span class="text-xs text-dark-400">{{ form.animals.help_text }}</span>
+
+            <div class="flex flex-wrap gap-1">
+              {% for checkbox in form.animals %}
+                <label class="cursor-pointer">
+                  <input type="checkbox"
+                        name="{{ checkbox.data.name }}"
+                        value="{{ checkbox.data.value }}"
+                        {% if checkbox.data.selected %}checked{% endif %}
+                        class="sr-only peer" />
+                  <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium
+                              border border-surface-border bg-surface-muted text-dark-500 select-none
+                              peer-checked:border-primary peer-checked:bg-primary-50 peer-checked:text-primary
+                              hover:border-primary-300 hover:bg-primary-50
+                              transition-all duration-150 cursor-pointer">
+                    {{ checkbox.choice_label }}
+                  </span>
+                </label>
+              {% endfor %}
+            </div>
+
+            {% for error in form.animals.errors %}
+              <span class="text-xs text-danger">{{ error }}</span>
+            {% endfor %}
+          </div>
+
           <div class="sm:col-span-2">
             {% include "common/forms/form_field.html" with field=form.farm_address %}
           </div>

@@ -30,3 +30,20 @@ PLATEAU_CROPS = [
     "Orange",
     "Mango",
 ]
+
+FARM_ANIMALS = [
+    "Cattle",
+    "Goat",
+    "Sheep",
+    "Pig",
+    "Chicken",
+    "Turkey",
+    "Duck",
+    "Guinea Fowl",
+    "Rabbit",
+    "Fish (Tilapia)",
+    "Fish (Catfish)",
+    "Bee (Beekeeping)",
+    "Quail",
+    "Donkey",
+]

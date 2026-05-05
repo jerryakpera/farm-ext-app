@@ -9,7 +9,7 @@ from django import forms
 from core.common.models import LGA
 
 # app_packages
-from .models import Crop, Farm
+from .models import Animal, Crop, Farm
 
 
 class CropCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
@@ -38,6 +38,36 @@ class CropCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
 
         attrs = super().build_attrs(base_attrs, extra_attrs)
         attrs["class"] = attrs.get("class", "") + " crop-checkbox-group"
+
+        return attrs
+
+
+class AnimalCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
+    """
+    Thin subclass of CheckboxSelectMultiple so templates can target this
+    widget specifically with a dedicated CSS class rather than relying on
+    generic widget detection.
+    """
+
+    def build_attrs(self, base_attrs, extra_attrs=None):
+        """
+        Add a CSS class to the wrapping element produced by the widget.
+
+        Parameters
+        ----------
+        base_attrs : dict
+            Base HTML attributes for the widget.
+        extra_attrs : dict or None
+            Additional attributes to merge in.
+
+        Returns
+        -------
+        dict
+            Merged attribute dictionary.
+        """
+
+        attrs = super().build_attrs(base_attrs, extra_attrs)
+        attrs["class"] = attrs.get("class", "") + " animal-checkbox-group"
 
         return attrs
 
@@ -89,6 +119,13 @@ class FarmDetailsForm(forms.Form):
         help_text="Select all additional crops grown on this farm.",
     )
 
+    animals = forms.ModelMultipleChoiceField(
+        queryset=Animal.objects.all(),
+        required=False,
+        widget=AnimalCheckboxSelectMultiple,
+        help_text="Select all animals or livestock kept on this farm.",
+    )
+
     def __init__(self, *args, farm=None, **kwargs):
         """
         Pre-populate fields when an existing Farm instance is supplied.
@@ -109,6 +146,7 @@ class FarmDetailsForm(forms.Form):
             self.fields["size"].initial = farm.size
             self.fields["primary_crop"].initial = farm.primary_crop
             self.fields["other_crops"].initial = farm.other_crops.all()
+            self.fields["animals"].initial = farm.animals.all()
 
     def save(self, farmer, farm=None):
         """
@@ -147,6 +185,7 @@ class FarmDetailsForm(forms.Form):
         farm.save()
 
         farm.other_crops.set(data["other_crops"])
+        farm.animals.set(data["animals"])
 
         return farm
 
