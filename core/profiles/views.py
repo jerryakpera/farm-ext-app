@@ -257,6 +257,7 @@ class RegistrationWizardView(SessionWizardView):
             farmer=farmer_profile,
             name=step3["farm_name"],
             lga=step3.get("farm_lga"),
+            ward=step3.get("farm_ward"),
             address=step3.get("farm_address", ""),
             size=step3["size"],
             primary_crop=step3.get("primary_crop"),

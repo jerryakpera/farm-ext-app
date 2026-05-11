@@ -16,7 +16,7 @@
 
       {% include "profiles/pages/register/_stepper.html" %}
 
-      <form method="post" class="space-y-6">
+      <form method="post" class="space-y-6" data-wards-url="/api/common/lgas/__LGA_ID__/wards/">
         {% csrf_token %}
         {{ wizard.management_form }}
 
@@ -32,9 +32,18 @@
             {% include "common/forms/form_field.html" with field=form.size %}
           </div>
 
-          {# farm_lga was missing — required field, was silently failing #}
           <div class="sm:col-span-2">
             {% include "common/forms/form_field.html" with field=form.farm_lga %}
+          </div>
+
+          <div id="ward-field-wrapper"
+            class="sm:col-span-2 {% if not form.farm_ward.value %}hidden{% endif %}">
+          {% include "common/forms/form_field.html" with field=form.farm_ward %}
+        </div>
+
+          {# farm_address was missing — required field #}
+          <div class="sm:col-span-2">
+            {% include "common/forms/form_field.html" with field=form.farm_address %}
           </div>
 
           <!-- Primary crop — single select -->
@@ -84,11 +93,6 @@
               {% endfor %}
             </div>
 
-            {# farm_address was missing — required field #}
-            <div class="sm:col-span-2">
-              {% include "common/forms/form_field.html" with field=form.farm_address %}
-            </div>
-
             {% for error in form.other_crops.errors %}
               <span class="text-xs text-danger">{{ error }}</span>
             {% endfor %}
@@ -125,11 +129,6 @@
               <span class="text-xs text-danger">{{ error }}</span>
             {% endfor %}
           </div>
-
-          <div class="sm:col-span-2">
-            {% include "common/forms/form_field.html" with field=form.farm_address %}
-          </div>
-
         </div>
 
         <div class="flex justify-between">
@@ -162,4 +161,8 @@
   </div>
 
 </section>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'common/js/registration_farm_ward.js' %}"></script>
 {% endblock %}

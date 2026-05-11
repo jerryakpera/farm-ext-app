@@ -1,9 +1,11 @@
 {% load static %}
 
-<form method="post"
-      enctype="multipart/form-data"
-      class="space-y-5"
-      data-wards-url="/api/common/lgas/__LGA_ID__/wards/">
+<form
+  method="post"
+  class="space-y-5"
+  enctype="multipart/form-data"
+  data-wards-url="/api/common/lgas/__LGA_ID__/wards/"
+>
   {% csrf_token %}
 
   {% for field in form %}

@@ -1,4 +1,3 @@
-const form = document.querySelector('form[data-wards-url]');
 const wardsUrlTpl = form.dataset.wardsUrl; // "/api/common/lgas/__LGA_ID__/wards/"
 const lgaSelect = document.getElementById('id_farm_lga');
 const wardSelect = document.getElementById('id_farm_ward');

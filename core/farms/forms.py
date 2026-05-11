@@ -96,7 +96,7 @@ class FarmDetailsForm(forms.Form):
     )
 
     farm_ward = forms.ModelChoiceField(
-        queryset=Ward.objects.none(),
+        queryset=Ward.objects.all(),
         label="Farm Ward",
         required=False,
         help_text="The ward within the selected LGA.",

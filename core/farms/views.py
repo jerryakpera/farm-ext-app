@@ -135,6 +135,7 @@ def farm_create_view(request):
         if form.is_valid():
             farm = form.save(farmer=request.user.farmer_profile)
             messages.success(request, "Farm created successfully.")
+
             return redirect("farms:farm_detail", farm_id=farm.pk)
     else:
         form = FarmDetailsForm()
