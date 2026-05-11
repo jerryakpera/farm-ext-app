@@ -131,7 +131,12 @@
       </div>
 
       <div class="grid grid-cols-3 px-5 py-3">
-        <dt class="text-gray-500">Address</dt>
+        <dt class="text-gray-500">Ward</dt>
+        <dd class="col-span-2 font-medium text-gray-800">{{ farm.ward|default:"—" }}</dd>
+      </div>
+
+      <div class="grid grid-cols-3 px-5 py-3">
+        <dt class="text-gray-500">Location</dt>
         <dd class="col-span-2 font-medium text-gray-800">{{ farm.address|default:"—" }}</dd>
       </div>
 

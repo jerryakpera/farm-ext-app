@@ -62,7 +62,15 @@
       <div>
         <dt class="detail-label">Location</dt>
         <dd class="text-gray-700 font-medium">
-          {% if farm.lga %}{{ farm.lga }}{% else %}—{% endif %}
+          {% if farm.address %}
+            {{ farm.address }}
+          {% endif %}
+
+          {% if farm.ward %}
+            {{ farm.ward }}
+          {% elif farm.lga %}
+            {{ farm.lga }}
+          {% else %}—{% endif %}
         </dd>
       </div>
 

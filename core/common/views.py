@@ -6,11 +6,20 @@ Views for the common app.
 from django.db.models import Count, Q
 from django.shortcuts import render
 
+# third_party_packages
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 # other_apps_packages
 from core.advisory.models import AdvisoryPost
 from core.farms.models import Farm
 from core.profiles.models import ExtensionAgentProfile, FarmerProfile
 from core.questions.models import Answer, Question
+
+# app_packages
+from .models import LGA, Ward
+from .serializers import WardSerializer
 
 
 def index_view(request):
@@ -121,3 +130,86 @@ def index_view(request):
         template_name="dashboard/pages/index.html",
         context=context,
     )
+
+
+class WardsByLGAView(APIView):
+    """
+    Return a list of wards belonging to a given LGA.
+    """
+
+    def get(self, request, lga_id, *args, **kwargs):
+        """
+        Handle GET requests.
+
+        Parameters
+        ----------
+        request : Request
+            The incoming DRF request.
+        lga_id : int
+            The primary key of the LGA.
+        *args : tuple
+            Additional positional arguments.
+        **kwargs : dict
+            Additional keyword arguments.
+
+        Returns
+        -------
+        Response
+            A DRF Response containing the list of wards or an error message.
+        """
+
+        try:
+            lga = LGA.objects.get(pk=lga_id)
+        except LGA.DoesNotExist:
+            return Response(
+                {
+                    "error": "LGA not found",
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        serializer = WardSerializer(
+            lga.wards.order_by("name"),
+            many=True,
+        )
+
+        return Response(
+            {
+                "wards": serializer.data,
+            }
+        )
+
+
+class WardListView(APIView):
+    """
+    Return a list of all wards.
+    """
+
+    def get(self, request, *args, **kwargs):
+        """
+        Handle GET requests.
+
+        Parameters
+        ----------
+        request : Request
+            The incoming DRF request.
+        *args : tuple
+            Additional positional arguments.
+        **kwargs : dict
+            Additional keyword arguments.
+
+        Returns
+        -------
+        Response
+            A DRF Response containing all wards.
+        """
+
+        wards = Ward.objects.order_by("name")
+
+        serializer = WardSerializer(wards, many=True)
+
+        return Response(
+            {
+                "wards": serializer.data,
+            }
+        )

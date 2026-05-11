@@ -4584,11 +4584,6 @@ textarea {
   color: rgb(184 134 11 / var(--tw-text-opacity));
 }
 
-.text-secondary-200 {
-  --tw-text-opacity: 1;
-  color: rgb(245 223 137 / var(--tw-text-opacity));
-}
-
 .text-secondary-300 {
   --tw-text-opacity: 1;
   color: rgb(240 207 78 / var(--tw-text-opacity));

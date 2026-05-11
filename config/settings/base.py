@@ -43,6 +43,7 @@ THIRD_PARTY_APPS = [
     "formtools",
     "storages",
     "taggit",
+    "rest_framework",
 ]
 
 LOCAL_APPS = [
@@ -159,3 +160,13 @@ AWS_LOCATION = config("AWS_LOCATION")
 AWS_S3_FILE_OVERWRITE = False
 AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME")
 AWS_S3_CUSTOME_DOMAIN = "%s.s3.amazonaws.com" % config("AWS_STORAGE_BUCKET_NAME")
+
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.AllowAny",
+    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": [],
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+    ],
+}

@@ -1,5 +1,5 @@
 """
-Management command to seed all 17 Plateau State LGAs into the LGA table.
+Management command to seed all 17 Plateau State LGAs and their wards.
 
 Usage:
     python manage.py seed_lgas
@@ -10,16 +10,18 @@ Usage:
 from django.core.management.base import BaseCommand
 
 # other_apps_packages
-from core.common.constants import PLATEAU_LGAS
-from core.common.models import LGA
+from core.common.constants import PLATEAU_LGA_WARDS, PLATEAU_LGAS
+from core.common.models import LGA, Ward
 
 
 class Command(BaseCommand):
     """
-    Command to generate the LGAs for the project.
+    Command to seed LGAs and wards for the project.
     """
 
-    help = "Seeds the LGA table with all 17 Plateau State LGAs."
+    help = (
+        "Seeds the LGA and Ward tables with all 17 Plateau State LGAs and their wards."
+    )
 
     def add_arguments(self, parser):
         """
@@ -34,7 +36,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--reverse",
             action="store_true",
-            help="Remove all seeded Plateau State LGAs from the database.",
+            help="Remove all seeded Plateau State LGAs and their wards from the database.",
         )
 
     def handle(self, *args, **options):
@@ -50,27 +52,44 @@ class Command(BaseCommand):
         """
 
         if options["reverse"]:
-            deleted_count, _ = LGA.objects.filter(state="Plateau").delete()
+            lgas = LGA.objects.filter(state="Plateau")
+            ward_count, _ = Ward.objects.filter(lga__in=lgas).delete()
+            lga_count, _ = lgas.delete()
             self.stdout.write(
-                self.style.WARNING(f"Removed {deleted_count} Plateau State LGAs.")
+                self.style.WARNING(
+                    f"Removed {lga_count} Plateau State LGAs and {ward_count} wards."
+                )
             )
             return
 
-        created_count = 0
-        skipped_count = 0
+        lgas_created = lgas_skipped = wards_created = wards_skipped = 0
 
-        for name in PLATEAU_LGAS:
-            _, created = LGA.objects.get_or_create(
-                name=name,
+        for lga_name in PLATEAU_LGAS:
+            lga, created = LGA.objects.get_or_create(
+                name=lga_name,
                 defaults={"state": "Plateau"},
             )
+
             if created:
-                created_count += 1
+                lgas_created += 1
             else:
-                skipped_count += 1
+                lgas_skipped += 1
+
+            for ward_name in PLATEAU_LGA_WARDS.get(lga_name, []):
+                _, ward_created = Ward.objects.get_or_create(
+                    name=ward_name,
+                    lga=lga,
+                )
+
+                if ward_created:
+                    wards_created += 1
+                else:
+                    wards_skipped += 1
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"Done. {created_count} LGAs created, {skipped_count} already existed."
+                f"Done. "
+                f"{lgas_created} LGAs created, {lgas_skipped} already existed. "
+                f"{wards_created} wards created, {wards_skipped} already existed."
             )
         )

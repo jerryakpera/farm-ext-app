@@ -6,7 +6,7 @@ Forms for the profiles app — used across the multi-step registration wizard.
 from django import forms
 
 # other_apps_packages
-from core.common.models import LGA
+from core.common.models import LGA, Ward
 
 # app_packages
 from .models import Animal, Crop, Farm
@@ -95,7 +95,15 @@ class FarmDetailsForm(forms.Form):
         help_text="The LGA where the farm is located.",
     )
 
+    farm_ward = forms.ModelChoiceField(
+        queryset=Ward.objects.none(),
+        label="Farm Ward",
+        required=False,
+        help_text="The ward within the selected LGA.",
+    )
+
     farm_address = forms.CharField(
+        label="Farm location",
         widget=forms.Textarea(attrs={"rows": 3}),
         help_text="Street address or description of the farm's location.",
     )
@@ -142,11 +150,22 @@ class FarmDetailsForm(forms.Form):
         if farm is not None:
             self.fields["farm_name"].initial = farm.name
             self.fields["farm_lga"].initial = farm.lga
+            self.fields["farm_ward"].initial = farm.ward
             self.fields["farm_address"].initial = farm.address
             self.fields["size"].initial = farm.size
             self.fields["primary_crop"].initial = farm.primary_crop
             self.fields["other_crops"].initial = farm.other_crops.all()
             self.fields["animals"].initial = farm.animals.all()
+
+            # Restore queryset so the saved ward is a valid choice on edit.
+            if farm.lga_id:
+                self.fields["farm_ward"].queryset = Ward.objects.filter(
+                    lga_id=farm.lga_id
+                )
+
+        # On POST: widen the queryset to the submitted LGA so validation passes.
+        elif args and (lga_id := args[0].get("farm_lga")):
+            self.fields["farm_ward"].queryset = Ward.objects.filter(lga_id=lga_id)
 
     def save(self, farmer, farm=None):
         """
@@ -175,6 +194,7 @@ class FarmDetailsForm(forms.Form):
 
         farm.name = data["farm_name"]
         farm.lga = data["farm_lga"]
+        farm.ward = data.get("farm_ward")
         farm.address = data["farm_address"]
         farm.size = data["size"]
         farm.primary_crop = data["primary_crop"]

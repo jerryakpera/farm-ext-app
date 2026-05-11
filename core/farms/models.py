@@ -7,7 +7,7 @@ from django.db import models
 
 # other_apps_packages
 from core.common import utils as common_utils, validators as common_validators
-from core.common.models import LGA
+from core.common.models import LGA, Ward
 from core.profiles.models import ExtensionAgentProfile, FarmerProfile
 
 
@@ -69,6 +69,15 @@ class Farm(models.Model):
         blank=True,
         related_name="farms",
     )
+    ward = models.ForeignKey(
+        Ward,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="farms",
+        help_text="The ward within the LGA where this farm is located.",
+    )
+
     name = models.CharField(max_length=255)
     address = models.TextField(
         blank=True,

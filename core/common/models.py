@@ -31,3 +31,33 @@ class LGA(models.Model):
         """
 
         return f"{self.name}, {self.state}"
+
+
+class Ward(models.Model):
+    """
+    An administrative ward that belongs to an LGA.
+    """
+
+    lga = models.ForeignKey(
+        LGA,
+        on_delete=models.CASCADE,
+        related_name="wards",
+    )
+    name = models.CharField(max_length=255)
+
+    class Meta:
+        verbose_name = "Ward"
+        verbose_name_plural = "Wards"
+        ordering = ["name"]
+
+    def __str__(self) -> str:
+        """
+        Return the string representation of the Ward.
+
+        Returns
+        -------
+        str
+            The Ward name and LGA name.
+        """
+
+        return f"{self.name} ({self.lga.name})"

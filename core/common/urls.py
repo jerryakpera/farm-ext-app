@@ -17,5 +17,5 @@ urlpatterns = [
         "",
         view=views.index_view,
         name="index",
-    )
+    ),
 ]
