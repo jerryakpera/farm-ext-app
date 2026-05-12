@@ -53,6 +53,7 @@ LOCAL_APPS = [
     "core.questions",
     "core.advisory",
     "core.visits",
+    "core.notifications",
 ]
 
 INSTALLED_APPS = (
@@ -87,6 +88,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "core.notifications.context_processors.notifications",
             ],
         },
     },

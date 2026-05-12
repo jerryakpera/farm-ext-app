@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container-main py-8 sm:py-12">
+
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">Notifications</h1>
+
+    {% if notifications %}
+      <ul class="space-y-2">
+        {% for n in notifications %}
+          <li>
+            <a href="{% url 'notifications:redirect' n.pk %}"
+              class="flex items-start gap-3 p-4 rounded-xl border transition-colors
+                      {% if not n.is_read %}bg-primary-50 border-primary-200
+                      {% else %}bg-white border-gray-200 hover:bg-gray-50{% endif %}">
+              {# Kind indicator dot #}
+              <span class="mt-1 h-2 w-2 rounded-full shrink-0
+                          {% if not n.is_read %}bg-primary{% else %}bg-gray-300{% endif %}">
+              </span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm text-gray-800 {% if not n.is_read %}font-medium{% endif %}">
+                  {{ n.message }}
+                </p>
+                <p class="text-xs text-gray-400 mt-0.5">
+                  {{ n.created_at|timesince }} ago
+                </p>
+              </div>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="text-center py-20 text-gray-400">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto mb-3 opacity-40"
+            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0
+                  00-5-5.917V4a1 1 0 10-2 0v1.083A6 6 0 006 11v3.159c0
+                  .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+        </svg>
+        <p class="text-sm">You have no notifications yet.</p>
+      </div>
+    {% endif %}
+
+  </div>
+{% endblock %}

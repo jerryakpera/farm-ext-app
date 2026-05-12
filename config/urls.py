@@ -14,6 +14,7 @@ urlpatterns = [
     path("api/common/", include("core.common.api_urls", namespace="common_api")),
     path("", include("core.farms.urls")),
     path("", include("core.profiles.urls")),
+    path("", include("core.notifications.urls")),
     path("questions/", include("core.questions.urls")),
     path("advisory/", include("core.advisory.urls")),
 ]
