@@ -175,26 +175,45 @@ def farm_detail_view(request, farm_id):
     HttpResponse
         Rendered farm detail page.
     """
+
     if request.user.is_farmer:
-        farm = get_farmer_farm_or_404(request, farm_id)
+        farm_exists = Farm.objects.filter(
+            pk=farm_id,
+            farmer=request.user.farmer_profile,
+        ).exists()
+
+        if farm_exists:
+            farm = get_farmer_farm_or_404(request, farm_id)
+        else:
+            messages.error(
+                request=request,
+                message="You are not authorized to view this farm.",
+            )
+
+            return redirect("farms:farm_list")
+
     else:
         farm = get_object_or_404(
             Farm.objects.select_related(
-                "farmer__user", "lga", "primary_crop"
+                "lga",
+                "farmer__user",
+                "primary_crop",
             ).prefetch_related(
-                "other_crops",
                 "animals",
+                "other_crops",
             ),
             pk=farm_id,
         )
 
+    context = {
+        "farm": farm,
+        "image_form": FarmImageUploadForm() if request.user.is_farmer else None,
+    }
+
     return render(
-        request,
-        "farms/pages/farm_detail.html",
-        {
-            "farm": farm,
-            "image_form": FarmImageUploadForm() if request.user.is_farmer else None,
-        },
+        request=request,
+        context=context,
+        template_name="farms/pages/farm_detail.html",
     )
 
 

@@ -18,6 +18,8 @@ urlpatterns = [
     path("advisory/", include("core.advisory.urls")),
 ]
 
+handler404 = "core.common.views.page_not_found_view"
+
 if settings.DEBUG:
     # If in development
     # django_packages

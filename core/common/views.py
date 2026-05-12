@@ -213,3 +213,23 @@ class WardListView(APIView):
                 "wards": serializer.data,
             }
         )
+
+
+def page_not_found_view(request, exception):
+    """
+    Render a custom 404 page.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        The incoming HTTP request.
+    exception : Exception
+        The exception that triggered the 404.
+
+    Returns
+    -------
+    HttpResponse
+        Rendered 404 page with a 404 status code.
+    """
+
+    return render(request, "404.html", status=404)
