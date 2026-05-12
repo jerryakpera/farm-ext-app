@@ -13,6 +13,34 @@ from core.custom_user.models import User
 from core.profiles.models import ExtensionAgentWhitelist
 
 
+class LgaCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
+    """
+    Thin subclass of CheckboxSelectMultiple.
+    """
+
+    def build_attrs(self, base_attrs, extra_attrs=None):
+        """
+        Add a CSS class to the wrapping element produced by the widget.
+
+        Parameters
+        ----------
+        base_attrs : dict
+            Base HTML attributes for the widget.
+        extra_attrs : dict or None
+            Additional attributes to merge in.
+
+        Returns
+        -------
+        dict
+            Merged attribute dictionary.
+        """
+
+        attrs = super().build_attrs(base_attrs, extra_attrs)
+        attrs["class"] = attrs.get("class", "") + " lga-checkbox-group"
+
+        return attrs
+
+
 class RoleSelectionForm(forms.Form):
     """
     Step 1 — The user selects their role before any other fields are shown.
@@ -62,6 +90,14 @@ class ProfileBioForm(forms.Form):
         max_length=50,
         required=False,
         label="Staff ID",
+    )
+
+    assigned_lgas = forms.ModelMultipleChoiceField(
+        queryset=LGA.objects.all(),
+        required=False,
+        widget=LgaCheckboxSelectMultiple,
+        label="Assigned LGAs",
+        help_text="Select the LGAs you are assigned to cover.",
     )
 
     def clean_email(self):
@@ -193,3 +229,98 @@ class FarmerProfileForm(forms.Form):
         profile.address = self.cleaned_data["address"]
         profile.date_of_birth = self.cleaned_data["date_of_birth"]
         profile.save()
+
+
+class ExtensionAgentProfileForm(forms.Form):
+    """
+    Allows an extension agent to update their profile and the underlying
+    User fields.
+
+    Parameters
+    ----------
+    *args
+        Positional arguments passed to the parent form class.
+    user : User, optional
+        The authenticated user whose fields are used to populate the form.
+    profile : ExtensionAgentProfile, optional
+        The agent profile instance used to populate profile-specific fields.
+    **kwargs
+        Keyword arguments passed to the parent form class.
+    """
+
+    # --- user fields ---
+    first_name = forms.CharField(max_length=150)
+    last_name = forms.CharField(max_length=150)
+    phone_number = forms.CharField(max_length=20, required=False)
+    profile_photo = forms.ImageField(required=False)
+
+    # --- profile fields ---
+    agency_name = forms.CharField(
+        max_length=255,
+        required=False,
+        help_text="e.g. ADP – Agricultural Development Programme",
+    )
+    staff_id = forms.CharField(
+        max_length=50,
+        required=False,
+        label="Staff ID",
+    )
+    assigned_lgas = forms.ModelMultipleChoiceField(
+        queryset=LGA.objects.all(),
+        required=False,
+        widget=LgaCheckboxSelectMultiple,
+        label="Assigned LGAs",
+        help_text="Select the LGAs you are assigned to cover.",
+    )
+
+    def __init__(self, *args, user=None, profile=None, **kwargs):
+        """
+        Initialise the form, pre-populating fields from the supplied
+        user and profile instances when provided.
+
+        Parameters
+        ----------
+        user : User or None
+            The authenticated user whose fields seed the form.
+        profile : ExtensionAgentProfile or None
+            The agent profile whose fields seed the form.
+        """
+
+        super().__init__(*args, **kwargs)
+
+        if user:
+            self.fields["first_name"].initial = user.first_name
+            self.fields["last_name"].initial = user.last_name
+            self.fields["phone_number"].initial = user.phone_number
+
+        if profile:
+            self.fields["agency_name"].initial = profile.agency_name
+            self.fields["staff_id"].initial = profile.staff_id
+            self.fields["assigned_lgas"].initial = profile.assigned_lgas.all()
+
+    def save(self, user, profile):
+        """
+        Persist changes to both the User and ExtensionAgentProfile instances.
+
+        Parameters
+        ----------
+        user : User
+            The authenticated user whose fields will be updated.
+        profile : ExtensionAgentProfile
+            The agent profile whose fields will be updated.
+        """
+
+        user.first_name = self.cleaned_data["first_name"]
+        user.last_name = self.cleaned_data["last_name"]
+        user.phone_number = self.cleaned_data["phone_number"]
+
+        if self.cleaned_data.get("profile_photo"):
+            user.profile_photo = self.cleaned_data["profile_photo"]
+
+        user.save()
+
+        profile.agency_name = self.cleaned_data["agency_name"]
+        profile.staff_id = self.cleaned_data["staff_id"]
+        profile.save()
+
+        profile.assigned_lgas.set(self.cleaned_data["assigned_lgas"])

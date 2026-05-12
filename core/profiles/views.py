@@ -17,7 +17,13 @@ from core.farms.forms import FarmDetailsForm
 from core.farms.models import Farm, FarmerProfile
 
 # app_packages
-from .forms import FarmerProfileForm, ProfileBioForm, RoleSelectionForm
+from .decorators import agent_required, farmer_required
+from .forms import (
+    ExtensionAgentProfileForm,
+    FarmerProfileForm,
+    ProfileBioForm,
+    RoleSelectionForm,
+)
 from .models import ExtensionAgentProfile, ExtensionAgentWhitelist
 
 
@@ -132,6 +138,7 @@ class RegistrationWizardView(SessionWizardView):
                 # nor validated.
                 form.fields.pop("agency_name", None)
                 form.fields.pop("staff_id", None)
+                form.fields.pop("assigned_lgas", None)
 
             elif role == User.Role.EXTENSION_AGENT:
                 # Remove farmer-only fields.
@@ -285,59 +292,17 @@ class RegistrationWizardView(SessionWizardView):
             Cleaned data from the profile_bio step.
         """
 
-        ExtensionAgentProfile.objects.create(
+        profile = ExtensionAgentProfile.objects.create(
             user=user,
             agency_name=step2.get("agency_name", ""),
             staff_id=step2.get("staff_id", ""),
         )
 
-        # Mark the whitelist entry so the email cannot be reused.
+        assigned_lgas = step2.get("assigned_lgas")
+        if assigned_lgas:
+            profile.assigned_lgas.set(assigned_lgas)
+
         ExtensionAgentWhitelist.objects.filter(email=user.email).update(is_used=True)
-
-
-def farmer_required(view_func):
-    """
-    Decorator that restricts access to views to authenticated users with the farmer role.
-    Redirects unauthenticated users to login and non-farmers to home.
-
-    Parameters
-    ----------
-    view_func : callable
-        The view function to be wrapped.
-
-    Returns
-    -------
-    callable
-        The wrapped view function enforcing farmer-only access.
-    """
-
-    def wrapper(request, *args, **kwargs):
-        """
-        Enforce authentication and farmer role access control.
-
-        Parameters
-        ----------
-        request : HttpRequest
-            The incoming HTTP request.
-        *args
-            Positional arguments passed to the view.
-        **kwargs
-            Keyword arguments passed to the view.
-
-        Returns
-        -------
-        HttpResponse
-            Redirects to login or home if unauthorized, otherwise executes the view.
-        """
-
-        if not request.user.is_authenticated:
-            return redirect("login")
-        if not request.user.is_farmer:
-            messages.error(request, "Access restricted to farmers only.")
-            return redirect("home")
-        return view_func(request, *args, **kwargs)
-
-    return wrapper
 
 
 @farmer_required
@@ -376,3 +341,42 @@ def farmer_profile_view(request):
         form = FarmerProfileForm(user=request.user, profile=profile)
 
     return render(request, "profiles/farmer_profile.html", {"form": form})
+
+
+@agent_required
+def agent_profile_view(request):
+    """
+    Display and update the authenticated extension agent's profile,
+    including their assigned LGAs.
+
+    GET renders the profile form pre-filled with existing data.
+    POST validates and updates both User and ExtensionAgentProfile models.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        The incoming HTTP request.
+
+    Returns
+    -------
+    HttpResponse
+        Rendered profile page or redirect after successful update.
+    """
+
+    profile = request.user.agent_profile
+
+    if request.method == "POST":
+        form = ExtensionAgentProfileForm(
+            request.POST,
+            request.FILES,
+            user=request.user,
+            profile=profile,
+        )
+        if form.is_valid():
+            form.save(user=request.user, profile=profile)
+            messages.success(request, "Profile updated successfully.")
+            return redirect("agent-profile")
+    else:
+        form = ExtensionAgentProfileForm(user=request.user, profile=profile)
+
+    return render(request, "profiles/agent_profile.html", {"form": form})

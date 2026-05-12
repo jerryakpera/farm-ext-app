@@ -22,7 +22,7 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {% for field in form %}
-            <div class="{% if field.name in 'email phone_number lga agency_name staff_id' %}sm:col-span-2{% endif %}">
+            <div class="{% if field.name in 'email phone_number lga agency_name staff_id assigned_lgas' %}sm:col-span-2{% endif %}">
               {% include "common/forms/form_field.html" with field=field %}
             </div>
           {% endfor %}

@@ -57,4 +57,9 @@ urlpatterns = [
         view=views.farmer_profile_view,
         name="farmer-profile",
     ),
+    path(
+        "profile/agent/",
+        views.agent_profile_view,
+        name="agent-profile",
+    ),
 ]
