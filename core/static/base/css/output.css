@@ -3730,6 +3730,10 @@ textarea {
   gap: 2rem;
 }
 
+.gap-5 {
+  gap: 1.25rem;
+}
+
 .gap-x-3 {
   -moz-column-gap: 0.75rem;
        column-gap: 0.75rem;
@@ -3952,6 +3956,11 @@ textarea {
   border-color: rgb(254 240 138 / var(--tw-border-opacity));
 }
 
+.border-accent-200 {
+  --tw-border-opacity: 1;
+  border-color: rgb(245 193 169 / var(--tw-border-opacity));
+}
+
 .bg-accent {
   --tw-bg-opacity: 1;
   background-color: rgb(193 68 14 / var(--tw-bg-opacity));
@@ -4098,6 +4107,11 @@ textarea {
 .bg-yellow-50 {
   --tw-bg-opacity: 1;
   background-color: rgb(254 252 232 / var(--tw-bg-opacity));
+}
+
+.bg-accent-50 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(253 241 236 / var(--tw-bg-opacity));
 }
 
 .bg-gradient-to-r {
@@ -5032,6 +5046,10 @@ textarea {
 }
 
 @media (min-width: 1024px) {
+  .lg\:col-span-1 {
+    grid-column: span 1 / span 1;
+  }
+
   .lg\:mx-0 {
     margin-left: 0px;
     margin-right: 0px;
@@ -5097,6 +5115,12 @@ textarea {
   .lg\:text-6xl {
     font-size: 3.75rem;
     line-height: 1;
+  }
+}
+
+@media (min-width: 1280px) {
+  .xl\:grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
