@@ -3722,16 +3722,16 @@ textarea {
   gap: 1rem;
 }
 
+.gap-5 {
+  gap: 1.25rem;
+}
+
 .gap-6 {
   gap: 1.5rem;
 }
 
 .gap-8 {
   gap: 2rem;
-}
-
-.gap-5 {
-  gap: 1.25rem;
 }
 
 .gap-x-3 {
@@ -3881,6 +3881,11 @@ textarea {
   border-style: dashed;
 }
 
+.border-accent-200 {
+  --tw-border-opacity: 1;
+  border-color: rgb(245 193 169 / var(--tw-border-opacity));
+}
+
 .border-danger {
   --tw-border-opacity: 1;
   border-color: rgb(193 68 14 / var(--tw-border-opacity));
@@ -3956,14 +3961,14 @@ textarea {
   border-color: rgb(254 240 138 / var(--tw-border-opacity));
 }
 
-.border-accent-200 {
-  --tw-border-opacity: 1;
-  border-color: rgb(245 193 169 / var(--tw-border-opacity));
-}
-
 .bg-accent {
   --tw-bg-opacity: 1;
   background-color: rgb(193 68 14 / var(--tw-bg-opacity));
+}
+
+.bg-accent-50 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(253 241 236 / var(--tw-bg-opacity));
 }
 
 .bg-blue-100 {
@@ -4109,9 +4114,14 @@ textarea {
   background-color: rgb(254 252 232 / var(--tw-bg-opacity));
 }
 
-.bg-accent-50 {
+.bg-green-500 {
   --tw-bg-opacity: 1;
-  background-color: rgb(253 241 236 / var(--tw-bg-opacity));
+  background-color: rgb(34 197 94 / var(--tw-bg-opacity));
+}
+
+.bg-yellow-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(234 179 8 / var(--tw-bg-opacity));
 }
 
 .bg-gradient-to-r {

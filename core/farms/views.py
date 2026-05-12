@@ -7,8 +7,11 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
+# other_apps_packages
+from core.profiles.decorators import agent_required
+
 # app_packages
-from .forms import FarmDetailsForm, FarmImageUploadForm
+from .forms import FarmDetailsForm, FarmImageUploadForm, FarmVerificationForm
 from .models import Farm
 
 
@@ -301,3 +304,64 @@ def farm_image_upload_view(request, farm_id):
             messages.error(request, "Upload failed. Please select a valid image file.")
 
     return redirect("farms:farm_detail", farm_id=farm.pk)
+
+
+@agent_required
+def farm_verify_view(request, farm_id):
+    """
+    Allow an extension agent to verify a farm after a physical visit.
+
+    The form is pre-populated with the farmer's submitted values so the
+    agent only needs to correct fields that do not match what they
+    observed on site. Submitting the form overwrites the farm record
+    with the agent's values and marks the farm as verified.
+
+    GET displays the pre-filled verification form alongside read-only
+    farm metadata.
+    POST validates the form, saves the corrected values, marks the farm
+    as verified, and redirects to the farm detail page.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        The incoming HTTP request.
+    farm_id : int
+        The primary key of the farm to verify.
+
+    Returns
+    -------
+    HttpResponse
+        Rendered verification form or redirect after successful verification.
+    """
+
+    farm = get_object_or_404(
+        Farm.objects.select_related(
+            "farmer__user", "lga", "ward", "primary_crop", "verified_by__user"
+        ).prefetch_related("other_crops", "animals"),
+        pk=farm_id,
+    )
+
+    if farm.is_verified:
+        messages.info(request, f'"{farm.name}" has already been verified.')
+        return redirect("farms:farm_detail", farm_id=farm.pk)
+
+    if request.method == "POST":
+        form = FarmVerificationForm(request.POST, request.FILES, farm=farm)
+        if form.is_valid():
+            form.save(farm=farm, agent=request.user.agent_profile)
+            messages.success(
+                request,
+                f'"{farm.name}" has been verified successfully.',
+            )
+            return redirect("farms:farm_detail", farm_id=farm.pk)
+    else:
+        form = FarmVerificationForm(farm=farm)
+
+    return render(
+        request,
+        "farms/pages/verify_farm.html",
+        {
+            "form": form,
+            "farm": farm,
+        },
+    )

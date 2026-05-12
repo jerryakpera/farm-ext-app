@@ -108,14 +108,20 @@
     </dl>
 
     <hr class="my-2 border-gray-200">
-
-     {# Registered date #}
-
-
-    {# Registered date #}
-    <p class="text-xs text-gray-400 text-right font-semibold">
-      Registered {{ farm.created_at|date:"d M Y" }}
-    </p>
+    <div class="flex items-center justify-between">
+      {% if request.user.is_agent and not farm.is_verified %}
+        <a href="{% url 'farms:farm_verify' farm.pk %}"
+           class="text-xs font-medium text-green-700 hover:text-green-800
+                  hover:underline">
+          Verify farm →
+        </a>
+      {% else %}
+        <span></span>
+      {% endif %}
+      <p class="text-xs text-gray-400 font-semibold">
+        Registered {{ farm.created_at|date:"d M Y" }}
+      </p>
+    </div>
 
   </div>
 </div>

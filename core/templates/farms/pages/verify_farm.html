@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block content %}
+  <div class="container-main py-8 sm:py-12">
+    <!-- Read-only farm metadata -->
+    <div class="bg-white border border-gray-200 rounded-xl p-5 space-y-3">
+      <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-gray-800">Verify Farm</h1>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold
+                    {% if farm.is_verified %}bg-green-100 text-green-700{% else %}bg-yellow-100 text-yellow-700{% endif %}">
+          <span class="w-1.5 h-1.5 rounded-full
+                      {% if farm.is_verified %}bg-green-500{% else %}bg-yellow-500{% endif %}"></span>
+          {% if farm.is_verified %}Verified{% else %}Unverified{% endif %}
+        </span>
+      </div>
+      <div class="grid grid-cols-2 gap-x-6 gap-y-2 text-sm pt-1">
+        <div>
+          <p class="text-xs font-medium text-gray-400 uppercase tracking-wide">Farm name</p>
+          <p class="text-gray-800 font-medium">{{ farm.name }}</p>
+        </div>
+        <div>
+          <p class="text-xs font-medium text-gray-400 uppercase tracking-wide">Farmer</p>
+          <p class="text-gray-800 font-medium">{{ farm.farmer.user.get_full_name }}</p>
+        </div>
+        <div>
+          <p class="text-xs font-medium text-gray-400 uppercase tracking-wide">Date registered</p>
+          <p class="text-gray-800 font-medium">{{ farm.created_at|date:"d M Y" }}</p>
+        </div>
+        <div>
+          <p class="text-xs font-medium text-gray-400 uppercase tracking-wide">LGA</p>
+          <p class="text-gray-800 font-medium">{{ farm.lga|default:"—" }}</p>
+        </div>
+      </div>
+      <p class="text-xs text-gray-400 pt-1">
+        The fields below are pre-filled with the farmer's submitted values.
+        Correct anything that does not match what you observed on site, then click
+        <strong>Verify Farm</strong>.
+      </p>
+    </div>
+
+    <!-- Verification form -->
+    <form
+      method="post"
+      class="space-y-5"
+      enctype="multipart/form-data"
+      data-wards-url="/api/common/lgas/__LGA_ID__/wards/"
+    >
+      {% csrf_token %}
+      {% for field in form %}
+        {% if field.name == "farm_ward" %}
+          <div id="ward-field-wrapper"
+              class="{% if not field.value %}hidden{% endif %}">
+            <label for="{{ field.id_for_label }}"
+                  class="block text-sm font-medium text-gray-700 mb-1">
+              {{ field.label }}
+            </label>
+            <div class="[&>select]:w-full [&>select]:border [&>select]:border-gray-300
+                        [&>select]:rounded-md [&>select]:px-3 [&>select]:py-2
+                        [&>select]:text-sm">
+              {{ field }}
+            </div>
+            {% if field.help_text %}
+              <p class="mt-1 text-xs text-gray-400">{{ field.help_text }}</p>
+            {% endif %}
+            {% for error in field.errors %}
+              <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+            {% endfor %}
+          </div>
+
+        {% elif field.name == "other_crops" or field.name == "animals" %}
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              {{ field.label }}
+            </label>
+            <div class="flex flex-wrap gap-2 mt-1">
+              {% for choice in field %}
+                <label class="flex items-center gap-1.5 cursor-pointer border
+                              border-gray-300 rounded-full px-3 py-1 text-sm
+                              has-[:checked]:bg-green-600 has-[:checked]:text-white
+                              has-[:checked]:border-green-600 transition-colors">
+                  {{ choice.tag }}
+                  {{ choice.choice_label }}
+                </label>
+              {% endfor %}
+            </div>
+            {% if field.help_text %}
+              <p class="mt-1 text-xs text-gray-400">{{ field.help_text }}</p>
+            {% endif %}
+            {% for error in field.errors %}
+              <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+            {% endfor %}
+          </div>
+
+        {% else %}
+          <div>
+            <label for="{{ field.id_for_label }}"
+                  class="block text-sm font-medium text-gray-700 mb-1">
+              {{ field.label }}
+            </label>
+            <div class="[&>input]:w-full [&>input]:border [&>input]:border-gray-300
+                        [&>input]:rounded-md [&>input]:px-3 [&>input]:py-2
+                        [&>input]:text-sm [&>input]:focus:outline-none
+                        [&>input]:focus:ring-2 [&>input]:focus:ring-green-500
+                        [&>select]:w-full [&>select]:border [&>select]:border-gray-300
+                        [&>select]:rounded-md [&>select]:px-3 [&>select]:py-2
+                        [&>select]:text-sm
+                        [&>textarea]:w-full [&>textarea]:border
+                        [&>textarea]:border-gray-300 [&>textarea]:rounded-md
+                        [&>textarea]:px-3 [&>textarea]:py-2 [&>textarea]:text-sm">
+              {{ field }}
+            </div>
+            {% if field.help_text %}
+              <p class="mt-1 text-xs text-gray-400">{{ field.help_text }}</p>
+            {% endif %}
+            {% for error in field.errors %}
+              <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endfor %}
+
+      <div class="flex gap-3 pt-2">
+        <button type="submit"
+                class="bg-green-600 hover:bg-green-700 text-white font-medium
+                      py-2 px-5 rounded-md transition-colors text-sm">
+          Verify Farm
+        </button>
+        <a href="{% url 'farms:farm_detail' farm_id=farm.pk %}"
+          class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium
+                  py-2 px-5 rounded-md transition-colors text-sm">
+          Cancel
+        </a>
+      </div>
+    </form>
+
+    <script src="{% static 'common/js/farm_ward.js' %}"></script>
+  </div>
+{% endblock %}
