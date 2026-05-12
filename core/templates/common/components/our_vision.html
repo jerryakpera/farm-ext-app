@@ -1,0 +1,35 @@
+{% load static %}
+
+<!-- ═══════════════════════════════════════════════════════════════
+ABOUT
+═══════════════════════════════════════════════════════════════ -->
+<section id="about" class="section-slant bg-light z-10 pt-32 pb-40 lg:pt-44 lg:pb-56">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+
+      <!-- Text -->
+      <div>
+        <span class="inline-block text-xs font-bold tracking-widest uppercase text-accent mb-3">
+          Our vision
+        </span>
+        <h2 class="font-serif text-3xl sm:text-4xl font-bold text-dark leading-tight mb-5">
+          To become <br/>
+          <span class="text-primary">Africa’s leading digital agricultural intelligence platform for transforming extension services, strengthening food systems, and enabling data-driven rural development.</span>
+        </h2>
+      </div>
+
+      <!-- RIGHT SIDE (IMAGE) -->
+      <div class="flex-1 w-full h-[420px] lg:h-[600px] relative">
+        <img
+          src="{% static 'base/images/farmer1.jpg' %}"
+          alt="Farmers working in field"
+          class="w-full h-full object-cover rounded-2xl shadow-2xl"
+        />
+
+        <!-- optional overlay glow -->
+        <div class="absolute inset-0 rounded-2xl bg-primary-400 opacity-10 blur-2xl"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
