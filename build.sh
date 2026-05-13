@@ -20,6 +20,10 @@ python manage.py seed_crops || { echo 'seed_crops failed' ; exit 1; }
 echo "Initialize animals"
 python manage.py seed_animals || { echo 'seed_animals failed' ; exit 1; }
 
+# Initialize crop varieties
+echo "Initialize crop varieties"
+python manage.py seed_crop_varieties || { echo 'seed_crop_varieties failed' ; exit 1; }
+
 # Creating staticfiles dir
 echo "Creating staticfiles dir"
 mkdir staticfiles
