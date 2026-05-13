@@ -90,16 +90,24 @@
 
         <hr class="border-gray-100">
 
-        {# ── Video embed ── #}
         {% if post.video_url %}
-          <div class="aspect-video w-full rounded-lg overflow-hidden border
-                      border-gray-200">
-            <iframe src="{{ post.video_url }}"
-                    class="w-full h-full"
-                    allowfullscreen
-                    loading="lazy"
-                    title="{{ post.title }}">
-            </iframe>
+          <div class="flex items-center gap-3 p-4 rounded-xl border border-gray-200
+                      bg-gray-50">
+            <iconify-icon icon="mdi:video" width="32" height="32"></iconify-icon>
+            <div class="min-w-0 flex-1">
+              <p class="text-sm font-medium text-gray-700 truncate">
+                Video link
+              </p>
+              <p class="text-xs text-gray-400">Video URL</p>
+            </div>
+            <a
+              download
+              target="_blank"
+              href="{{ post.video_url }}"
+              class="shrink-0 text-xs font-medium text-green-700
+                      hover:text-green-800 underline underline-offset-2">
+              Watch video
+            </a>
           </div>
         {% endif %}
 
