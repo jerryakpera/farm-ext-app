@@ -17,6 +17,7 @@ urlpatterns = [
     path("", include("core.notifications.urls")),
     path("questions/", include("core.questions.urls")),
     path("advisory/", include("core.advisory.urls")),
+    path("visits/", include("core.visits.urls")),
 ]
 
 handler404 = "core.common.views.page_not_found_view"
