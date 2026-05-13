@@ -113,3 +113,15 @@ class VisitCropAnalysis(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        """
+        Return a human-readable representation of the visit crop analysis.
+
+        Returns
+        -------
+        str
+            A summary combining the crop name and visit identifier.
+        """
+
+        return f"{self.crop.name} analysis — Visit #{self.visit_id}"

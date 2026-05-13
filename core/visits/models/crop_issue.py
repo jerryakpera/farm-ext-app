@@ -45,6 +45,17 @@ class CropIssue(models.Model):
 
     notes = models.TextField(blank=True)
 
+    def __str__(self):
+        """
+        Return a human-readable representation of the crop issue.
+
+        Returns
+        -------
+        str
+            The issue type combined with the related crop analysis reference.
+        """
+        return f"{self.get_issue_type_display()} — {self.analysis}"
+
 
 class CropAction(models.Model):
     """
@@ -78,6 +89,17 @@ class CropAction(models.Model):
         help_text="Additional detail for this action.",
     )
 
+    def __str__(self):
+        """
+        Return a human-readable representation of the crop action.
+
+        Returns
+        -------
+        str
+            The action type combined with the related crop analysis reference.
+        """
+        return f"{self.get_action_type_display()} — {self.analysis}"
+
 
 class PestIncidence(models.Model):
     """
@@ -95,6 +117,17 @@ class PestIncidence(models.Model):
         choices=Severity.choices,
         default=Severity.LOW,
     )
+
+    def __str__(self):
+        """
+        Return a human-readable representation of the pest incidence.
+
+        Returns
+        -------
+        str
+            The pest name and severity level associated with the crop analysis.
+        """
+        return f"{self.pest} ({self.get_severity_display()}) — {self.analysis}"
 
 
 class VisitFarmerFeedback(models.Model):
@@ -123,3 +156,14 @@ class VisitFarmerFeedback(models.Model):
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        """
+        Return a human-readable representation of farmer feedback for a visit.
+
+        Returns
+        -------
+        str
+            A summary referencing the associated visit identifier.
+        """
+        return f"Feedback for Visit #{self.visit_id}"
