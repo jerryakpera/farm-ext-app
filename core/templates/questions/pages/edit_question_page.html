@@ -3,81 +3,29 @@
 {% block content %}
   <div class="container-main py-8 sm:py-12">
 
-    {# ── Back link ── #}
     <a href="{% url 'questions:question_detail' question.pk %}"
       class="inline-flex items-center gap-1 text-sm text-gray-500
               hover:text-green-700 mb-6">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-          viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+      <svg xmlns="http://www.w3.org/2000/svg"
+          class="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor">
+        <path stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
               d="M15 19l-7-7 7-7"/>
       </svg>
+
       Back to Question
     </a>
 
-    <h1 class="text-2xl font-bold text-gray-800 mb-6">Edit Question</h1>
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">
+      Edit Question
+    </h1>
 
     <div class="bg-white border border-gray-200 rounded-xl p-6">
-      <form method="post" enctype="multipart/form-data" class="space-y-5">
-        {% csrf_token %}
-        {% for field in form %}
-          <div>
-            <label for="{{ field.id_for_label }}"
-                  class="block text-sm font-medium text-gray-700 mb-1">
-              {{ field.label }}
-            </label>
-
-            {% if field.name == "image" %}
-              {# Show existing image as a preview above the input #}
-              {% if question.image %}
-                <div class="mb-2">
-                  <img src="{{ question.image.url }}"
-                      alt="Current question image"
-                      class="h-32 w-auto rounded-lg border border-gray-200 object-cover">
-                  <p class="text-xs text-gray-400 mt-1">Current image — upload a new one to replace it.</p>
-                </div>
-              {% endif %}
-              <div class="[&>input]:w-full [&>input]:border [&>input]:border-gray-300
-                          [&>input]:rounded-md [&>input]:px-3 [&>input]:py-2 [&>input]:text-sm">
-                {{ field }}
-              </div>
-
-            {% else %}
-              <div class="[&>input]:w-full [&>input]:border [&>input]:border-gray-300
-                          [&>input]:rounded-md [&>input]:px-3 [&>input]:py-2 [&>input]:text-sm
-                          [&>input]:focus:outline-none [&>input]:focus:ring-2
-                          [&>input]:focus:ring-green-500
-                          [&>select]:w-full [&>select]:border [&>select]:border-gray-300
-                          [&>select]:rounded-md [&>select]:px-3 [&>select]:py-2 [&>select]:text-sm
-                          [&>textarea]:w-full [&>textarea]:border [&>textarea]:border-gray-300
-                          [&>textarea]:rounded-md [&>textarea]:px-3 [&>textarea]:py-2
-                          [&>textarea]:text-sm">
-                {{ field }}
-              </div>
-            {% endif %}
-
-            {% if field.help_text %}
-              <p class="mt-1 text-xs text-gray-400">{{ field.help_text }}</p>
-            {% endif %}
-            {% for error in field.errors %}
-              <p class="mt-1 text-xs text-red-600">{{ error }}</p>
-            {% endfor %}
-          </div>
-        {% endfor %}
-
-        <div class="flex gap-3 pt-2">
-          <button type="submit"
-                  class="bg-green-600 hover:bg-green-700 text-white font-medium
-                        py-2 px-5 rounded-md transition-colors text-sm">
-            Save Changes
-          </button>
-          <a href="{% url 'questions:question_detail' question.pk %}"
-            class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium
-                    py-2 px-5 rounded-md transition-colors text-sm">
-            Cancel
-          </a>
-        </div>
-      </form>
+      {% include "questions/forms/question_form.html" with submit_label="Save Changes" cancel_url=question.get_absolute_url %}
     </div>
 
   </div>
