@@ -61,6 +61,15 @@ class Visit(models.Model):
         help_text="The extension agent who carried out the visit.",
     )
 
+    farm = models.ForeignKey(
+        Farm,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name="visits",
+        help_text="The farm which was visited",
+    )
+
     visit_date = models.DateField(
         help_text="The calendar date when the visit took place.",
     )
