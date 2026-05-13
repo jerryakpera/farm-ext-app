@@ -36,6 +36,41 @@ class Crop(models.Model):
         return self.name
 
 
+class CropVariety(models.Model):
+    """
+    Represents a specific variety or strain of a crop.
+    """
+
+    crop = models.ForeignKey(
+        Crop,
+        on_delete=models.CASCADE,
+        related_name="varieties",
+        help_text="The crop this variety belongs to.",
+    )
+    name = models.CharField(
+        max_length=100,
+        help_text="The name of the crop variety (e.g., specific type or strain).",
+    )
+
+    class Meta:
+        verbose_name = "Crop Variety"
+        verbose_name_plural = "Crop Varieties"
+        ordering = ["name"]
+        unique_together = [("crop", "name")]
+
+    def __str__(self):
+        """
+        Return a human-readable representation of the crop variety.
+
+        Returns
+        -------
+        str
+            The crop name combined with its variety name.
+        """
+
+        return f"{self.crop.name} — {self.name}"
+
+
 class Animal(models.Model):
     """
     A reference animal that can be associated with one or more farms.
