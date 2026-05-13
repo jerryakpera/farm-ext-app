@@ -6,7 +6,7 @@ Forms for the questions app.
 from django import forms
 
 # other_apps_packages
-from core.farms.models import Crop, Farm
+from core.farms.models import Animal, Crop, Farm
 
 # app_packages
 from .models import Answer, Question
@@ -32,6 +32,7 @@ class AskQuestionForm(forms.ModelForm):
             "title",
             "body",
             "crop_concern",
+            "animal_concern",
             "farm",
             "image",
         ]
@@ -43,10 +44,13 @@ class AskQuestionForm(forms.ModelForm):
             "body": "Describe the problem or question in as much detail as possible.",
             "farm": "Link this question to one of your farms (optional).",
             "image": "An optional image to help illustrate the question.",
+            "crop_concern": "The crop this question is about (optional).",
+            "animal_concern": "The animal or livestock this question is about (optional).",
         }
         labels = {
             "body": "Details",
             "crop_concern": "Crop concern",
+            "animal_concern": "Livestock concern",
         }
 
     def __init__(self, *args, farmer=None, **kwargs):
@@ -67,6 +71,8 @@ class AskQuestionForm(forms.ModelForm):
         self.fields["farm"].empty_label = "— Not farm-specific —"
         self.fields["crop_concern"].queryset = Crop.objects.all()
         self.fields["crop_concern"].empty_label = "— Select a crop —"
+        self.fields["animal_concern"].queryset = Animal.objects.all()
+        self.fields["animal_concern"].empty_label = "— Select an animal —"
 
     def save(self, farmer, commit=True):
         """

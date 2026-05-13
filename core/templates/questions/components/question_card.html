@@ -61,12 +61,22 @@
 
     {# Key details grid #}
     <dl class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-      <div>
-        <dt class="detail-label">Crop concern</dt>
-        <dd class="text-gray-700 font-medium">
-          {% if question.crop_concern %}{{ question.crop_concern }}{% else %}—{% endif %}
-        </dd>
-      </div>
+      {% if question.crop_concern %}
+        <div>
+          <dt class="detail-label">Crop concern</dt>
+          <dd class="text-gray-700 font-medium">
+            {{ question.crop_concern }}
+          </dd>
+        </div>
+      {% endif %}
+      {% if question.animal_concern %}
+        <div>
+          <dt class="detail-label">Animal concern</dt>
+          <dd class="text-gray-700 font-medium">
+            {{ question.animal_concern }}
+          </dd>
+        </div>
+      {% endif %}
       <div>
         <dt class="detail-label">Linked farm</dt>
         <dd class="text-gray-700 font-medium">

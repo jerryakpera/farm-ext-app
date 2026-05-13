@@ -81,12 +81,22 @@
         {# Meta strip #}
         <dl class="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3 text-sm
                   pt-4 border-t border-gray-100">
-          <div>
-            <dt class="detail-label">Crop concern</dt>
-            <dd class="text-gray-700 font-medium">
-              {% if question.crop_concern %}{{ question.crop_concern }}{% else %}—{% endif %}
-            </dd>
-          </div>
+          {% if question.crop_concern %}
+            <div>
+              <dt class="detail-label">Crop concern</dt>
+              <dd class="text-gray-700 font-medium">
+                {{ question.crop_concern }}
+              </dd>
+            </div>
+          {% endif %}
+          {% if question.animal_concern %}
+            <div>
+              <dt class="detail-label">Animal concern</dt>
+              <dd class="text-gray-700 font-medium">
+                {{ question.animal_concern }}
+              </dd>
+            </div>
+          {% endif %}
           <div>
             <dt class="detail-label">Linked farm</dt>
             <dd class="text-gray-700 font-medium">

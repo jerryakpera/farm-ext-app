@@ -60,6 +60,14 @@ class Question(models.Model):
         related_name="questions",
         help_text="The crop this question is about.",
     )
+    animal_concern = models.ForeignKey(
+        "farms.Animal",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="questions",
+        help_text="The animal/livestock this question is about.",
+    )
     status = models.CharField(
         max_length=20,
         choices=Status.choices,
