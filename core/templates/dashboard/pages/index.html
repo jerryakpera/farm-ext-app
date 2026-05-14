@@ -40,14 +40,50 @@
         <p class="text-3xl font-bold text-green-600">{{ stats.answered_questions }}</p>
       </div>
 
+      <div class="bg-white border border-gray-200 rounded-xl p-5">
+        <p class="detail-label mb-1">Visits received</p>
+        <p class="text-3xl font-bold text-green-600">{{ stats.visits_received }}</p>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-xl p-5">
+        <p class="detail-label mb-1">Follorups incoming</p>
+        <p class="text-3xl font-bold text-green-600">{{ stats.followups_incoming }}</p>
+      </div>
+
     </div>
 
   {% elif request.user.is_agent %}
-    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
 
       <div class="bg-white border border-gray-200 rounded-xl p-5">
         <p class="detail-label mb-1">Total Farms</p>
         <p class="text-3xl font-bold text-gray-800">{{ stats.total_farms }}</p>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-xl p-5">
+        <p class="detail-label mb-1">Verified/unverified farms</p>
+        <p class="text-3xl font-bold text-gray-800">
+          <span class="text-green-600">
+            {{ stats.has_verification }}
+          </span>/<span class="text-yellow-600">
+            {{ stats.pending_verification }}
+          </span>
+        </p>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-xl p-5">
+        <p class="detail-label mb-1">Visited farms</p>
+        <p class="text-3xl font-bold text-gray-800">{{ stats.farms_visited }}</p>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-xl p-5">
+        <p class="detail-label mb-1">My recent visits</p>
+        <p class="text-3xl font-bold text-green-600">{{ stats.my_visits_this_month }}</p>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-xl p-5">
+        <p class="detail-label mb-1">Follow ups</p>
+        <p class="text-3xl font-bold text-green-600">{{ stats.followups_due }}</p>
       </div>
 
       <div class="bg-white border border-gray-200 rounded-xl p-5">
@@ -74,6 +110,9 @@
         <p class="detail-label mb-1">My Answers</p>
         <p class="text-3xl font-bold text-green-600">{{ stats.my_answers }}</p>
       </div>
+
+
+
 
     </div>
   {% endif %}

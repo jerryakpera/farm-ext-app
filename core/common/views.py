@@ -5,6 +5,7 @@ Views for the common app.
 # django_packages
 from django.db.models import Count, Q
 from django.shortcuts import render
+from django.utils import timezone
 
 # third_party_packages
 from rest_framework import status
@@ -16,6 +17,7 @@ from core.advisory.models import AdvisoryPost
 from core.farms.models import Farm
 from core.profiles.models import ExtensionAgentProfile, FarmerProfile
 from core.questions.models import Answer, Question
+from core.visits.models import Visit
 
 # app_packages
 from .models import LGA, Ward
@@ -39,6 +41,8 @@ def index_view(request):
     HttpResponse
         Rendered dashboard page.
     """
+
+    today = timezone.now().date()
 
     if not request.user.is_authenticated:
         return render(
@@ -75,6 +79,16 @@ def index_view(request):
                 "answered_questions": my_questions.filter(
                     status=Question.Status.ANSWERED
                 ).count(),
+                "verified_farms": my_farms.filter(is_verified=True).count(),
+                "visits_received": Visit.objects.filter(farm__farmer=farmer).count(),
+                "followups_incoming": Visit.objects.filter(
+                    farm__farmer=farmer,
+                    follow_up_required=True,
+                    follow_up_date__gte=today,
+                ).count(),
+                "escalated_questions": my_questions.filter(
+                    status=Question.Status.ESCALATED
+                ).count(),
             },
             "recent_farms": my_farms.order_by("-created_at")[:4],
             "top_answers": (
@@ -106,6 +120,25 @@ def index_view(request):
                 ).count(),
                 "total_questions": Question.objects.count(),
                 "my_answers": my_answers.count(),
+                "my_visits_this_month": Visit.objects.filter(
+                    agent=agent,
+                    visit_date__year=today.year,
+                    visit_date__month=today.month,
+                ).count(),
+                "farms_visited": Visit.objects.filter(agent=agent)
+                .values("farm")
+                .distinct()
+                .count(),
+                "pending_verification": Farm.objects.filter(
+                    is_verified=False,
+                ).count(),
+                "has_verification": Farm.objects.filter(
+                    is_verified=True,
+                ).count(),
+                "followups_due": Visit.objects.filter(
+                    follow_up_required=True,
+                    follow_up_date__lte=today,
+                ).count(),
             },
             "recent_farms": (
                 Farm.objects.select_related(
