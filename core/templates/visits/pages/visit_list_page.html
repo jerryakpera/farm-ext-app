@@ -1,0 +1,189 @@
+{# visits/pages/visit_list.html #}
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container-main py-8 sm:py-12">
+
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-bold text-gray-800">My Visits</h1>
+      <a href="{% url 'visits:log' %}"
+        class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium
+                py-2 px-4 rounded-md transition-colors">
+        + Log a Visit
+      </a>
+    </div>
+
+    {# --- Filter panel --- #}
+    <form method="get" class="bg-gray-50 border border-gray-200 rounded-md p-4 mb-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">From date</label>
+          <input type="date" name="date_from" value="{{ active_filters.date_from }}"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm
+                        focus:outline-none focus:ring-2 focus:ring-green-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">To date</label>
+          <input type="date" name="date_to" value="{{ active_filters.date_to }}"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm
+                        focus:outline-none focus:ring-2 focus:ring-green-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Purpose</label>
+          <select name="purpose"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm
+                        focus:outline-none focus:ring-2 focus:ring-green-500">
+            <option value="">— All purposes —</option>
+            {% for value, label in purpose_choices %}
+              <option value="{{ value }}"
+                {% if active_filters.purpose == value %}selected{% endif %}>
+                {{ label }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Farm</label>
+          <select name="farm"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm
+                        focus:outline-none focus:ring-2 focus:ring-green-500">
+            <option value="">— All farms —</option>
+            {% for farm in filter_farms %}
+              <option value="{{ farm.pk }}"
+                {% if active_filters.farm == farm.pk|stringformat:"s" %}selected{% endif %}>
+                {{ farm.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Priority</label>
+          <select name="priority"
+                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm
+                        focus:outline-none focus:ring-2 focus:ring-green-500">
+            <option value="">— All priorities —</option>
+            {% for value, label in priority_choices %}
+              <option value="{{ value }}"
+                {% if active_filters.priority == value %}selected{% endif %}>
+                {{ label }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="flex items-end gap-2">
+          <button type="submit"
+                  class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium
+                        py-2 px-4 rounded-md transition-colors">
+            Filter
+          </button>
+          <a href="{% url 'visits:list' %}"
+            class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium
+                    py-2 px-4 rounded-md transition-colors">
+            Clear
+          </a>
+        </div>
+
+      </div>
+    </form>
+
+    {# --- Results --- #}
+    {% if page_obj.object_list %}
+      <div class="space-y-3">
+        {% for visit in page_obj %}
+          <a href="{% url 'visits:detail' pk=visit.pk %}"
+            class="flex items-center justify-between bg-white border border-gray-200
+                    rounded-md px-4 py-3 hover:border-green-400 transition-colors">
+
+            <div class="space-y-1">
+              <p class="text-sm font-semibold text-gray-800">{{ visit.farm.name }}</p>
+              <p class="text-xs text-gray-500">
+                {{ visit.visit_date }}
+                {% if visit.visit_time %}&nbsp;·&nbsp;{{ visit.visit_time|time:"H:i" }}{% endif %}
+                &nbsp;·&nbsp;{{ visit.get_purpose_display }}
+              </p>
+            </div>
+
+            <div class="flex items-center gap-2 shrink-0 ml-4">
+
+              {% if visit.follow_up_required %}
+                <span class="text-xs font-medium bg-yellow-100 text-yellow-800
+                            px-2 py-0.5 rounded-full">
+                  Follow-up
+                </span>
+              {% endif %}
+
+              {% if visit.priority_level == "high" %}
+                <span class="text-xs font-medium bg-red-100 text-red-700
+                            px-2 py-0.5 rounded-full">
+                  High
+                </span>
+              {% elif visit.priority_level == "medium" %}
+                <span class="text-xs font-medium bg-orange-100 text-orange-700
+                            px-2 py-0.5 rounded-full">
+                  Medium
+                </span>
+              {% else %}
+                <span class="text-xs font-medium bg-gray-100 text-gray-600
+                            px-2 py-0.5 rounded-full">
+                  Low
+                </span>
+              {% endif %}
+
+              {% if visit.outcome %}
+                <span class="text-xs font-medium bg-green-100 text-green-700
+                            px-2 py-0.5 rounded-full">
+                  {{ visit.get_outcome_display }}
+                </span>
+              {% endif %}
+
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+
+      {# --- Pagination --- #}
+      {% if page_obj.has_other_pages %}
+        <div class="flex items-center justify-center gap-2 mt-8">
+
+          {% if page_obj.has_previous %}
+            <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}"
+              class="text-sm text-gray-600 hover:text-green-600 px-3 py-1
+                      border border-gray-300 rounded-md transition-colors">
+              &larr; Previous
+            </a>
+          {% endif %}
+
+          <span class="text-sm text-gray-500">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+          </span>
+
+          {% if page_obj.has_next %}
+            <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}"
+              class="text-sm text-gray-600 hover:text-green-600 px-3 py-1
+                      border border-gray-300 rounded-md transition-colors">
+              Next &rarr;
+            </a>
+          {% endif %}
+
+        </div>
+      {% endif %}
+
+    {% else %}
+      <div class="text-center py-16 text-gray-400">
+        <p class="text-sm">No visits found.</p>
+        {% if active_filters.date_from or active_filters.date_to or active_filters.purpose or active_filters.farm or active_filters.priority %}
+          <p class="text-xs mt-1">Try clearing the filters to see all your visits.</p>
+        {% else %}
+          <p class="text-xs mt-1">Log your first visit using the button above.</p>
+        {% endif %}
+      </div>
+    {% endif %}
+
+  </div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{# visits/_farm_visits_list.html #}
+{% if farm_visits %}
+  <ul class="space-y-2">
+    {% for visit in farm_visits %}
+      <li>
+        <a href="{% url 'visits:detail' pk=visit.pk %}"
+           class="flex items-center justify-between bg-white border border-gray-200
+                  rounded-md px-4 py-3 hover:border-green-400 transition-colors">
+          <div class="space-y-0.5">
+            <p class="text-sm font-medium text-gray-800">
+              {{ visit.get_purpose_display }}
+            </p>
+            <p class="text-xs text-gray-500">
+              {{ visit.visit_date }}
+              &nbsp;·&nbsp;{{ visit.agent.user.full_name }}
+            </p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0 ml-4">
+            {% if visit.follow_up_required %}
+              <span class="text-xs bg-yellow-100 text-yellow-800 font-medium
+                           px-2 py-0.5 rounded-full">
+                Follow-up
+              </span>
+            {% endif %}
+            {% if visit.outcome %}
+              <span class="text-xs bg-green-100 text-green-700 font-medium
+                           px-2 py-0.5 rounded-full">
+                {{ visit.get_outcome_display }}
+              </span>
+            {% endif %}
+          </div>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="text-sm text-gray-400">No visits recorded for this farm yet.</p>
+{% endif %}

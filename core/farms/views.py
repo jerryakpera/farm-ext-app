@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 # other_apps_packages
 from core.profiles.decorators import agent_required
+from core.visits.models import Visit
 
 # app_packages
 from .forms import FarmDetailsForm, FarmImageUploadForm, FarmVerificationForm
@@ -205,8 +206,15 @@ def farm_detail_view(request, farm_id):
             pk=farm_id,
         )
 
+    farm_visits = (
+        Visit.objects.filter(farm=farm)
+        .select_related("agent__user")
+        .order_by("-visit_date")
+    )
+
     context = {
         "farm": farm,
+        "farm_visits": farm_visits,
         "image_form": FarmImageUploadForm() if request.user.is_farmer else None,
     }
 

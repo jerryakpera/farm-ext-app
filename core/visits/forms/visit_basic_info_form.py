@@ -86,10 +86,7 @@ class VisitBasicInfoForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if agent is not None:
-            assigned_lga_ids = agent.assigned_lgas.values_list("id", flat=True)
-            self.fields["farm"].queryset = Farm.objects.filter(
-                lga_id__in=assigned_lga_ids
-            ).select_related("farmer__user", "lga")
+            self.fields["farm"].queryset = Farm.objects.all()
         else:
             self.fields["farm"].queryset = Farm.objects.none()
 

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="container-main py-8 sm:py-12 space-y-6">
+
+    <div>
+      <a href="{% url 'farms:farm_detail' farm_id=farm.pk %}"
+        class="text-sm text-green-600 hover:underline">&larr; Back to farm</a>
+      <h1 class="text-2xl font-bold text-gray-800 mt-2">
+        Visits — {{ farm.name }}
+      </h1>
+      <p class="text-sm text-gray-500 mt-1">
+        {{ farm.lga }} &nbsp;·&nbsp; Farmer: {{ farm.farmer.user.full_name }}
+      </p>
+    </div>
+
+    {% include "visits/_farm_visits_list.html" with farm_visits=page_obj %}
+
+    {% if page_obj.has_other_pages %}
+      <div class="flex items-center justify-center gap-2 mt-6">
+        {% if page_obj.has_previous %}
+          <a href="?page={{ page_obj.previous_page_number }}"
+            class="text-sm text-gray-600 hover:text-green-600 px-3 py-1
+                    border border-gray-300 rounded-md transition-colors">
+            &larr; Previous
+          </a>
+        {% endif %}
+        <span class="text-sm text-gray-500">
+          Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+        {% if page_obj.has_next %}
+          <a href="?page={{ page_obj.next_page_number }}"
+            class="text-sm text-gray-600 hover:text-green-600 px-3 py-1
+                    border border-gray-300 rounded-md transition-colors">
+            Next &rarr;
+          </a>
+        {% endif %}
+      </div>
+    {% endif %}
+
+  </div>
+{% endblock %}

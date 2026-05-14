@@ -24,7 +24,7 @@
     <a href="{% url 'questions:question_list' %}" class="nav-link {% block nav_questions_queue %}{% endblock %}">
       Questions
     </a>
-    <a href="#" class="nav-link {% block nav_visits %}{% endblock %}">
+    <a href="{% url "visits:list" %}" class="nav-link {% block nav_visits %}{% endblock %}">
       Farm Visits
     </a>
     <a href="{% url 'advisory:my_posts' %}" class="nav-link {% block nav_posts %}{% endblock %}">

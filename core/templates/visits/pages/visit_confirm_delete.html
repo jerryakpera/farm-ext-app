@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="max-w-lg mx-auto px-4 py-16">
+    <div class="bg-white border border-red-200 rounded-md p-6 space-y-4">
+
+      <h1 class="text-xl font-bold text-gray-800">Delete Visit</h1>
+
+      <p class="text-sm text-gray-600">
+        You are about to permanently delete the visit to
+        <span class="font-semibold text-gray-800">{{ visit.farm.name }}</span>
+        on
+        <span class="font-semibold text-gray-800">{{ visit.visit_date }}</span>.
+      </p>
+
+      <p class="text-sm text-gray-600">
+        All crop analyses, livestock analyses, issues, actions, and any other
+        records attached to this visit will also be deleted. This cannot be undone.
+      </p>
+
+      <form method="post" class="flex gap-3 pt-2">
+        {% csrf_token %}
+        <button type="submit"
+                class="bg-red-600 hover:bg-red-700 text-white text-sm font-medium
+                      py-2 px-5 rounded-md transition-colors">
+          Yes, delete this visit
+        </button>
+        <a href="{% url 'visits:detail' pk=visit.pk %}"
+          class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium
+                  py-2 px-5 rounded-md transition-colors">
+          Cancel
+        </a>
+      </form>
+
+    </div>
+  </div>
+{% endblock %}

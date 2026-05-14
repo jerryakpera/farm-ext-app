@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container-main py-8 sm:py-12 space-y-6 sm:space-y-12">
+
+    <div>
+      <a href="{% url 'visits:detail' pk=visit.pk %}"
+        class="text-sm text-green-600 hover:underline">&larr; Back to visit</a>
+      <h1 class="text-2xl font-bold text-gray-800 mt-2">
+        Crop Analysis — {{ analysis.crop.name }}
+        {% if analysis.variety %}<span class="text-gray-400 font-normal text-lg">&mdash; {{ analysis.variety.name }}</span>{% endif %}
+      </h1>
+    </div>
+
+    {# --- Crop details --- #}
+    <section class="bg-white border border-gray-200 rounded-md p-5 space-y-3">
+      <h2 class="text-base font-semibold text-gray-700">Crop Details</h2>
+      <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+        <div>
+          <dt class="text-xs font-medium text-gray-500">Crop</dt>
+          <dd class="text-gray-800">{{ analysis.crop.name }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-medium text-gray-500">Variety</dt>
+          <dd class="text-gray-800">{{ analysis.variety.name|default:"—" }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-medium text-gray-500">Growth stage</dt>
+          <dd class="text-gray-800">{{ analysis.get_crop_stage_display|default:"—" }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-medium text-gray-500">Condition</dt>
+          <dd class="text-gray-800">{{ analysis.get_crop_condition_display|default:"—" }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-medium text-gray-500">Date planted</dt>
+          <dd class="text-gray-800">{{ analysis.date_planted|default:"—" }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-medium text-gray-500">Expected harvest</dt>
+          <dd class="text-gray-800">{{ analysis.expected_harvest_date|default:"—" }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-medium text-gray-500">Soil moisture</dt>
+          <dd class="text-gray-800">{{ analysis.soil_moisture_status|default:"—" }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-medium text-gray-500">Weed presence</dt>
+          <dd class="text-gray-800">{{ analysis.weed_presence|yesno:"Yes,No" }}</dd>
+        </div>
+        {% if analysis.rainfall_situation %}
+          <div class="sm:col-span-2">
+            <dt class="text-xs font-medium text-gray-500">Rainfall situation</dt>
+            <dd class="text-gray-800">{{ analysis.rainfall_situation }}</dd>
+          </div>
+        {% endif %}
+        {% if analysis.observations %}
+          <div class="sm:col-span-2">
+            <dt class="text-xs font-medium text-gray-500">General observations</dt>
+            <dd class="text-gray-800">{{ analysis.observations }}</dd>
+          </div>
+        {% endif %}
+      </dl>
+    </section>
+
+    {# --- Issues --- #}
+    <section class="bg-white border border-gray-200 rounded-md p-5 space-y-3">
+      <h2 class="text-base font-semibold text-gray-700">Issues</h2>
+      {% if issues %}
+        <ul class="space-y-2">
+          {% for issue in issues %}
+            <li class="text-sm border border-gray-100 rounded-md px-4 py-3">
+              <div class="flex items-center justify-between">
+                <span class="font-medium text-gray-800">
+                  {{ issue.get_issue_type_display }}
+                </span>
+                <span class="text-xs px-2 py-0.5 rounded-full
+                  {% if issue.severity == "critical" %}bg-red-100 text-red-700
+                  {% elif issue.severity == "high" %}bg-orange-100 text-orange-700
+                  {% elif issue.severity == "medium" %}bg-yellow-100 text-yellow-800
+                  {% else %}bg-gray-100 text-gray-600{% endif %}">
+                  {{ issue.get_severity_display }}
+                </span>
+              </div>
+              {% if issue.notes %}
+                <p class="mt-1 text-xs text-gray-500">{{ issue.notes }}</p>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-sm text-gray-400">No issues recorded.</p>
+      {% endif %}
+      <a href="{% url 'visits:add_crop_issue' analysis_pk=analysis.pk %}"
+        class="inline-block text-sm bg-gray-100 hover:bg-gray-200 text-gray-700
+                font-medium py-2 px-4 rounded-md transition-colors">
+        + Add Issue
+      </a>
+    </section>
+
+    {# --- Actions --- #}
+    <section class="bg-white border border-gray-200 rounded-md p-5 space-y-3">
+      <h2 class="text-base font-semibold text-gray-700">Recommended Actions</h2>
+      {% if actions %}
+        <ul class="space-y-2">
+          {% for action in actions %}
+            <li class="text-sm text-gray-700">
+              &bull; {{ action.get_action_type_display }}
+              {% if action.notes %}
+                <span class="text-gray-400">&mdash; {{ action.notes }}</span>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-sm text-gray-400">No actions recorded.</p>
+      {% endif %}
+      <a href="{% url 'visits:add_crop_action' analysis_pk=analysis.pk %}"
+        class="inline-block text-sm bg-gray-100 hover:bg-gray-200 text-gray-700
+                font-medium py-2 px-4 rounded-md transition-colors">
+        + Add Action
+      </a>
+    </section>
+
+    {# --- Pest incidences --- #}
+    <section class="bg-white border border-gray-200 rounded-md p-5 space-y-3">
+      <h2 class="text-base font-semibold text-gray-700">Pest Incidences</h2>
+      {% if pest_incidences %}
+        <ul class="space-y-2">
+          {% for pest in pest_incidences %}
+            <li class="text-sm text-gray-700">
+              &bull; {{ pest.pest }}
+              <span class="text-gray-400 text-xs">({{ pest.get_severity_display }})</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-sm text-gray-400">No pest incidences recorded.</p>
+      {% endif %}
+      <a href="{% url 'visits:add_pest_incidence' analysis_pk=analysis.pk %}"
+        class="inline-block text-sm bg-gray-100 hover:bg-gray-200 text-gray-700
+                font-medium py-2 px-4 rounded-md transition-colors">
+        + Add Pest Incidence
+      </a>
+    </section>
+
+  </div>
+{% endblock %}

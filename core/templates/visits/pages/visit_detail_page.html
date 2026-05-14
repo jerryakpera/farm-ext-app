@@ -1,0 +1,579 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container-main py-8 sm:py-12 space-y-6 sm:space-y-12">
+
+    {# --- Page header --- #}
+    <div class="flex items-start justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-800">
+          Visit to {{ visit.farm.name }}
+        </h1>
+        <p class="text-sm text-gray-500 mt-1">
+          {{ visit.visit_date }}
+          {% if visit.visit_time %}&nbsp;·&nbsp;{{ visit.visit_time|time:"H:i" }}{% endif %}
+          &nbsp;·&nbsp;{{ visit.get_purpose_display }}
+        </p>
+      </div>
+      {% if is_owner %}
+        <div class="flex gap-2 shrink-0 ml-4">
+          <a href="{% url 'visits:edit' pk=visit.pk %}"
+            class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium
+                    py-2 px-4 rounded-md transition-colors">
+            Edit
+          </a>
+          <a href="{% url 'visits:delete' pk=visit.pk %}"
+            class="text-sm bg-red-50 hover:bg-red-100 text-red-600 font-medium
+                    py-2 px-4 rounded-md transition-colors">
+            Delete
+          </a>
+        </div>
+      {% endif %}
+    </div>
+
+    {# --- A. Basic visit information --- #}
+    <section class="bg-white border border-gray-200 rounded-md p-5 space-y-3">
+      <h2 class="text-base font-semibold text-gray-700">Basic Information</h2>
+      <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+        <div>
+          <dt class="text-xs font-medium text-gray-500">Farm</dt>
+          <dd class="text-gray-800">{{ visit.farm.name }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-medium text-gray-500">LGA</dt>
+          <dd class="text-gray-800">{{ visit.farm.lga }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-medium text-gray-500">Farmer</dt>
+          <dd class="text-gray-800">{{ visit.farm.farmer.user.full_name }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-medium text-gray-500">Agent</dt>
+          <dd class="text-gray-800">{{ visit.agent.user.full_name }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-medium text-gray-500">Date</dt>
+          <dd class="text-gray-800">{{ visit.visit_date }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-medium text-gray-500">Time</dt>
+          <dd class="text-gray-800">
+            {% if visit.visit_time %}{{ visit.visit_time|time:"H:i" }}{% else %}—{% endif %}
+          </dd>
+        </div>
+        <div>
+          <dt class="text-xs font-medium text-gray-500">Purpose</dt>
+          <dd class="text-gray-800">
+            {{ visit.get_purpose_display }}
+            {% if visit.purpose_other %}
+              &mdash; {{ visit.purpose_other }}
+            {% endif %}
+          </dd>
+        </div>
+      </dl>
+
+      {% if show_verify_button %}
+        <div class="pt-2">
+          <a href="{% url 'farms:farm_verify' farm_id=visit.farm.pk %}"
+            class="inline-block text-sm bg-green-600 hover:bg-green-700 text-white
+                    font-medium py-2 px-4 rounded-md transition-colors">
+            Verify Farm
+          </a>
+        </div>
+      {% endif %}
+    </section>
+
+    {# --- B. Visit-level issues --- #}
+    <section class="bg-white border border-gray-200 rounded-md p-5 space-y-3">
+      <h2 class="text-base font-semibold text-gray-700">General Issues</h2>
+
+      {% if visit_issues %}
+        <ul class="space-y-2">
+          {% for issue in visit_issues %}
+            <li class="text-sm border border-gray-100 rounded-md px-4 py-3">
+              <div class="flex items-center justify-between">
+                <span class="font-medium text-gray-800">{{ issue.title }}</span>
+                <span class="text-xs px-2 py-0.5 rounded-full
+                  {% if issue.severity == "critical" %}bg-red-100 text-red-700
+                  {% elif issue.severity == "high" %}bg-orange-100 text-orange-700
+                  {% elif issue.severity == "medium" %}bg-yellow-100 text-yellow-800
+                  {% else %}bg-gray-100 text-gray-600{% endif %}">
+                  {{ issue.get_severity_display }}
+                </span>
+              </div>
+              {% if issue.description %}
+                <p class="mt-1 text-gray-500 text-xs">{{ issue.description }}</p>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-sm text-gray-400">No general issues recorded.</p>
+      {% endif %}
+
+      <a href="{% url 'visits:add_visit_issue' visit_pk=visit.pk %}"
+        class="inline-block text-sm bg-gray-100 hover:bg-gray-200 text-gray-700
+                font-medium py-2 px-4 rounded-md transition-colors">
+        + Add Issue
+      </a>
+    </section>
+
+    {# --- C. Crop analyses --- #}
+    <section class="bg-white border border-gray-200 rounded-md p-5 space-y-4">
+      <h2 class="text-base font-semibold text-gray-700">Crop Analyses</h2>
+
+      {% if crop_analyses %}
+        {% for analysis in crop_analyses %}
+          <details class="border border-gray-100 rounded-md" {% if forloop.first %}open{% endif %}>
+            <summary class="flex items-center justify-between px-4 py-3 cursor-pointer
+                            hover:bg-gray-50 rounded-md select-none">
+              <span class="text-sm font-medium text-gray-800">
+                {{ analysis.crop.name }}
+                {% if analysis.variety %}&mdash; {{ analysis.variety.name }}{% endif %}
+              </span>
+              <div class="flex items-center gap-2 shrink-0 ml-4">
+                {% if analysis.crop_stage %}
+                  <span class="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">
+                    {{ analysis.get_crop_stage_display }}
+                  </span>
+                {% endif %}
+                {% if analysis.crop_condition %}
+                  <span class="text-xs px-2 py-0.5 rounded-full
+                    {% if analysis.crop_condition == "poor" %}bg-red-100 text-red-700
+                    {% elif analysis.crop_condition == "fair" %}bg-yellow-100 text-yellow-800
+                    {% elif analysis.crop_condition == "good" %}bg-green-100 text-green-700
+                    {% else %}bg-emerald-100 text-emerald-700{% endif %}">
+                    {{ analysis.get_crop_condition_display }}
+                  </span>
+                {% endif %}
+              </div>
+            </summary>
+
+            <div class="px-4 pb-4 pt-2 space-y-4 text-sm">
+
+              {# Observations #}
+              {% if analysis.observations %}
+                <p class="text-gray-600">{{ analysis.observations }}</p>
+              {% endif %}
+
+              <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                {% if analysis.date_planted %}
+                  <div>
+                    <dt class="text-xs font-medium text-gray-500">Date planted</dt>
+                    <dd class="text-gray-800">{{ analysis.date_planted }}</dd>
+                  </div>
+                {% endif %}
+                {% if analysis.expected_harvest_date %}
+                  <div>
+                    <dt class="text-xs font-medium text-gray-500">Expected harvest</dt>
+                    <dd class="text-gray-800">{{ analysis.expected_harvest_date }}</dd>
+                  </div>
+                {% endif %}
+                {% if analysis.soil_moisture_status %}
+                  <div>
+                    <dt class="text-xs font-medium text-gray-500">Soil moisture</dt>
+                    <dd class="text-gray-800">{{ analysis.soil_moisture_status }}</dd>
+                  </div>
+                {% endif %}
+                <div>
+                  <dt class="text-xs font-medium text-gray-500">Weed presence</dt>
+                  <dd class="text-gray-800">{{ analysis.weed_presence|yesno:"Yes,No" }}</dd>
+                </div>
+              </dl>
+
+              {# Issues #}
+              <div>
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                  Issues
+                </h3>
+                {% if analysis.issues.all %}
+                  <ul class="space-y-1">
+                    {% for issue in analysis.issues.all %}
+                      <li class="flex items-start gap-2 text-xs text-gray-700">
+                        <span class="mt-0.5 w-2 h-2 rounded-full shrink-0
+                          {% if issue.severity == "critical" %}bg-red-500
+                          {% elif issue.severity == "high" %}bg-orange-400
+                          {% elif issue.severity == "medium" %}bg-yellow-400
+                          {% else %}bg-gray-300{% endif %}">
+                        </span>
+                        <span>
+                          {{ issue.get_issue_type_display }}
+                          {% if issue.notes %}&mdash; {{ issue.notes }}{% endif %}
+                        </span>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                  <p class="text-xs text-gray-400">None recorded.</p>
+                {% endif %}
+                <a href="{% url 'visits:add_crop_issue' analysis_pk=analysis.pk %}"
+                  class="inline-block mt-2 text-xs bg-gray-100 hover:bg-gray-200
+                          text-gray-700 font-medium py-1 px-3 rounded-md transition-colors">
+                  + Add Issue
+                </a>
+              </div>
+
+              {# Actions #}
+              <div>
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                  Recommended Actions
+                </h3>
+                {% if analysis.actions.all %}
+                  <ul class="space-y-1">
+                    {% for action in analysis.actions.all %}
+                      <li class="text-xs text-gray-700">
+                        &bull; {{ action.get_action_type_display }}
+                        {% if action.notes %}&mdash; {{ action.notes }}{% endif %}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                  <p class="text-xs text-gray-400">None recorded.</p>
+                {% endif %}
+                <a href="{% url 'visits:add_crop_action' analysis_pk=analysis.pk %}"
+                  class="inline-block mt-2 text-xs bg-gray-100 hover:bg-gray-200
+                          text-gray-700 font-medium py-1 px-3 rounded-md transition-colors">
+                  + Add Action
+                </a>
+              </div>
+
+              {# Pest incidences #}
+              <div>
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                  Pest Incidences
+                </h3>
+                {% if analysis.pest_incidences.all %}
+                  <ul class="space-y-1">
+                    {% for pest in analysis.pest_incidences.all %}
+                      <li class="text-xs text-gray-700">
+                        &bull; {{ pest.pest }}
+                        <span class="text-gray-400">({{ pest.get_severity_display }})</span>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                  <p class="text-xs text-gray-400">None recorded.</p>
+                {% endif %}
+                <a href="{% url 'visits:add_pest_incidence' analysis_pk=analysis.pk %}"
+                  class="inline-block mt-2 text-xs bg-gray-100 hover:bg-gray-200
+                          text-gray-700 font-medium py-1 px-3 rounded-md transition-colors">
+                  + Add Pest Incidence
+                </a>
+              </div>
+
+              <a href="{% url 'visits:crop_analysis_detail' visit_pk=visit.pk pk=analysis.pk %}"
+                class="inline-block text-xs text-green-600 hover:underline">
+                View full analysis &rarr;
+              </a>
+            </div>
+          </details>
+        {% endfor %}
+      {% else %}
+        <p class="text-sm text-gray-400">No crop analyses recorded yet.</p>
+      {% endif %}
+
+      <a href="{% url 'visits:add_crop_analysis' visit_pk=visit.pk %}"
+        class="inline-block text-sm bg-gray-100 hover:bg-gray-200 text-gray-700
+                font-medium py-2 px-4 rounded-md transition-colors">
+        + Add Crop Analysis
+      </a>
+    </section>
+
+    {# --- D. Livestock analyses --- #}
+    <section class="bg-white border border-gray-200 rounded-md p-5 space-y-4">
+      <h2 class="text-base font-semibold text-gray-700">Livestock Analyses</h2>
+
+      {% if livestock_analyses %}
+        {% for analysis in livestock_analyses %}
+          <details class="border border-gray-100 rounded-md" {% if forloop.first %}open{% endif %}>
+            <summary class="flex items-center justify-between px-4 py-3 cursor-pointer
+                            hover:bg-gray-50 rounded-md select-none">
+              <span class="text-sm font-medium text-gray-800">
+                {{ analysis.animal.name }}
+                {% if analysis.breed_or_variety %}&mdash; {{ analysis.breed_or_variety }}{% endif %}
+              </span>
+              <div class="flex items-center gap-2 shrink-0 ml-4">
+                {% if analysis.overall_condition %}
+                  <span class="text-xs px-2 py-0.5 rounded-full
+                    {% if analysis.overall_condition == "poor" %}bg-red-100 text-red-700
+                    {% elif analysis.overall_condition == "fair" %}bg-yellow-100 text-yellow-800
+                    {% elif analysis.overall_condition == "good" %}bg-green-100 text-green-700
+                    {% else %}bg-emerald-100 text-emerald-700{% endif %}">
+                    {{ analysis.get_overall_condition_display }}
+                  </span>
+                {% endif %}
+              </div>
+            </summary>
+
+            <div class="px-4 pb-4 pt-2 space-y-4 text-sm">
+
+              <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                {% if analysis.total_population %}
+                  <div>
+                    <dt class="text-xs font-medium text-gray-500">Total population</dt>
+                    <dd class="text-gray-800">{{ analysis.total_population }}</dd>
+                  </div>
+                {% endif %}
+                {% if analysis.number_sick %}
+                  <div>
+                    <dt class="text-xs font-medium text-gray-500">Sick animals</dt>
+                    <dd class="text-gray-800">{{ analysis.number_sick }}</dd>
+                  </div>
+                {% endif %}
+                {% if analysis.number_dead_this_period %}
+                  <div>
+                    <dt class="text-xs font-medium text-gray-500">Deaths this period</dt>
+                    <dd class="text-gray-800">{{ analysis.number_dead_this_period }}</dd>
+                  </div>
+                {% endif %}
+                <div>
+                  <dt class="text-xs font-medium text-gray-500">Ectoparasites present</dt>
+                  <dd class="text-gray-800">
+                    {{ analysis.ectoparasite_presence|yesno:"Yes,No" }}
+                  </dd>
+                </div>
+              </dl>
+
+              {% if analysis.general_observations %}
+                <p class="text-gray-600 text-xs">{{ analysis.general_observations }}</p>
+              {% endif %}
+
+              {# Issues #}
+              <div>
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                  Issues
+                </h3>
+                {% if analysis.issues.all %}
+                  <ul class="space-y-1">
+                    {% for issue in analysis.issues.all %}
+                      <li class="text-xs text-gray-700">
+                        &bull; {{ issue.get_issue_type_display }}
+                        {% if issue.notes %}&mdash; {{ issue.notes }}{% endif %}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                  <p class="text-xs text-gray-400">None recorded.</p>
+                {% endif %}
+                <a href="{% url 'visits:add_livestock_issue' analysis_pk=analysis.pk %}"
+                  class="inline-block mt-2 text-xs bg-gray-100 hover:bg-gray-200
+                          text-gray-700 font-medium py-1 px-3 rounded-md transition-colors">
+                  + Add Issue
+                </a>
+              </div>
+
+              {# Actions #}
+              <div>
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                  Recommended Actions
+                </h3>
+                {% if analysis.actions.all %}
+                  <ul class="space-y-1">
+                    {% for action in analysis.actions.all %}
+                      <li class="text-xs text-gray-700">
+                        &bull; {{ action.get_action_type_display }}
+                        {% if action.notes %}&mdash; {{ action.notes }}{% endif %}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                  <p class="text-xs text-gray-400">None recorded.</p>
+                {% endif %}
+                <a href="{% url 'visits:add_livestock_action' analysis_pk=analysis.pk %}"
+                  class="inline-block mt-2 text-xs bg-gray-100 hover:bg-gray-200
+                          text-gray-700 font-medium py-1 px-3 rounded-md transition-colors">
+                  + Add Action
+                </a>
+              </div>
+
+              {# Disease incidences #}
+              <div>
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                  Disease Incidences
+                </h3>
+                {% if analysis.disease_incidences.all %}
+                  <ul class="space-y-1">
+                    {% for disease in analysis.disease_incidences.all %}
+                      <li class="text-xs text-gray-700">
+                        &bull; {{ disease.disease_name }}
+                        <span class="text-gray-400">
+                          ({{ disease.get_severity_display }}
+                          &middot; {{ disease.get_confidence_level_display }})
+                        </span>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                  <p class="text-xs text-gray-400">None recorded.</p>
+                {% endif %}
+                <a href="{% url 'visits:add_livestock_disease' analysis_pk=analysis.pk %}"
+                  class="inline-block mt-2 text-xs bg-gray-100 hover:bg-gray-200
+                          text-gray-700 font-medium py-1 px-3 rounded-md transition-colors">
+                  + Add Disease Incidence
+                </a>
+              </div>
+
+              <a href="{% url 'visits:livestock_analysis_detail' visit_pk=visit.pk pk=analysis.pk %}"
+                class="inline-block text-xs text-green-600 hover:underline">
+                View full analysis &rarr;
+              </a>
+            </div>
+          </details>
+        {% endfor %}
+      {% else %}
+        <p class="text-sm text-gray-400">No livestock analyses recorded yet.</p>
+      {% endif %}
+
+      <a href="{% url 'visits:add_livestock_analysis' visit_pk=visit.pk %}"
+        class="inline-block text-sm bg-gray-100 hover:bg-gray-200 text-gray-700
+                font-medium py-2 px-4 rounded-md transition-colors">
+        + Add Livestock Analysis
+      </a>
+    </section>
+
+    {# --- E. Media --- #}
+    <section class="bg-white border border-gray-200 rounded-md p-5 space-y-4">
+      <h2 class="text-base font-semibold text-gray-700">Photos &amp; Attachments</h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {% if visit.farm_photo %}
+          <div>
+            <p class="text-xs font-medium text-gray-500 mb-1">Farm photo</p>
+            <img src="{{ visit.farm_photo.url }}" alt="Farm photo"
+                class="w-full h-40 object-cover rounded-md border border-gray-200">
+          </div>
+        {% endif %}
+        {% if visit.pest_photo %}
+          <div>
+            <p class="text-xs font-medium text-gray-500 mb-1">Pest / disease photo</p>
+            <img src="{{ visit.pest_photo.url }}" alt="Pest photo"
+                class="w-full h-40 object-cover rounded-md border border-gray-200">
+          </div>
+        {% endif %}
+        {% if visit.soil_photo %}
+          <div>
+            <p class="text-xs font-medium text-gray-500 mb-1">Soil photo</p>
+            <img src="{{ visit.soil_photo.url }}" alt="Soil photo"
+                class="w-full h-40 object-cover rounded-md border border-gray-200">
+          </div>
+        {% endif %}
+      </div>
+
+      {% if visit.attachment %}
+        <p class="text-sm text-gray-700">
+          Attachment:
+          <a href="{{ visit.attachment.url }}"
+            class="text-green-600 hover:underline" target="_blank" rel="noopener">
+            Download
+          </a>
+        </p>
+      {% endif %}
+
+      {% if not visit.farm_photo and not visit.pest_photo and not visit.soil_photo and not visit.attachment %}
+        <p class="text-sm text-gray-400">No media uploaded yet.</p>
+      {% endif %}
+
+      <a href="{% url 'visits:add_visit_media' pk=visit.pk %}"
+        class="inline-block text-sm bg-gray-100 hover:bg-gray-200 text-gray-700
+                font-medium py-2 px-4 rounded-md transition-colors">
+        {% if visit.farm_photo or visit.pest_photo or visit.soil_photo or visit.attachment %}
+          Update Media
+        {% else %}
+          + Add Media
+        {% endif %}
+      </a>
+    </section>
+
+    {# --- F. Follow-up plan --- #}
+    <section class="bg-white border border-gray-200 rounded-md p-5 space-y-3">
+      <div class="flex items-center gap-3">
+        <h2 class="text-base font-semibold text-gray-700">Follow-up Plan</h2>
+        {% if visit.follow_up_required %}
+          <span class="text-xs font-medium bg-yellow-100 text-yellow-800
+                      px-2 py-0.5 rounded-full">
+            Follow-up Required
+          </span>
+          {% if visit.priority_level == "high" %}
+            <span class="text-xs font-medium bg-red-100 text-red-700
+                        px-2 py-0.5 rounded-full">
+              High Priority
+            </span>
+          {% elif visit.priority_level == "medium" %}
+            <span class="text-xs font-medium bg-orange-100 text-orange-700
+                        px-2 py-0.5 rounded-full">
+              Medium Priority
+            </span>
+          {% endif %}
+        {% endif %}
+      </div>
+
+      <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+        <div>
+          <dt class="text-xs font-medium text-gray-500">Follow-up required</dt>
+          <dd class="text-gray-800">{{ visit.follow_up_required|yesno:"Yes,No" }}</dd>
+        </div>
+        {% if visit.follow_up_date %}
+          <div>
+            <dt class="text-xs font-medium text-gray-500">Next visit date</dt>
+            <dd class="text-gray-800">{{ visit.follow_up_date }}</dd>
+          </div>
+        {% endif %}
+        {% if visit.outcome %}
+          <div>
+            <dt class="text-xs font-medium text-gray-500">Outcome</dt>
+            <dd class="text-gray-800">{{ visit.get_outcome_display }}</dd>
+          </div>
+        {% endif %}
+      </dl>
+
+      <a href="{% url 'visits:add_visit_followup' pk=visit.pk %}"
+        class="inline-block text-sm bg-gray-100 hover:bg-gray-200 text-gray-700
+                font-medium py-2 px-4 rounded-md transition-colors">
+        {% if visit.follow_up_required or visit.outcome %}Update Follow-up{% else %}+ Add Follow-up{% endif %}
+      </a>
+    </section>
+
+    {# --- G. Farmer feedback --- #}
+    <section class="bg-white border border-gray-200 rounded-md p-5 space-y-3">
+      <h2 class="text-base font-semibold text-gray-700">Farmer Feedback</h2>
+
+      {% if farmer_feedback %}
+        <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+          <div>
+            <dt class="text-xs font-medium text-gray-500">Understood advice</dt>
+            <dd class="text-gray-800">
+              {{ farmer_feedback.advice_understood_by_farmer|yesno:"Yes,No" }}
+            </dd>
+          </div>
+          {% if farmer_feedback.farmer_satisfaction_rating %}
+            <div>
+              <dt class="text-xs font-medium text-gray-500">Satisfaction rating</dt>
+              <dd class="text-gray-800">
+                {{ farmer_feedback.farmer_satisfaction_rating }} / 5
+              </dd>
+            </div>
+          {% endif %}
+          {% if farmer_feedback.farmer_comments %}
+            <div class="sm:col-span-2">
+              <dt class="text-xs font-medium text-gray-500">Comments</dt>
+              <dd class="text-gray-800">{{ farmer_feedback.farmer_comments }}</dd>
+            </div>
+          {% endif %}
+        </dl>
+        <a href="{% url 'visits:add_farmer_feedback' pk=visit.pk %}"
+          class="inline-block text-sm bg-gray-100 hover:bg-gray-200 text-gray-700
+                  font-medium py-2 px-4 rounded-md transition-colors">
+          Update Feedback
+        </a>
+      {% else %}
+        <p class="text-sm text-gray-400">No farmer feedback recorded yet.</p>
+        <a href="{% url 'visits:add_farmer_feedback' pk=visit.pk %}"
+          class="inline-block text-sm bg-gray-100 hover:bg-gray-200 text-gray-700
+                  font-medium py-2 px-4 rounded-md transition-colors">
+          + Add Feedback
+        </a>
+      {% endif %}
+    </section>
+
+  </div>
+{% endblock %}

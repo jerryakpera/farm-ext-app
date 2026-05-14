@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container-main py-8 sm:py-12 space-y-6">
+
+    <div>
+      <a href="{% url 'visits:detail' pk=visit.pk %}"
+        class="text-sm text-green-600 hover:underline">&larr; Back to visit</a>
+      <h1 class="text-2xl font-bold text-gray-800 mt-2">
+        Livestock Analysis — {{ analysis.animal.name }}
+        {% if analysis.breed_or_variety %}
+          <span class="text-gray-400 font-normal text-lg">&mdash; {{ analysis.breed_or_variety }}</span>
+        {% endif %}
+      </h1>
+    </div>
+
+    {# --- Animal details --- #}
+    <section class="bg-white border border-gray-200 rounded-md p-5 space-y-3">
+      <h2 class="text-base font-semibold text-gray-700">Animal Details</h2>
+      <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+        <div>
+          <dt class="text-xs font-medium text-gray-500">Species</dt>
+          <dd class="text-gray-800">{{ analysis.animal.name }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-medium text-gray-500">Breed / variety</dt>
+          <dd class="text-gray-800">{{ analysis.breed_or_variety|default:"—" }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-medium text-gray-500">Production purpose</dt>
+          <dd class="text-gray-800">{{ analysis.get_production_purpose_display|default:"—" }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-medium text-gray-500">Housing system</dt>
+          <dd class="text-gray-800">{{ analysis.get_housing_system_display|default:"—" }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-medium text-gray-500">Overall condition</dt>
+          <dd class="text-gray-800">{{ analysis.get_overall_condition_display|default:"—" }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-medium text-gray-500">Body condition score</dt>
+          <dd class="text-gray-800">{{ analysis.body_condition_score|default:"—" }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-medium text-gray-500">Total population</dt>
+          <dd class="text-gray-800">{{ analysis.total_population|default:"—" }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-medium text-gray-500">Sick animals</dt>
+          <dd class="text-gray-800">{{ analysis.number_sick|default:"—" }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-medium text-gray-500">Deaths this period</dt>
+          <dd class="text-gray-800">{{ analysis.number_dead_this_period|default:"—" }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs font-medium text-gray-500">Ectoparasites present</dt>
+          <dd class="text-gray-800">{{ analysis.ectoparasite_presence|yesno:"Yes,No" }}</dd>
+        </div>
+        {% if analysis.feed_availability %}
+          <div class="sm:col-span-2">
+            <dt class="text-xs font-medium text-gray-500">Feed availability</dt>
+            <dd class="text-gray-800">{{ analysis.feed_availability }}</dd>
+          </div>
+        {% endif %}
+        {% if analysis.water_availability %}
+          <div class="sm:col-span-2">
+            <dt class="text-xs font-medium text-gray-500">Water availability</dt>
+            <dd class="text-gray-800">{{ analysis.water_availability }}</dd>
+          </div>
+        {% endif %}
+        {% if analysis.vaccination_status %}
+          <div class="sm:col-span-2">
+            <dt class="text-xs font-medium text-gray-500">Vaccination status</dt>
+            <dd class="text-gray-800">{{ analysis.vaccination_status }}</dd>
+          </div>
+        {% endif %}
+        {% if analysis.deworming_status %}
+          <div class="sm:col-span-2">
+            <dt class="text-xs font-medium text-gray-500">Deworming status</dt>
+            <dd class="text-gray-800">{{ analysis.deworming_status }}</dd>
+          </div>
+        {% endif %}
+        {% if analysis.general_observations %}
+          <div class="sm:col-span-2">
+            <dt class="text-xs font-medium text-gray-500">General observations</dt>
+            <dd class="text-gray-800">{{ analysis.general_observations }}</dd>
+          </div>
+        {% endif %}
+      </dl>
+    </section>
+
+    {# --- Issues --- #}
+    <section class="bg-white border border-gray-200 rounded-md p-5 space-y-3">
+      <h2 class="text-base font-semibold text-gray-700">Issues</h2>
+      {% if issues %}
+        <ul class="space-y-2">
+          {% for issue in issues %}
+            <li class="text-sm text-gray-700">
+              &bull; {{ issue.get_issue_type_display }}
+              {% if issue.notes %}
+                <span class="text-gray-400">&mdash; {{ issue.notes }}</span>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-sm text-gray-400">No issues recorded.</p>
+      {% endif %}
+      <a href="{% url 'visits:add_livestock_issue' analysis_pk=analysis.pk %}"
+        class="inline-block text-sm bg-gray-100 hover:bg-gray-200 text-gray-700
+                font-medium py-2 px-4 rounded-md transition-colors">
+        + Add Issue
+      </a>
+    </section>
+
+    {# --- Actions --- #}
+    <section class="bg-white border border-gray-200 rounded-md p-5 space-y-3">
+      <h2 class="text-base font-semibold text-gray-700">Recommended Actions</h2>
+      {% if actions %}
+        <ul class="space-y-2">
+          {% for action in actions %}
+            <li class="text-sm text-gray-700">
+              &bull; {{ action.get_action_type_display }}
+              {% if action.notes %}
+                <span class="text-gray-400">&mdash; {{ action.notes }}</span>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-sm text-gray-400">No actions recorded.</p>
+      {% endif %}
+      <a href="{% url 'visits:add_livestock_action' analysis_pk=analysis.pk %}"
+        class="inline-block text-sm bg-gray-100 hover:bg-gray-200 text-gray-700
+                font-medium py-2 px-4 rounded-md transition-colors">
+        + Add Action
+      </a>
+    </section>
+
+    {# --- Disease incidences --- #}
+    <section class="bg-white border border-gray-200 rounded-md p-5 space-y-3">
+      <h2 class="text-base font-semibold text-gray-700">Disease Incidences</h2>
+      {% if disease_incidences %}
+        <ul class="space-y-2">
+          {% for disease in disease_incidences %}
+            <li class="text-sm border border-gray-100 rounded-md px-4 py-3">
+              <div class="flex items-center justify-between">
+                <span class="font-medium text-gray-800">{{ disease.disease_name }}</span>
+                <div class="flex gap-2 shrink-0 ml-4">
+                  <span class="text-xs px-2 py-0.5 rounded-full
+                    {% if disease.severity == "critical" %}bg-red-100 text-red-700
+                    {% elif disease.severity == "high" %}bg-orange-100 text-orange-700
+                    {% elif disease.severity == "medium" %}bg-yellow-100 text-yellow-800
+                    {% else %}bg-gray-100 text-gray-600{% endif %}">
+                    {{ disease.get_severity_display }}
+                  </span>
+                  <span class="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">
+                    {{ disease.get_confidence_level_display }}
+                  </span>
+                </div>
+              </div>
+              {% if disease.symptoms_observed %}
+                <p class="mt-1 text-xs text-gray-500">{{ disease.symptoms_observed }}</p>
+              {% endif %}
+              {% if disease.animals_affected_count %}
+                <p class="mt-1 text-xs text-gray-400">
+                  {{ disease.animals_affected_count }} animal(s) affected
+                </p>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-sm text-gray-400">No disease incidences recorded.</p>
+      {% endif %}
+      <a href="{% url 'visits:add_livestock_disease' analysis_pk=analysis.pk %}"
+        class="inline-block text-sm bg-gray-100 hover:bg-gray-200 text-gray-700
+                font-medium py-2 px-4 rounded-md transition-colors">
+        + Add Disease Incidence
+      </a>
+    </section>
+
+  </div>
+{% endblock %}

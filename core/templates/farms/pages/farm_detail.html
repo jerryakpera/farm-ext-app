@@ -225,5 +225,80 @@
     </div>
   </div>
 
+  {# ── Visit history ── #}
+  <div class="bg-white border border-gray-200 rounded-xl overflow-hidden mt-6">
+    <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+      <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+        Visit History
+      </h2>
+      {% if request.user.is_extension_agent %}
+        <a href="{% url 'visits:log' %}"
+          class="text-xs bg-green-600 hover:bg-green-700 text-white font-medium
+                  px-3 py-1.5 rounded-md transition-colors">
+          + Log Visit
+        </a>
+      {% endif %}
+    </div>
+
+    <div class="divide-y divide-gray-100">
+      {% if farm_visits %}
+        {% for visit in farm_visits %}
+          <a href="{% url 'visits:detail' pk=visit.pk %}"
+            class="flex items-center justify-between px-5 py-3
+                    hover:bg-gray-50 transition-colors">
+            <div>
+              <p class="text-sm font-medium text-gray-800">
+                {{ visit.get_purpose_display }}
+              </p>
+              <p class="text-xs text-gray-400 mt-0.5">
+                {{ visit.visit_date|date:"d M Y" }}
+                &nbsp;&middot;&nbsp;
+                {{ visit.agent.user.full_name }}
+              </p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0 ml-4">
+              {% if visit.outcome %}
+                <span class="text-xs bg-green-100 text-green-700 font-medium
+                            px-2 py-0.5 rounded-full">
+                  {{ visit.get_outcome_display }}
+                </span>
+              {% endif %}
+              {% if visit.follow_up_required %}
+                <span class="text-xs bg-yellow-100 text-yellow-800 font-medium
+                            px-2 py-0.5 rounded-full">
+                  Follow-up
+                </span>
+              {% endif %}
+              {% if visit.priority_level == "high" %}
+                <span class="text-xs bg-red-100 text-red-700 font-medium
+                            px-2 py-0.5 rounded-full">
+                  High
+                </span>
+              {% elif visit.priority_level == "medium" %}
+                <span class="text-xs bg-orange-100 text-orange-700 font-medium
+                            px-2 py-0.5 rounded-full">
+                  Medium
+                </span>
+              {% endif %}
+            </div>
+          </a>
+        {% endfor %}
+      {% else %}
+        <div class="px-5 py-8 text-center text-gray-400">
+          <p class="text-sm">No visits recorded for this farm yet.</p>
+        </div>
+      {% endif %}
+    </div>
+
+    {% if farm_visits %}
+      <div class="px-5 py-3 border-t border-gray-100">
+        <a href="{% url 'visits:farm_visits' farm_pk=farm.pk %}"
+          class="text-xs text-green-600 hover:underline">
+          View all visits &rarr;
+        </a>
+      </div>
+    {% endif %}
+  </div>
+
 </div>
 {% endblock %}

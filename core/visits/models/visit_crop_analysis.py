@@ -38,12 +38,6 @@ class VisitCropAnalysis(models.Model):
         FAIR = "fair", "Fair"
         POOR = "poor", "Poor"
 
-    farm = models.ForeignKey(
-        Farm,
-        on_delete=models.CASCADE,
-        related_name="crop_analyses",
-    )
-
     visit = models.ForeignKey(
         Visit,
         on_delete=models.CASCADE,
