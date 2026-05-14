@@ -44,6 +44,7 @@ THIRD_PARTY_APPS = [
     "storages",
     "taggit",
     "rest_framework",
+    "django_filters",
 ]
 
 LOCAL_APPS = [

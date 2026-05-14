@@ -12,6 +12,7 @@ from core.profiles.decorators import agent_required
 from core.visits.models import Visit
 
 # app_packages
+from .filters import FarmFilter
 from .forms import FarmDetailsForm, FarmImageUploadForm, FarmVerificationForm
 from .models import Farm
 
@@ -60,20 +61,36 @@ def all_farms_list_view(request):
     HttpResponse
         Rendered all-farms list page.
     """
+
     if request.user.is_farmer:
         return redirect("farms:farm_list")
 
-    farms = Farm.objects.select_related(
-        "farmer__user", "lga", "primary_crop"
-    ).prefetch_related(
-        "other_crops",
-        "animals",
+    queryset = (
+        Farm.objects.select_related(
+            "farmer__user",
+            "lga",
+            "ward",
+            "primary_crop",
+        )
+        .prefetch_related(
+            "other_crops",
+            "animals",
+        )
+        .distinct()
+    )
+
+    farm_filter = FarmFilter(
+        request.GET,
+        queryset=queryset,
     )
 
     return render(
         request=request,
         template_name="farms/pages/all_farms_list.html",
-        context={"farms": farms},
+        context={
+            "filter": farm_filter,
+            "farms": farm_filter.qs,
+        },
     )
 
 
