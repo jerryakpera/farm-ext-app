@@ -45,6 +45,7 @@ THIRD_PARTY_APPS = [
     "taggit",
     "rest_framework",
     "django_filters",
+    "corsheaders",
 ]
 
 LOCAL_APPS = [
@@ -55,6 +56,7 @@ LOCAL_APPS = [
     "core.advisory",
     "core.visits",
     "core.notifications",
+    "core.analytics",
 ]
 
 INSTALLED_APPS = (
@@ -70,6 +72,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -164,6 +167,23 @@ AWS_S3_FILE_OVERWRITE = False
 AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME")
 AWS_S3_CUSTOME_DOMAIN = "%s.s3.amazonaws.com" % config("AWS_STORAGE_BUCKET_NAME")
 
+# ── CORS ────────────────────────────────────────────────────────────────────
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+]
+
+CORS_ALLOW_METHODS = [
+    "GET",
+    "OPTIONS",
+]
+
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "content-type",
+]
+
+# ── DRF ─────────────────────────────────────────────────────────────────────
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.AllowAny",
