@@ -12,6 +12,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("core.common.urls")),
     path("api/common/", include("core.common.api_urls", namespace="common_api")),
+    path("api/analytics/", include("core.analytics.urls", namespace="analytics_api")),
     path("", include("core.farms.urls")),
     path("", include("core.profiles.urls")),
     path("", include("core.notifications.urls")),
