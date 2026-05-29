@@ -17,7 +17,6 @@ class ExtensionAgentWhitelistAdmin(admin.ModelAdmin):
 
     list_display = ("email", "added_by", "date_added", "is_used")
     list_filter = ("is_used",)
-    search_fields = ("email",)
     readonly_fields = ("date_added", "is_used")
 
 
@@ -28,7 +27,6 @@ class FarmerProfileAdmin(admin.ModelAdmin):
     """
 
     list_display = ("user", "lga", "date_of_birth")
-    search_fields = ("user__full_name", "user__email")
     list_filter = ("lga",)
 
 
@@ -39,5 +37,4 @@ class ExtensionAgentProfileAdmin(admin.ModelAdmin):
     """
 
     list_display = ("user", "staff_id", "agency_name")
-    search_fields = ("user__full_name", "user__email", "staff_id")
     filter_horizontal = ("assigned_lgas",)
