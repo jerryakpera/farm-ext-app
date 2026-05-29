@@ -171,11 +171,16 @@ AWS_S3_CUSTOME_DOMAIN = "%s.s3.amazonaws.com" % config("AWS_STORAGE_BUCKET_NAME"
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://localhost:3000",
+    "https://padp-dashboard.web.app",
 ]
 
 CORS_ALLOW_METHODS = [
+    "DELETE",
     "GET",
     "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
 ]
 
 CORS_ALLOW_HEADERS = [
