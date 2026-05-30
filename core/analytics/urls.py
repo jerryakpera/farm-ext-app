@@ -6,11 +6,20 @@ URL configuration for the analytics app.
 from django.urls import path
 
 # app_packages
-from .views import DashboardAuthCheckView
+from . import views
 
 
 app_name = "analytics_api"
 
 urlpatterns = [
-    path("auth/check/", DashboardAuthCheckView.as_view(), name="auth_check"),
+    path(
+        "overview/",
+        views.OverviewView.as_view(),
+        name="overview",
+    ),
+    path(
+        "auth/check/",
+        views.DashboardAuthCheckView.as_view(),
+        name="auth_check",
+    ),
 ]
