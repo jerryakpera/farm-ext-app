@@ -8,3 +8,12 @@ from .farms_views import (
     FarmVerificationStatusView,
 )
 from .overview import OverviewView
+from .visits_views import (
+    VisitFollowUpRateView,
+    VisitsByAgentView,
+    VisitsByLgaView,
+    VisitsByOutcomeView,
+    VisitsByPriorityView,
+    VisitsByPurposeView,
+    VisitTrendView,
+)

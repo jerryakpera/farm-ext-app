@@ -42,4 +42,30 @@ urlpatterns = [
         views.FarmsRegistrationTrendView.as_view(),
         name="farms-registration-trend",
     ),
+    # ------------------------------------------------------------------
+    # 7.4 Visits
+    # ------------------------------------------------------------------
+    path(
+        "visits/by-purpose/",
+        views.VisitsByPurposeView.as_view(),
+        name="visits-by-purpose",
+    ),
+    path(
+        "visits/by-outcome/",
+        views.VisitsByOutcomeView.as_view(),
+        name="visits-by-outcome",
+    ),
+    path("visits/trend/", views.VisitTrendView.as_view(), name="visits-trend"),
+    path("visits/by-agent/", views.VisitsByAgentView.as_view(), name="visits-by-agent"),
+    path("visits/by-lga/", views.VisitsByLgaView.as_view(), name="visits-by-lga"),
+    path(
+        "visits/follow-up-rate/",
+        views.VisitFollowUpRateView.as_view(),
+        name="visits-follow-up-rate",
+    ),
+    path(
+        "visits/priority-level/",
+        views.VisitsByPriorityView.as_view(),
+        name="visits-priority-level",
+    ),
 ]
