@@ -11,7 +11,6 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 # other_apps_packages
-from core.common.models import LGA
 from core.farms.models import Farm
 from core.profiles.models import FarmerProfile
 
