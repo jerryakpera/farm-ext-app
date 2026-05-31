@@ -8,6 +8,13 @@ from .farms_views import (
     FarmVerificationStatusView,
 )
 from .overview import OverviewView
+from .questions_view import (
+    AnswerHelpfulnessView,
+    QuestionEscalationRateView,
+    QuestionsByStatusView,
+    QuestionTrendView,
+    TopCropsByQuestionsView,
+)
 from .visits_views import (
     VisitFollowUpRateView,
     VisitsByAgentView,

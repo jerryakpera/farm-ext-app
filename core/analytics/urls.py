@@ -68,4 +68,28 @@ urlpatterns = [
         views.VisitsByPriorityView.as_view(),
         name="visits-priority-level",
     ),
+    # ------------------------------------------------------------------
+    # 7.5 Questions & Answers
+    # ------------------------------------------------------------------
+    path(
+        "questions/by-status/",
+        views.QuestionsByStatusView.as_view(),
+        name="questions-by-status",
+    ),
+    path("questions/trend/", views.QuestionTrendView.as_view(), name="questions-trend"),
+    path(
+        "questions/escalation-rate/",
+        views.QuestionEscalationRateView.as_view(),
+        name="questions-escalation-rate",
+    ),
+    path(
+        "questions/answer-helpfulness/",
+        views.AnswerHelpfulnessView.as_view(),
+        name="questions-answer-helpfulness",
+    ),
+    path(
+        "questions/top-crops/",
+        views.TopCropsByQuestionsView.as_view(),
+        name="questions-top-crops",
+    ),
 ]
