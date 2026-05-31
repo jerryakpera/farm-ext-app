@@ -3,8 +3,8 @@ Views for the analytics app — section 7.4: Visits.
 """
 
 # django_packages
-from django.db.models import Count
-from django.db.models.functions import TruncMonth
+from django.db.models import Count, Value
+from django.db.models.functions import Concat, TruncMonth
 
 # third_party_packages
 from rest_framework.request import Request
@@ -168,7 +168,14 @@ class VisitsByAgentView(AnalyticsView):
             qs = qs.filter(farm__lga_id=self.lga_id)
 
         rows = (
-            qs.values("agent__user__full_name", "agent__staff_id")
+            qs.annotate(
+                agent_name=Concat(
+                    "agent__user__first_name",
+                    Value(" "),
+                    "agent__user__last_name",
+                ),
+            )
+            .values("agent_name", "agent__staff_id")
             .annotate(count=Count("id"))
             .order_by("-count")[:10]
         )
@@ -176,7 +183,7 @@ class VisitsByAgentView(AnalyticsView):
         return Response(
             [
                 {
-                    "agent_name": row["agent__user__full_name"],
+                    "agent_name": row["agent_name"],
                     "staff_id": row["agent__staff_id"],
                     "count": row["count"],
                 }
