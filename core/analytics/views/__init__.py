@@ -1,4 +1,9 @@
 # app_packages
+from .advisory_views import (
+    AdvisoryByTypeView,
+    AdvisoryPublishedVsDraftView,
+    AdvisoryTrendView,
+)
 from .auth import DashboardAuthCheckView
 from .farms_views import (
     FarmersByLgaView,

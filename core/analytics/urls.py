@@ -92,4 +92,22 @@ urlpatterns = [
         views.TopCropsByQuestionsView.as_view(),
         name="questions-top-crops",
     ),
+    # ------------------------------------------------------------------
+    # 7.6 Advisory Posts
+    # ------------------------------------------------------------------
+    path(
+        "advisory/by-type/",
+        views.AdvisoryByTypeView.as_view(),
+        name="advisory-by-type",
+    ),
+    path(
+        "advisory/published-vs-draft/",
+        views.AdvisoryPublishedVsDraftView.as_view(),
+        name="advisory-published-vs-draft",
+    ),
+    path(
+        "advisory/trend/",
+        views.AdvisoryTrendView.as_view(),
+        name="advisory-trend",
+    ),
 ]
