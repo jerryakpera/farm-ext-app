@@ -12,6 +12,12 @@ from .farms_views import (
     FarmsRegistrationTrendView,
     FarmVerificationStatusView,
 )
+from .geo_views import (
+    GeoCropIssuesByLgaView,
+    GeoFarmersByLgaView,
+    GeoFarmersByWardView,
+    GeoQuestionsByLgaView,
+)
 from .overview import OverviewView
 from .questions_view import (
     AnswerHelpfulnessView,

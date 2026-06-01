@@ -110,4 +110,27 @@ urlpatterns = [
         views.AdvisoryTrendView.as_view(),
         name="advisory-trend",
     ),
+    # ------------------------------------------------------------------
+    # 7.8 Geographic / Heatmap
+    # ------------------------------------------------------------------
+    path(
+        "geo/farmers-by-lga/",
+        views.GeoFarmersByLgaView.as_view(),
+        name="geo-farmers-by-lga",
+    ),
+    path(
+        "geo/farmers-by-ward/",
+        views.GeoFarmersByWardView.as_view(),
+        name="geo-farmers-by-ward",
+    ),
+    path(
+        "geo/questions-by-lga/",
+        views.GeoQuestionsByLgaView.as_view(),
+        name="geo-questions-by-lga",
+    ),
+    path(
+        "geo/crop-issues-by-lga/",
+        views.GeoCropIssuesByLgaView.as_view(),
+        name="geo-crop-issues-by-lga",
+    ),
 ]
