@@ -195,3 +195,49 @@ class FarmsRegistrationTrendView(AnalyticsView):
         ]
 
         return Response(data)
+
+
+class FarmsRecentView(AnalyticsView):
+    """
+    GET /api/analytics/farms/recent/.
+    """
+
+    def get(self, request: Request) -> Response:
+        """
+        Handle GET /api/analytics/farms/recent/.
+
+        Parameters
+        ----------
+        request : Request
+            The incoming DRF request object.
+
+        Returns
+        -------
+        Response
+            JSON list of the most recently registered farms.
+        """
+
+        try:
+            limit = min(int(request.query_params.get("limit", 5)), 20)
+        except (ValueError, TypeError):
+            limit = 5
+
+        farms = Farm.objects.select_related("farmer__user", "lga").order_by(
+            "-created_at"
+        )[:limit]
+
+        return Response(
+            [
+                {
+                    "id": farm.id,
+                    "name": farm.name,
+                    "lga": farm.lga.name if farm.lga else None,
+                    "farmer_name": (
+                        f"{farm.farmer.user.first_name} "
+                        f"{farm.farmer.user.last_name}".strip()
+                    ),
+                    "registered_at": farm.created_at.date().isoformat(),
+                }
+                for farm in farms
+            ]
+        )

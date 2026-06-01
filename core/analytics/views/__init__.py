@@ -9,6 +9,7 @@ from .farms_views import (
     FarmersByLgaView,
     FarmsByLgaView,
     FarmsPrimaryCropsView,
+    FarmsRecentView,
     FarmsRegistrationTrendView,
     FarmVerificationStatusView,
 )

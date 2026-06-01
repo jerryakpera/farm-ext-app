@@ -42,6 +42,7 @@ urlpatterns = [
         views.FarmsRegistrationTrendView.as_view(),
         name="farms-registration-trend",
     ),
+    path("farms/recent/", views.FarmsRecentView.as_view(), name="farms-recent"),
     # ------------------------------------------------------------------
     # 7.4 Visits
     # ------------------------------------------------------------------
